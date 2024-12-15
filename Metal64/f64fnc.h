@@ -19,18 +19,6 @@
 //      .xy = float2 with real part high, low
 //      .zw = float2 with imaginary part high, low
 //
-//  Real functions:
-//
-//    add - add two 64 bit real floating point values
-//    sub - subtract two 64 bit real floating point values
-//    mul - multiply two 64 bit real floating point values
-//
-//  Complex functions:
-//
-//    addcplx - add two 64 bit complex floating point values
-//    subcplx - subtract two 64 bit complex floating point values
-//    mulcplx - multiply two 64 bit complex floating point values
-//
 
 #ifndef __F64FNC_H
 #define __F64FNC_H
