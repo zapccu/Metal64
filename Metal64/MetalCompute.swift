@@ -149,12 +149,18 @@ class MetalCompute {
     ///
     /// Either true or false
     ///
-    func addValue(_ value: Int) {
+    func addValue(_ value: Int64) {
         var v = value
-        computeEncoder.setBytes(&v, length: MemoryLayout<Int>.size, index: bufferIndex)
+        computeEncoder.setBytes(&v, length: MemoryLayout<Int64>.size, index: bufferIndex)
         bufferIndex += 1
     }
 
+    func addValue(_ value: Int32) {
+        var v = value
+        computeEncoder.setBytes(&v, length: MemoryLayout<Int32>.size, index: bufferIndex)
+        bufferIndex += 1
+    }
+    
     func addValue(_ value: Float) {
         var v = value
         computeEncoder.setBytes(&v, length: MemoryLayout<Float>.size, index: bufferIndex)

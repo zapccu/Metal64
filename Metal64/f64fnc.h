@@ -138,23 +138,23 @@ float4 sub_c64(float4 a, float4 b) {
 
 // Multiply 2 64 bit complex values
 float4 mul_c64(float4 a, float4 b) {
-    float2 r1 = mul_f64(a.xy, b.xy);
-    float2 r2 = mul_f64(a.zw, b.zw);
-    float2 i1 = mul_f64(a.xy, b.zw);
-    float2 i2 = mul_f64(a.zw, b.xy);
+    float2 r1 = mul_f64(a.xy, b.xy);    // a.r * b.r
+    float2 r2 = mul_f64(a.zw, b.zw);    // a.i * b.i
+    float2 i1 = mul_f64(a.xy, b.zw);    // a.r * b.i
+    float2 i2 = mul_f64(a.zw, b.xy);    // a.i * b.r
     float2 r = sub_f64(r1, r2);
     float2 i = add_f64(i1, i2);
     return float4(r.x, r.y, i.x, i.y);
 }
 
-float2 norm_f64(float4 c) {
+float2 norm_c64(float4 c) {
     float2 a = mul_f64(c.xy, c.xy);
     float2 b = mul_f64(c.zw, c.zw);
     return add_f64(a, b);
 }
 
-float2 abs_f64(float4 c) {
-    return sqrt_f64(norm_f64(c));
+float2 abs_c64(float4 c) {
+    return sqrt_f64(norm_c64(c));
 }
 
 #endif

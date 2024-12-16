@@ -16,6 +16,7 @@
 
 using namespace metal;
 
+/// Class for 64 bit floating points
 class f64 {
 public:
     float2 v;
@@ -33,9 +34,12 @@ public:
     }
 };
 
+/// Convert f64 to float2
 float2 f2(f64 a) {
     return a.v;
 }
+
+// Overloaded operators
 
 f64 operator + (f64 a, f64 b) {
     return f64(add_f64(a.v, b.v));
@@ -53,8 +57,20 @@ f64 operator / (f64 a, f64 b) {
     return f64(div_f64(a.v, b.v));
 }
 
+bool operator == (f64 a, f64 b) {
+    return eq(a.v, b.v);
+}
+
+bool operator != (f64 a, f64 b) {
+    return ne(a.v, b.v);
+}
+
 bool operator < (f64 a, f64 b) {
     return lt(a.v, b.v);
+}
+
+bool operator > (f64 a, f64 b) {
+    return gt(a.v, b.v);
 }
 
 #endif
