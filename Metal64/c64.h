@@ -12,7 +12,6 @@
 #ifndef __C64_H
 #define __C64_H
 
-#include "f64helper.h"
 #include "f64fnc.h"
 #include "f64.h"
 

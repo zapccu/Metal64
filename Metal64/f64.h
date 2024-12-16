@@ -11,7 +11,6 @@
 #ifndef __F64_H
 #define __F64_H
 
-#include "f64helper.h"
 #include "f64fnc.h"
 
 using namespace metal;
