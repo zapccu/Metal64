@@ -65,6 +65,10 @@ c64 operator * (c64 a, c64 b) {
     return c64(mul_c64(float4(a.r.xy, a.i.xy), float4(b.r.xy, b.i.xy)));
 }
 
+c64 operator / (c64 a, c64 b) {
+    return c64(div_c64(float4(a.r.xy, a.i.xy), float4(b.r.xy, b.i.xy)));
+}
+
 f64 norm(c64 a) {
     return f64(norm_c64(float4(a.r.xy, a.i.xy)));
 }

@@ -179,6 +179,14 @@ float4 mul_c64(float4 a, float4 b) {
     return float4(r.x, r.y, i.x, i.y);
 }
 
+// Divide 2 64 bit complex values
+float4 div_c64(float4 a, float4 b) {
+    float2 d = add_f64(mul_f64(b.xy, b.xy), mul_f64(b.zw, b.zw));
+    float2 r = div_f64(add_f64(mul_f64(a.xy, b.xy), mul_f64(a.zw, b.zw)), d);
+    float2 i = div_f64(sub_f64(mul_f64(a.zw, b.xy), mul_f64(a.xy, b.zw)), d);
+    return float4(r.x, r.y, i.x, i.y);
+}
+
 float2 norm_c64(float4 c) {
     float2 a = mul_f64(c.xy, c.xy);
     float2 b = mul_f64(c.zw, c.zw);
