@@ -32,16 +32,27 @@ var t1: TimeInterval = 0
 var t2: TimeInterval = 0
 
 // ==========================================================
-//  Add Double arrays
+//  Math operations
 // ==========================================================
 
-print("\n**** Add Double Arrays ****")
+print("\n**** Real Operations ****")
+
+// Results
+struct RealResult {
+    var add: Float2 = Float2(0.0)
+    var sub: Float2 = Float2(0.0)
+    var mul: Float2 = Float2(0.0)
+    var div: Float2 = Float2(0.0)
+    var sqrt: Float2 = Float2(0.0)
+    var exp: Float2 = Float2(0.0)
+    var pow: Float2 = Float2(0.0)
+}
 
 do {
     let metalCompute = try MetalCompute("add_arrays")
     
     // Input Array 1
-    let a1: [Float2] = Array(repeating: Float2(Double.pi), count: count)
+    let a1: [Float2] = Array(repeating: Float2(Double.pi * 2.0), count: count)
     
     // Input Array 2
     let a2: [Float2] = Array(repeating: Float2(Double.pi), count: count)
@@ -56,14 +67,25 @@ do {
     t1 = Date().timeIntervalSince1970
     
     // Compute and show first 3 results
-    if let result = metalCompute.compute(Float2()) {
+    if let result = metalCompute.compute(RealResult()) {
         t2 = Date().timeIntervalSince1970
         timeMetal = t2 - t1
         
-        print("\nMetal results:")
-        for i in 0..<3 {
-            print("\(result[i].x) \(result[i].y) = \(Double(result[i]))")
-        }
+        print("\nResults:")
+        print("F64: \(Double(a1[0])) + \(Double(a2[0])) = \(Double(result[0].add))")
+        print("DBL: \(Double.pi * 2.0) + \(Double.pi) = \(Double.pi * 2.0 + Double.pi)")
+        print("F64: \(Double(a1[0])) - \(Double(a2[0])) = \(Double(result[0].sub))")
+        print("DBL: \(Double.pi * 2.0) - \(Double.pi) = \(Double.pi * 2.0 - Double.pi)")
+        print("F64: \(Double(a1[0])) * \(Double(a2[0])) = \(Double(result[0].mul))")
+        print("DBL: \(Double.pi * 2.0) * \(Double.pi) = \(Double.pi * 2.0 * Double.pi)")
+        print("F64: \(Double(a1[0])) / \(Double(a2[0])) = \(Double(result[0].div))")
+        print("DBL: \(Double.pi * 2.0) / \(Double.pi) = \(Double.pi * 2.0 / Double.pi)")
+        print("F64: sqrt \(Double(a1[0])) = \(Double(result[0].sqrt))")
+        print("DBL: sqrt \(Double.pi * 2.0) = \(sqrt(Double.pi * 2.0))")
+        print("F64: exp \(Double(a1[0])) = \(Double(result[0].exp))")
+        print("DBL: exp \(Double.pi * 2.0) = \(exp(Double.pi * 2.0))")
+        print("F64: pow \(Double(a1[0])), \(Double(a2[0])) = \(Double(result[0].pow))")
+        print("DBL: pow \(Double.pi * 2.0), \(Double.pi) = \(pow(Double.pi * 2.0, Double.pi))")
     }
     else {
         print("Compute failed")
@@ -74,17 +96,13 @@ catch {
 }
 
 // Compare to native Swift Double calculation
-let arr1: [Double] = Array(repeating: Double.pi, count: count)
+let arr1: [Double] = Array(repeating: Double.pi * 2.0, count: count)
 let arr2: [Double] = Array(repeating: Double.pi, count: count)
 var arr3: [Double] = Array(repeating: 0.0, count: count)
 
 t1 = Date().timeIntervalSince1970
 for i in 0..<count {
     arr3[i] = arr1[i] + arr2[i] + 1.0
-}
-print("\nSwift results:")
-for i in 0..<3 {
-    print("\(arr3[i])")
 }
 t2 = Date().timeIntervalSince1970
 timeSwift = t2 - t1
@@ -171,6 +189,13 @@ else {
 
 print("\n**** Mandelbrot ****")
 
+// Results of an iteration
+struct MandelbrotResult {
+    var iterations: Int32
+    var distance: Float2
+    var potential: Float2
+}
+
 let width: Int = 1024
 let height: Int = 1024
 count = width * height
@@ -217,14 +242,14 @@ do {
     t1 = Date().timeIntervalSince1970
     
     // Compute and show first 3 results
-    if let result = metalCompute.compute(Int32(0)) {
+    if let result = metalCompute.compute(MandelbrotResult(iterations: Int32(0), distance: 0.0, potential: 0.0)) {
         t2 = Date().timeIntervalSince1970
         timeMetal = t2 - t1
         
         print("\nMetal results:")
         let offset = 500 * width + 500
         for i in 0..<3 {
-            print("\(Complex<Double>(C[i+offset])) = \(result[i+offset])")
+            print("\(Complex<Double>(C[i+offset])) = \(result[i+offset].iterations), \(Double(result[i+offset].distance))")
         }
     }
     else {

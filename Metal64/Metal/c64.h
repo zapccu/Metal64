@@ -27,6 +27,11 @@ public:
         i = float2(0.0, 0.0);
     }
     
+    /// Initialize real part with 32 bit floating point value
+    c64(float a) {
+        r = float2(a, 0);
+        i = float2(0, 0);
+    }
     /// Initialize real part with 64 bit floating point value
     c64(float2 a) {
         r = a;
@@ -37,6 +42,16 @@ public:
     c64(float2 a, float2 b) {
         r = a;
         i = b;
+    }
+    
+    c64(f64 a) {
+        r = a.v;
+        i = 0.0f;
+    }
+    
+    c64(f64 a, f64 b) {
+        r = a.v;
+        i = b.v;
     }
     
     /// Initialize real and imag part with float4 vector (compatible with Swift type Complex2)
