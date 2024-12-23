@@ -10,17 +10,40 @@ import Foundation
 import Metal
 import ComplexModule
 
+let log2 = log(2.0)
+
 // Mandelbrot iteration for complex point C
-func iterateDouble(_ C: Complex<Double>, _ maxIter: Int32, _ bailout: Double) -> Int {
+func iterateDouble(_ C: Complex<Double>, _ maxIter: Int, _ bailout: Double) -> Int {
     var Z = Complex<Double>(0.0, 0.0)
-    var i: Int = 0
+    var D = Complex<Double>(0.0, 0.0)
+    var nZ: Double = 0.0
+    var aZ: Double = 0.0
+    var logRatio: Double = 0.0
+    var logZn: Double = 0.0
     
-    while (i < maxIter && Z.real * Z.real + Z.imaginary * Z.imaginary < bailout) {
+    for i in 0...maxIter {
+        // 1st derivation of Z
+        D = D * Complex<Double>(2.0) * Z + Complex<Double>(1.0)
+        
         Z = Z * Z + C
-        i += 1
+        
+        nZ = Z.lengthSquared;
+        if (nZ > bailout) {
+            // Distance calculation
+            aZ = sqrt(nZ);
+            logRatio = 2.0 * log(aZ) / log(bailout);
+            _ = 1.0 - log(logRatio) / log2
+            _ = aZ * log(aZ) / D.lengthSquared / 2.0
+            
+            // Potential calculation
+            logZn = log(nZ) / 2.0
+            _ = log(logZn / log2) / log2
+            
+            return i
+        }
     }
     
-    return i
+    return maxIter
 }
 
 // Set number of elements to compute
@@ -213,7 +236,7 @@ for y in 0..<height {
     let y0: Double = -1.5 + dy * Double(y)
     for x in 0..<width {
         let x0: Double = -2.5 + dx * Double(x)
-        r = iterateDouble(Complex<Double>(x0, y0), maxIter, 4.0)
+        r = iterateDouble(Complex<Double>(x0, y0), Int(maxIter), 4.0)
         if y == 500 && x >= 500 && x < 503 {
             print("\(Complex<Double>(x0, y0)) = \(r)")
         }

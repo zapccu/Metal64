@@ -9,8 +9,6 @@
 //
 
 #include <metal_stdlib>
-
-// Include complex functions and type. Includes also real functions and type.
 #include "c64.h"
 
 using namespace metal;
@@ -26,7 +24,7 @@ struct MandelbrotResult {
     f64 potential;
 };
 
-// Mandelbrot iteration
+// Mandelbrot iteration with datatypes c64 / f64. About 30-50% slower than using float2 functions
 MandelbrotResult iterate(c64 C, int maxIter, f64 bailout) {
     MandelbrotResult r;
     c64 Z;
@@ -36,28 +34,70 @@ MandelbrotResult iterate(c64 C, int maxIter, f64 bailout) {
     f64 logRatio;
     f64 smoothIter;
     f64 logZn;
-    r.distance = f64(0.0);
+    r.distance = 0.0;
+    int i;
     
-    for(r.iterations=0; r.iterations <= maxIter; r.iterations++) {
+    for(i=0; i <= maxIter; i++) {
         // 1st derivation of Z
-        D = D * c64(2.0) * Z + c64(1.0);
+        D = D * 2.0 * Z + 1.0;
         
-        Z = Z * Z + C;
+        Z = sqr(Z) + C;
         
         nZ = norm(Z);
         if (nZ > bailout) {
             // Distance calculation
             aZ = sqrt(nZ);
-            logRatio = f64(2.0) * log(aZ) / log(bailout);
-            smoothIter = f64(1.0) - log(logRatio) / log2_f64;
-            r.distance = aZ * log(aZ) / norm(D) / f64(2.0);
+            logRatio = 2.0 * log(aZ) / log(bailout);
+            smoothIter = 1.0 - log(logRatio) / log2_f64;
+            r.distance = aZ * log(aZ) / norm(D) / 2.0;
             
             // Potential calculation
-            logZn = log(nZ) / f64(2.0);
+            logZn = log(nZ) / 2.0;
             r.potential = log(logZn / log2_f64) / log2_f64;
+            r.iterations = i;
+            return r;
         }
     }
     
+    r.iterations = maxIter;
+    return r;
+}
+
+MandelbrotResult iterateFlt2(float4 C, int maxIter, float2 bailout) {
+    MandelbrotResult r;
+    float4 Z = 0.0;
+    float4 D;
+    float2 nZ;
+    float2 aZ;
+    float2 logRatio;
+    float2 smoothIter;
+    float2 logZn;
+    r.distance = 0.0;
+    int i;
+        
+    for(i=0; i <= maxIter; i++) {
+        // 1st derivation of Z
+        D = add_c64(mul_c64(mul_c64(D, Z), float4(2.0f, 0.0f, 0.0f, 0.0f)), float4(1.0f, 0.0f, 0.0f, 0.0f));
+        
+        Z = add_c64(sqr_c64(Z), C);
+
+        nZ = norm_c64(Z);
+        if (gt(nZ, bailout)) {
+            // Distance calculation
+            aZ = sqrt_f64(nZ);
+            logRatio = 2.0 * log(aZ) / log(bailout);
+            smoothIter = sub_f64(float2(1.0f, 0.0f), div_f64(logRatio, log2_f64.v));
+            r.distance = mul_f64(aZ, div_f64(div_f64(log_f64(aZ), norm_c64(D)), float2(2.0f, 0.0f)));
+            
+            // Potential calculation
+            logZn = div_f64(log_f64(nZ), float2(2.0f, 0.0f));
+            r.potential = div_f64(log_f64(div_f64(logZn, log2_f64.v)), log2_f64.v);
+            r.iterations = i;
+            return r;
+        }
+    }
+    
+    r.iterations = maxIter;
     return r;
 }
 
@@ -69,7 +109,8 @@ kernel void mandelbrot(device const float4 *C,
                        uint   index [[ thread_position_in_grid ]])
 {
     // Result array contains a MandelbrotResult element for each point in array C
-    resultArray[index] = iterate(C[index], maxIter, bailout);
+    resultArray[index] = iterate(c64(C[index]), maxIter, f64(bailout));
+    // resultArray[index] = iterateFlt2(C[index], maxIter, bailout);
 }
 
 // ==========================================================
@@ -122,3 +163,4 @@ kernel void add_complex_arrays(device const float4 *arr1,
     // Result array contains sum of elements of arrays arr1 and arr2
     resultArray[index] = sumc64(c64(arr1[index]), c64(arr2[index]));
 }
+
