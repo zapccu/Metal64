@@ -83,26 +83,22 @@ float2 sub_f64(float2 a, float2 b) {
 // Multiplication: f64 * f64
 float2 mul_f64(float2 a, float2 b) {
     float2 p = prod(a.x, b.x);
-    p.y += a.x * b.y;
-    p.y += a.y * b.x;
-    p = sumq(p.x, p.y);
-    return p;
+    p.y += a.x * b.y + a.y * b.x;
+    return sumq(p.x, p.y);
 }
 
 // Square of f64
 float2 sqr_f64(float2 a) {
     float2 p = prod(a.x, a.x);
     p.y += 2.0f * a.x * a.y;
-    p = sumq(p.x, p.y);
-    return p;
+    return sumq(p.x, p.y);
 }
 
 // Multiplication: f64 * f32
 float2 mulds(float2 a, float b) {
     float2 p = prod(a.x, b);
     p.y += a.y * b;
-    p = sumq(p.x, p.y);
-    return p;
+    return sumq(p.x, p.y);
 }
 
 // Division: f64 / f64
@@ -121,7 +117,7 @@ float2 div_f64(float2 b, float2 a) {
 
 // Check for zero
 bool isZero(float2 a) {
-    return a.x == 0.0 && a.y == 0.0;
+    return all(a == 0.0);
 }
 
 // Equal
@@ -168,31 +164,6 @@ float2 sqrt_f64(float2 a) {
     return add_f64(float2(yn, 0.0f), p);
 }
 
-// Exponential. Returns NAN if a > 1.0
-/*
-float2 exp_f64(float2 a) {
-    float thresh = 1.0e-20;
-    float2 t, p, s;
-    float2 f = float2(2.0f, 0.0f);      // denominator
-    float m = 2.0f;
-    
-    // Calculate first 3 steps of Taylor series: 1 + x + x^2 / 2
-    s = add_f64(float2(1.0f, 0.0f), a); // 1 + x
-    p = sqr_f64(a);                     // x^2
-    t = p / 2.0f;                       // x^2 / 2
-    
-    while (abs(t.x) > thresh) {
-        s = add_f64(s, t);              // Current sum
-        p = mul_f64(p, a);              // x^n
-        m += 1.0f;
-        f = mul_f64(f, float2(m, 0.0f));
-        t = div_f64(p, f);
-    }
-    
-    return add_f64(s, t);
-}
-*/
-
 // Exponential
 float2 exp_f64(float2 a) {
     float2 s = add_f64(a, float2(1.0f, 0.0f));
@@ -234,7 +205,7 @@ float2 pow_f64(float2 a, float2 b) {
 
 // Power f64, int
 float2 pow_f64(float2 a, int b) {
-    float2 r = float2(1.0f, 0.0f);
+    float2 r =  1.0f;
     int i;
     
     for (i=0; i<b; i++) {
@@ -399,9 +370,7 @@ bool ne(float4 a, float4 b) {
 }
 
 float2 norm_c64(float4 c) {
-    float2 a = mul_f64(c.xy, c.xy);
-    float2 b = mul_f64(c.zw, c.zw);
-    return add_f64(a, b);
+    return add_f64(mul_f64(c.xy, c.xy), mul_f64(c.zw, c.zw));
 }
 
 float2 abs_c64(float4 c) {
