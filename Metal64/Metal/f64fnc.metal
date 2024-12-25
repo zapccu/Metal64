@@ -37,6 +37,12 @@ float2 sumq(float a, float b) {
     return float2(s, e);
 }
 
+float2 sumq(float2 a) {
+    float s = a.x + a.y;
+    float e = a.y - (s - a.x);
+    return float2(s, e);
+}
+
 float4 sump(float2 a_ri, float2 b_ri) {
     float2 s = a_ri + b_ri;
     float2 v = s - a_ri;
@@ -69,9 +75,9 @@ float2 add_f64(float2 a, float2 b) {
     float4 st;
     st = sump(a, b);
     st.y += st.z;
-    st.xy = sumq(st.x, st.y);
+    st.xy = sumq(st.xy);
     st.y += st.w;
-    st.xy = sumq(st.x, st.y);
+    st.xy = sumq(st.xy);
     return st.xy;
 }
 
@@ -84,21 +90,27 @@ float2 sub_f64(float2 a, float2 b) {
 float2 mul_f64(float2 a, float2 b) {
     float2 p = prod(a.x, b.x);
     p.y += a.x * b.y + a.y * b.x;
-    return sumq(p.x, p.y);
+    return sumq(p);
 }
 
 // Square of f64
 float2 sqr_f64(float2 a) {
     float2 p = prod(a.x, a.x);
     p.y += 2.0f * a.x * a.y;
-    return sumq(p.x, p.y);
+    return sumq(p);
+}
+
+// f64 square of float
+float2 sqr_f64(float a) {
+    float2 p = prod(a, a);
+    return sumq(p);
 }
 
 // Multiplication: f64 * f32
 float2 mulds(float2 a, float b) {
     float2 p = prod(a.x, b);
     p.y += a.y * b;
-    return sumq(p.x, p.y);
+    return sumq(p);
 }
 
 // Division: f64 / f64
@@ -158,8 +170,7 @@ bool ge(float2 a, float2 b) {
 float2 sqrt_f64(float2 a) {
     float xn = rsqrt(a.x);
     float yn = a.x * xn;
-    float2 ynsqr = sqr_f64(float2(yn, 0.0f));
-    float diff = (sub_f64(a, ynsqr)).x;
+    float diff = (sub_f64(a, sqr_f64(yn))).x;
     float2 p = prod(xn, diff) / 2.0f;
     return add_f64(float2(yn, 0.0f), p);
 }
@@ -183,19 +194,13 @@ float2 exp_f64(float2 a) {
 
 // Natural logarithm
 float2 log_f64(float2 a) {
-    float2 xi = float2(0.0f, 0.0f);
+    float2 xi = 0.0f;
     
-    if(ne(a, float2(1.0f, 0.0f))) {
-        if (le(a, float2(0.0f, 0.0f))) {
-            xi = log(a.x);  // log not defined, return NaN
-        }
-        else {
-            xi.x = log(a.x);
-            xi = add_f64(add_f64(xi, mul_f64(exp_f64(-xi), a)), float2(-1.0f, 0.0f));
-        }
-    }
-    
-    return xi;
+    if (eq(a, float2(1.0f, 0.0f))) return xi;
+    if (le(a, float2(0.0f, 0.0f))) return NAN;
+
+    xi.x = log(a.x);
+    return add_f64(add_f64(xi, mul_f64(exp_f64(-xi), a)), float2(-1.0f, 0.0f));
 }
 
 // Power f64, f64
@@ -205,7 +210,7 @@ float2 pow_f64(float2 a, float2 b) {
 
 // Power f64, int
 float2 pow_f64(float2 a, int b) {
-    float2 r =  1.0f;
+    float2 r = 1.0f;
     int i;
     
     for (i=0; i<b; i++) {
@@ -370,7 +375,7 @@ bool ne(float4 a, float4 b) {
 }
 
 float2 norm_c64(float4 c) {
-    return add_f64(mul_f64(c.xy, c.xy), mul_f64(c.zw, c.zw));
+    return add_f64(sqr_f64(c.xy), sqr_f64(c.zw));
 }
 
 float2 abs_c64(float4 c) {

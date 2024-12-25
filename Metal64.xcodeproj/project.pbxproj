@@ -197,7 +197,8 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
+				MTL_FAST_MATH = NO;
+				MTL_MATH_MODE = "";
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -254,7 +255,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
+				MTL_FAST_MATH = NO;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
@@ -264,9 +265,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				MTL_FAST_MATH = NO;
-				"MTL_FAST_MATH[arch=*]" = NO;
+				MTL_FAST_MATH = YES;
+				MTL_MATH_FP32_FUNCTIONS = "";
 				"MTL_MATH_FP32_FUNCTIONS[sdk=*]" = "";
+				MTL_MATH_MODE = SAFE;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -276,9 +278,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				MTL_FAST_MATH = NO;
-				"MTL_FAST_MATH[arch=*]" = NO;
-				"MTL_MATH_MODE[sdk=*]" = "";
+				MTL_FAST_MATH = YES;
+				MTL_MATH_FP32_FUNCTIONS = "";
+				MTL_MATH_MODE = SAFE;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};

@@ -5,6 +5,11 @@
 //
 //  Implementation of datatype f64
 //
+//  Mandatory Xcode build settings:
+//
+//    Metal Compiler - Build Options - Math Mode = "Safe"
+//    User Defined - MTL_FAST_MATH = "NO"
+//
 //  Created by Dirk Braner on 15.12.24.
 //
 

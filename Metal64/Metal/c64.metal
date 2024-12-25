@@ -20,6 +20,14 @@ c64 operator + (c64 a, c64 b) {
     return c64(add_c64(a.v, b.v));
 }
 
+c64 operator + (c64 a, f64 b) {
+    return c64(add_f64(a.v.xy, b.v), a.v.zw);
+}
+
+c64 operator + (f64 b, c64 a) {
+    return c64(add_f64(a.v.xy, b.v), a.v.zw);
+}
+
 c64 operator + (c64 a, float b) {
     return c64(add_f64(a.v.xy, float2(b, 0.0f)), a.v.zw);
 }
@@ -32,6 +40,22 @@ c64 operator - (c64 a, c64 b) {
     return c64(sub_c64(a.v, b.v));
 }
 
+c64 operator - (c64 a, f64 b) {
+    return c64(sub_f64(a.v.xy, b.v), a.v.zw);
+}
+
+c64 operator - (f64 b, c64 a) {
+    return c64(sub_f64(b.v, a.v.xy), a.v.zw);
+}
+
+c64 operator - (c64 a, float b) {
+    return c64(sub_f64(a.v.xy, float2(b, 0.0f)), a.v.zw);
+}
+
+c64 operator - (float b, c64 a) {
+    return c64(sub_f64(float2(b, 0.0f), a.v.xy), a.v.zw);
+}
+
 c64 operator * (c64 a, c64 b) {
     return c64(mul_c64(a.v, b.v));
 }
@@ -40,12 +64,36 @@ c64 operator * (c64 a, f64 b) {
     return c64(mul_f64(a.v.xy, b.v), mul_f64(a.v.zw, b.v));
 }
 
+c64 operator * (f64 b, c64 a) {
+    return c64(mul_f64(a.v.xy, b.v), mul_f64(a.v.zw, b.v));
+}
+
 c64 operator * (c64 a, float b) {
+    return c64(mulds(a.v.xy, b), mulds(a.v.zw, b));
+}
+
+c64 operator * (float b, c64 a) {
     return c64(mulds(a.v.xy, b), mulds(a.v.zw, b));
 }
 
 c64 operator / (c64 a, c64 b) {
     return c64(div_c64(a.v, b.v));
+}
+
+c64 operator / (c64 a, f64 b) {
+    return c64(div_f64(a.v.xy, b.v), div_f64(a.v.zw, b.v));
+}
+
+c64 operator / (f64 b, c64 a) {
+    return c64(div_f64(b.v, a.v.xy), div_f64(b.v, a.v.zw));
+}
+
+c64 operator / (c64 a, float b) {
+    return c64(div_f64(a.v.xy, float2(b, 0.0f)), div_f64(a.v.zw, float2(b, 0.0f)));
+}
+
+c64 operator / (float b, c64 a) {
+    return c64(div_f64(float2(b, 0.0f), a.v.xy), div_f64(float2(b, 0.0f), a.v.zw));
 }
 
 bool isZero(c64 a) {

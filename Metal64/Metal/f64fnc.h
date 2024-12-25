@@ -19,6 +19,7 @@ constant float2 pi2_f2  = float2(1.5707964, -4.371139e-08);
 constant float2 log2_f2 = float2(0.6931472, -1.9046542e-09);
 
 float2 sumq(float, float);
+float2 sumq(float2);
 float4 sump(float2, float2);
 float4 split4(float2);
 float2 prod(float, float);
@@ -27,6 +28,7 @@ float2 add_f64(float2, float2);
 float2 sub_f64(float2, float2);
 float2 mul_f64(float2, float2);
 float2 sqr_f64(float2);
+float2 sqr_f64(float);
 float2 mulds(float2, float);
 float2 div_f64(float2, float2);
 

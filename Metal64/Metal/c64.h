@@ -19,8 +19,6 @@ using namespace metal;
 class c64 {
 public:
     float4 v;
-    float2 r;
-    float2 i;
     
     c64() {
         v = float4(0.0, 0.0, 0.0, 0.0);
@@ -49,9 +47,21 @@ public:
         v = float4(a.v, b.v);
     }
     
-    /// Initialize real and imag part with float4 vector (compatible with Swift type Complex2)
+    /// Initialize c64 with float4 vector (compatible with Swift type Complex2)
     c64(float4 a) {
         v = a;
+    }
+    
+    /// Initialize c64 with float
+    c64 operator = (float a) {
+        v = float4(a, 0.0f, 0.0f, 0.0f);
+        return *this;
+    }
+    
+    /// Initialize c64 with f64
+    c64 operator = (f64 a) {
+        v = float4(a.v, float2(0.0f, 0.0f));
+        return *this;
     }
     
     f64 real() {
@@ -66,13 +76,25 @@ public:
 float4 f4(c64);
 
 c64 operator + (c64, c64);
+c64 operator + (c64, f64);
+c64 operator + (f64, c64);
 c64 operator + (c64, float);
 c64 operator + (float, c64);
 c64 operator - (c64, c64);
+c64 operator - (c64, f64);
+c64 operator - (f64, c64);
+c64 operator - (c64, float);
+c64 operator - (float, c64);
 c64 operator * (c64, c64);
 c64 operator * (c64, f64);
+c64 operator * (f64, c64);
 c64 operator * (c64, float);
+c64 operator * (float, c64);
 c64 operator / (c64, c64);
+c64 operator / (c64, f64);
+c64 operator / (f64, c64);
+c64 operator / (c64, float);
+c64 operator / (float, c64);
 
 bool isZero(c64);
 bool operator == (c64, c64);

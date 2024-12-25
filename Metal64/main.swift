@@ -12,8 +12,18 @@ import ComplexModule
 
 let log2 = log(2.0)
 
+// Results of an iteration in Swift
+struct MandelbrotResultDbl {
+    var iterations: Int = 0
+    var distance: Double = 0.0
+    var potential: Double = 0.0
+    var nZ: Double = 0.0
+    var Zn: Complex<Double> = Complex<Double>(0.0, 0.0)
+}
+
 // Mandelbrot iteration for complex point C
-func iterateDouble(_ C: Complex<Double>, _ maxIter: Int, _ bailout: Double) -> Int {
+func iterateDouble(_ C: Complex<Double>, _ maxIter: Int, _ bailout: Double) -> MandelbrotResultDbl {
+    var r = MandelbrotResultDbl();
     var Z = Complex<Double>(0.0, 0.0)
     var D = Complex<Double>(0.0, 0.0)
     var nZ: Double = 0.0
@@ -33,17 +43,23 @@ func iterateDouble(_ C: Complex<Double>, _ maxIter: Int, _ bailout: Double) -> I
             aZ = sqrt(nZ);
             logRatio = 2.0 * log(aZ) / log(bailout);
             _ = 1.0 - log(logRatio) / log2
-            _ = aZ * log(aZ) / D.lengthSquared / 2.0
+            r.distance = aZ * log(aZ) / D.lengthSquared / 2.0
             
             // Potential calculation
             logZn = log(nZ) / 2.0
-            _ = log(logZn / log2) / log2
+            r.potential = log(logZn / log2) / log2
             
-            return i
+            r.iterations = i
+            r.nZ = nZ
+            r.Zn = Z
+            return r
         }
     }
     
-    return maxIter
+    r.nZ = nZ
+    r.Zn = Z
+    r.iterations = maxIter
+    return r
 }
 
 // Set number of elements to compute
@@ -67,6 +83,7 @@ struct RealResult {
     var mul: Float2 = Float2(0.0)
     var div: Float2 = Float2(0.0)
     var sqrt: Float2 = Float2(0.0)
+    var log: Float2 = Float2(0.0)
     var exp: Float2 = Float2(0.0)
     var pow: Float2 = Float2(0.0)
 }
@@ -105,6 +122,8 @@ do {
         print("DBL: \(Double.pi * 2.0) / \(Double.pi) = \(Double.pi * 2.0 / Double.pi)")
         print("F64: sqrt \(Double(a1[0])) = \(Double(result[0].sqrt))")
         print("DBL: sqrt \(Double.pi * 2.0) = \(sqrt(Double.pi * 2.0))")
+        print("F64: log \(Double(a1[0])) = \(Double(result[0].log))")
+        print("DBL: log \(Double.pi * 2.0) = \(log(Double.pi * 2.0))")
         print("F64: exp \(Double(a1[0])) = \(Double(result[0].exp))")
         print("DBL: exp \(Double.pi * 2.0) = \(exp(Double.pi * 2.0))")
         print("F64: pow \(Double(a1[0])), \(Double(a2[0])) = \(Double(result[0].pow))")
@@ -142,10 +161,19 @@ else {
 }
 
 // ==========================================================
-//  Add Complex<Double> arrays
+//  Complex<Double> array operations
 // ==========================================================
 
-print("\n**** Add Complex<Double> Arrays ****")
+// Results
+struct ComplexResult {
+    var add: Complex2 = Complex2(0.0, 0.0)
+    var sub: Complex2 = Complex2(0.0, 0.0)
+    var mul: Complex2 = Complex2(0.0, 0.0)
+    var div: Complex2 = Complex2(0.0, 0.0)
+    var sqr: Complex2 = Complex2(0.0, 0.0)
+}
+
+print("\n**** Complex Operations ****")
 
 do {
     let metalCompute = try MetalCompute("add_complex_arrays")
@@ -162,14 +190,22 @@ do {
     t1 = Date().timeIntervalSince1970
     
     // Compute and show first 3 results
-    if let result = metalCompute.compute(Complex2(0.0, 0.0)) {
+    if let result = metalCompute.compute(ComplexResult()) {
         t2 = Date().timeIntervalSince1970
         timeMetal = t2 - t1
         
+        let x = ComplexDouble(Double.pi, Double.pi)
         print("\nMetal results:")
-        for i in 0..<3 {
-            print("\(Complex<Double>(result[i]))")
-        }
+        print("C64: \(ComplexDouble(a1[0])) + \(ComplexDouble(a2[0])) = \(ComplexDouble(result[0].add))")
+        print("DBL: \(x) + \(x) = \(x + x)")
+        print("C64: \(ComplexDouble(a1[0])) - \(ComplexDouble(a2[0])) = \(ComplexDouble(result[0].sub))")
+        print("DBL: \(x) - \(x) = \(x - x)")
+        print("C64: \(ComplexDouble(a1[0])) * \(ComplexDouble(a2[0])) = \(ComplexDouble(result[0].mul))")
+        print("DBL: \(x) * \(x) = \(x * x)")
+        print("C64: \(ComplexDouble(a1[0])) / \(ComplexDouble(a2[0])) = \(ComplexDouble(result[0].div))")
+        print("DBL: \(x) / \(x) = \(x / x)")
+        print("C64: sqr \(ComplexDouble(a1[0])) = \(ComplexDouble(result[0].sqr))")
+        print("DBL: sqrt \(x) = \(x * x + x)")
     }
     else {
         print("Compute failed")
@@ -212,11 +248,13 @@ else {
 
 print("\n**** Mandelbrot ****")
 
-// Results of an iteration
+// Results of an iteration in Metal
 struct MandelbrotResult {
     var iterations: Int32
     var distance: Float2
     var potential: Float2
+    var nZ: Float2
+    var Zn: Complex2
 }
 
 let width: Int = 1024
@@ -231,14 +269,13 @@ let bailout: Float2 = Float2(4.0)
 print("\nSwift results:")
 t1 = Date().timeIntervalSince1970
 var n: Int = 0
-var r: Int = 0
 for y in 0..<height {
     let y0: Double = -1.5 + dy * Double(y)
     for x in 0..<width {
         let x0: Double = -2.5 + dx * Double(x)
-        r = iterateDouble(Complex<Double>(x0, y0), Int(maxIter), 4.0)
+        let r = iterateDouble(Complex<Double>(x0, y0), Int(maxIter), 4.0)
         if y == 500 && x >= 500 && x < 503 {
-            print("\(Complex<Double>(x0, y0)) = \(r)")
+            print("\(Complex<Double>(x0, y0)): i=\(r.iterations), d=\(r.distance), p=\(r.potential), n=\(r.nZ), Zn=\(ComplexDouble(r.Zn))")
         }
     }
 }
@@ -259,20 +296,20 @@ do {
     let metalCompute = try MetalCompute("mandelbrot")
 
     try metalCompute.addBuffer(C)
-    metalCompute.addValue(maxIter)
     metalCompute.addValue(bailout)
-    
+    metalCompute.addValue(maxIter)
+
     t1 = Date().timeIntervalSince1970
     
     // Compute and show first 3 results
-    if let result = metalCompute.compute(MandelbrotResult(iterations: Int32(0), distance: 0.0, potential: 0.0)) {
+    if let result = metalCompute.compute(MandelbrotResult(iterations: Int32(0), distance: 0.0, potential: 0.0, nZ: 0.0, Zn: Complex2(0.0, 0.0))) {
         t2 = Date().timeIntervalSince1970
         timeMetal = t2 - t1
         
         print("\nMetal results:")
         let offset = 500 * width + 500
         for i in 0..<3 {
-            print("\(Complex<Double>(C[i+offset])) = \(result[i+offset].iterations), \(Double(result[i+offset].distance))")
+            print("\(Complex<Double>(C[i+offset])): i=\(result[i+offset].iterations), d=\(Double(result[i+offset].distance)), p=\(Double(result[i+offset].potential)), n=\(Double(result[i+offset].nZ)), Zn=\(ComplexDouble(result[i+offset].Zn))")
         }
     }
     else {
