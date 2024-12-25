@@ -1,9 +1,9 @@
 
-This project is emulating 64 bit floating point and complex numbers in Metal.
+This project is emulating 64 bit floating point real and complex numbers in Metal.
 
 # Xcode settings
 
-To work properly the option **Math Mode** under *Metal Compiler - Build Options* must be set to **safe** to ensure
+The option **Math Mode** under *Metal Compiler - Build Options* must be set to **safe** to ensure
 IEEE conformity of floating point numbers.
 
 # Swift Part
@@ -31,14 +31,14 @@ The datatype Double is extended by a constructor to init a Double value with a F
 
 The Swift datatype **Complex2** is an alias for the `SIMD4<Float32>` datatype. The following constructors
 
-`
-Complex2()                  // 0
-Complex2(Double)            // Init real part. Imaginary part is set to 0
-Complex2(Double, Double)    // Init real and imaginary part
-Complex2(ComplexDouble)
-Complex2(Float2)
-Complex2(Int)
-`
+
+* `Complex2()                  // 0`
+* `Complex2(Double)            // Init real part. Imaginary part is set to 0`
+* `Complex2(Double, Double)    // Init real and imaginary part`
+* `Complex2(ComplexDouble)`
+* `Complex2(Float2)`
+* `Complex2(Int)`
+
 
 The assignment of literal numeric values is supported:
 
