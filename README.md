@@ -48,9 +48,9 @@ The datatype ComplexDouble (an alias for Complex<Float64>) is extended by a cons
 
 
 # Metal part
-## 64 bit floating point numbers
+## 64 bit real floating point numbers
 
-The class f64 is used to define 64 bit floating point variables in Metal. A 64 bit floating point number is internally stored as
+The class f64 is used to define 64 bit real floating point variables in Metal. A 64 bit floating point number is internally stored as
 a float2 vector element "v" in a f64 object.
 
 ### Constructors
@@ -60,7 +60,7 @@ a float2 vector element "v" in a f64 object.
 > f64(float2)  
 > f64(float, float)    // Don't use this constructor, for internal use only  
 
-### Assignment
+### Initialize by assigning literal values
 
 Assign a float value to a f64 variable:
 
@@ -75,7 +75,6 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 
 | Function     | Result |
 |--------------|--------|
-| sqr(f64)     | Square |
 | sqrt(f64)    | Square root |
 | pow(f64,int) | Power |
 | pow(f64,f64) | Power |      
@@ -100,3 +99,44 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 | f64_pi   | pi     |
 | f64_pi2  | pi / 2 |
 | f64_log2 | log(2) |
+
+
+## 64 bit complex floating point numbers
+
+The class c64 is used to define 64 bit complex floating point variables in Metal. A 64 bit complex floating point number is internally stored as
+a float4 vector element "v" in a c64 object.
+
+### Constructors
+
+> c64()  
+> c64(float)  
+> c64(float2)  
+> c64(float2, float2)  
+> c64(f64)  
+> c64(f64, f64)  
+> c64(float4)  
+
+### Initialize by assigning literal values
+
+`c64 x = 2.0;`
+
+`c64 x = f64(3.0);`
+
+### Operators
+
+The mathematical operators +, -, \*, / are overloaded to support any combination of c64 with f64 and float operands.
+The comparison operators ==, != are only supporting c64 operands.
+
+### Mathematical functions
+
+| Function     | Result |
+|--------------|--------|
+| sqr(c64)     | Square |
+| norm(c64)    | real \* real + imag \* imag |
+| abs(c64)     | sqrt(norm(c64)) |
+
+### Other functions
+
+* isZero(c64) - Check if value is zero
+* c64.real() - Return real part
+* c64.imaginary() - Return imag part
