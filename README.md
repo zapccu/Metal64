@@ -11,9 +11,9 @@ IEEE conformity of floating point numbers.
 
 The Swift datatype **Float2** is an alias for the `SIMD2<Float32>` datatype. The following constructors are available:
 
-> Float2()
-> Float2(Double)
-> Float2(Float)
+> Float2()  
+> Float2(Double)  
+> Float2(Float)  
 
 The assignment of literal numeric values is supported:
 
@@ -29,12 +29,12 @@ The datatype Double is extended by a constructor to init a Double value with a F
 
 The Swift datatype **Complex2** is an alias for the `SIMD4<Float32>` datatype. The following constructors
 
-> Complex2()                  // 0
-> Complex2(Double)            // Init real part. Imaginary part is set to 0
-> Complex2(Double, Double)    // Init real and imaginary part
-> Complex2(ComplexDouble)
-> Complex2(Float2)
-> Complex2(Int)
+> Complex2()                  // 0  
+> Complex2(Double)            // Init real part. Imaginary part is set to 0  
+> Complex2(Double, Double)    // Init real and imaginary part  
+> Complex2(ComplexDouble)  
+> Complex2(Float2)  
+> Complex2(Int)  
 
 The assignment of literal numeric values is supported:
 
@@ -55,10 +55,10 @@ a float2 vector element "v" in a f64 object.
 
 ### Constructors
 
-> f64()
-> f64(float)
-> f64(float2)
-> f64(float, float)    // Don't use this constructor, for internal use only
+> f64()  
+> f64(float)  
+> f64(float2)  
+> f64(float, float)    // Don't use this constructor, for internal use only  
 
 ### Assignment
 
