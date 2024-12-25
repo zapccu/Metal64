@@ -32,12 +32,12 @@ The datatype Double is extended by a constructor to init a Double value with a F
 The Swift datatype **Complex2** is an alias for the `SIMD4<Float32>` datatype. The following constructors
 
 
-* `Complex2()                  // 0`
-* `Complex2(Double)            // Init real part. Imaginary part is set to 0`
-* `Complex2(Double, Double)    // Init real and imaginary part`
-* `Complex2(ComplexDouble)`
-* `Complex2(Float2)`
-* `Complex2(Int)`
+> Complex2()                  // 0
+> Complex2(Double)            // Init real part. Imaginary part is set to 0
+> Complex2(Double, Double)    // Init real and imaginary part
+> Complex2(ComplexDouble)
+> Complex2(Float2)
+> Complex2(Int)
 
 
 The assignment of literal numeric values is supported:
@@ -59,10 +59,10 @@ a float2 vector element "v" in a f64 object.
 
 ### Constructors
 
-f64()
-f64(float)
-f64(float2)
-f64(float, float)    // Don't use this constructor, for internal use only
+> f64()
+> f64(float)
+> f64(float2)
+> f64(float, float)    // Don't use this constructor, for internal use only
 
 ### Assignment
 
@@ -75,7 +75,7 @@ Assign a float value to a f64 variable:
 The mathematical operators +, -, \*, / are overloaded to support any combination of f64 and float operands.
 The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operands.
 
-### Functions
+### Mathematical functions
 
 | Function     | Result |
 |--------------|--------|
@@ -85,5 +85,22 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 | pow(f64,f64) | Power |      
 | exp(f64)     | Exponential |
 | log(f64)     | Natural logarithm |
+| sin(f64)     | Sine |
+| cos(f64)     | Cosine |
+| tan(f64)     | Tangent |
+| asin(f64)    | Arc sine |
+| acos(f64)    | Arc cosine |
+| atan(f64)    | Arc tangent |
+| atan2(f64,f64) | Arc tangent 2 |
 
+### Other functions
 
+* isZero(f64) - Check if value is zero
+
+### Constants
+
+| Constant | Value  |
+|----------|--------|
+| f64_pi   | pi     |
+| f64_pi2  | pi / 2 |
+| f64_log2 | log(2) |
