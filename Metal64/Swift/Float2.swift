@@ -22,11 +22,17 @@ extension Double {
 extension SIMD2<Float32>: @retroactive ExpressibleByFloatLiteral {
     
     /// Convert Double to Float2
-    init(_ number: Double) {
-        let splitter = Double((1 << 29) + 1)
-        let t = number * splitter
-        let hi = Float32(t - (t - number))
-        let lo = Float32(number - Double(hi))
+    init(_ number: Double = 0.0) {
+        var hi: Float32 = 0.0
+        var lo: Float32 = 0.0
+        
+        if number != 0.0 {
+            let splitter = Double((1 << 29) + 1)
+            let t = number * splitter
+            hi = Float32(t - (t - number))
+            lo = Float32(number - Double(hi))
+        }
+        
         self.init(x: hi, y: lo)
     }
     

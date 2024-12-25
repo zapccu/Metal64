@@ -34,9 +34,9 @@ extension Complex<Float64> {
 extension SIMD4<Float32>: @retroactive ExpressibleByFloatLiteral {
     
     /// Convert real and imaginary part from Double to Complex2
-    init(_ real: Double, _ imag: Double) {
-        let r = Float2(real)
-        let i = Float2(imag)
+    init(_ real: Double = 0.0, _ imag: Double = 0.0) {
+        let r = real == 0.0 ? 0.0 : Float2(real)
+        let i = imag == 0.0 ? 0.0 : Float2(imag)
         self.init(x: r.x, y: r.y, z: i.x, w: i.y)
     }
     
@@ -50,14 +50,9 @@ extension SIMD4<Float32>: @retroactive ExpressibleByFloatLiteral {
         self.init(x: number.x, y: number.y, z: 0.0, w: 0.0)
     }
     
-    /// Convert Double to Complex2
-    init(_ number: Double) {
-        self.init(Float2(number))
-    }
-    
     /// Convert Int to Complex2
     init(_ number: Int) {
-        self.init(Float2(number))
+        self.init(Float2(Double(number)))
     }
     
     /// Assign Double value to Complex2
