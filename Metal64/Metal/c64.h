@@ -64,10 +64,12 @@ public:
         return *this;
     }
     
+    /// Return real part of complex number
     f64 real() {
         return f64(v.xy);
     }
     
+    /// Return imaginary part of complex number
     f64 imaginary() {
         return f64(v.zw);
     }

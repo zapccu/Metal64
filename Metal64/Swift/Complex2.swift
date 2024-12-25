@@ -21,7 +21,7 @@ typealias ComplexDouble = Complex<Float64>
 
 extension Complex<Float64> {
 
-    /// Convert Complex2 to complex
+    /// Convert Complex2 to ComplexDouble
     init(_ complex2: Complex2) {
         self.init(
             Double(Float2(complex2.x, complex2.y)),
@@ -30,6 +30,7 @@ extension Complex<Float64> {
     }
 }
 
+// Extend SIMD4 to support conversion of float / double datatypes to Complex2
 extension SIMD4<Float32>: @retroactive ExpressibleByFloatLiteral {
     
     /// Convert real and imaginary part from Double to Complex2
