@@ -1,10 +1,15 @@
 
 This project is emulating 64 bit floating point real and complex numbers in Metal.
 
-# Xcode settings
+# Xcode requirements and settings
+
+The Float2 and Complex2 implementation in Swift is using the SIMD module.
+The package "swift-numerics" must be added as a dependency.
 
 The option **Math Mode** under *Metal Compiler - Build Options* must be set to **safe** to ensure
 IEEE conformity of floating point numbers.
+
+The option **Relax IEEE Compliance** under *Apple Clang - Code Generation* must be set to **No**.
 
 # Swift Part
 ## Construct 64 bit floating point numbers (Float2)
