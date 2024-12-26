@@ -89,7 +89,7 @@ struct RealResult {
 }
 
 do {
-    let metalCompute = try MetalCompute("add_arrays")
+    let metalCompute = try MetalCompute("add_arrays", count)
     
     // Input Array 1
     let a1: [Float2] = Array(repeating: Float2(Double.pi * 2.0), count: count)
@@ -176,7 +176,7 @@ struct ComplexResult {
 print("\n**** Complex Operations ****")
 
 do {
-    let metalCompute = try MetalCompute("add_complex_arrays")
+    let metalCompute = try MetalCompute("add_complex_arrays", count)
     
     // Input Array 1
     let a1: [Complex2] = Array(repeating: Complex2(Double.pi, Double.pi), count: count)
@@ -293,7 +293,7 @@ for y in 0..<height {
 }
 
 do {
-    let metalCompute = try MetalCompute("mandelbrot")
+    let metalCompute = try MetalCompute("mandelbrot", count)
 
     try metalCompute.addBuffer(C)
     metalCompute.addValue(bailout)
