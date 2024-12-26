@@ -11,11 +11,6 @@
 
 using namespace metal;
 
-/// Convert f64 to float2
-float2 f2(f64 a) {
-    return a.v;
-}
-
 /// Square root of f64 value
 f64 sqrt(f64 a) {
     return f64(sqrt_f64(a.v));

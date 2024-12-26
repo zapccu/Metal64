@@ -26,6 +26,7 @@
 
 /* Begin PBXFileReference section */
 		436C31672D0C28490098E040 /* Metal64 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Metal64; sourceTree = BUILT_PRODUCTS_DIR; };
+		43840B692D1DD433004F4DA9 /* MetalCompute.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = MetalCompute.md; sourceTree = "<group>"; };
 		43F1D5B72D1C5927006B92E3 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -54,6 +55,7 @@
 		436C315E2D0C28490098E040 = {
 			isa = PBXGroup;
 			children = (
+				43840B692D1DD433004F4DA9 /* MetalCompute.md */,
 				436C31692D0C28490098E040 /* Metal64 */,
 				436C31682D0C28490098E040 /* Products */,
 				43F1D5B72D1C5927006B92E3 /* README.md */,

@@ -56,7 +56,6 @@ constant f64 pi_f64   = f64(3.1415927, -8.742278e-08);
 constant f64 pi2_f64  = f64(1.5707964, -4.371139e-08);
 constant f64 log2_f64 = f64(0.6931472, -1.9046542e-09);
 
-float2 f2(f64);
 f64 sqrt(f64);
 f64 exp(f64);
 f64 log(f64);

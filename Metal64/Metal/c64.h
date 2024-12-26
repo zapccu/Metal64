@@ -75,8 +75,6 @@ public:
     }
 };
 
-float4 f4(c64);
-
 c64 operator + (c64, c64);
 c64 operator + (c64, f64);
 c64 operator + (f64, c64);

@@ -11,11 +11,6 @@
 
 using namespace metal;
 
-/// Convert c64 to float4
-float4 f4(c64 a) {
-    return a.v;
-}
-
 c64 operator + (c64 a, c64 b) {
     return c64(add_c64(a.v, b.v));
 }

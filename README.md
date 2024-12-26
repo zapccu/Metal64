@@ -66,6 +66,11 @@ Assign a float value to a f64 variable:
 
 `f64 x = 2.0;`
 
+### Accessing / converting f64 objects
+
+> f64 value = 2.0;
+> float2 flt2val = value.v;
+
 ### Operators
 
 The mathematical operators +, -, \*, / are overloaded to support any combination of f64 and float operands.
@@ -121,6 +126,15 @@ a float4 vector element "v" in a c64 object.
 `c64 x = 2.0;`
 
 `c64 x = f64(3.0);`
+
+### Accessing / converting c64 objects
+
+> c64 complexvalue = c64(2.0, 3.0);  
+> f64 realpart = complexvalue.real();  
+> f64 imagpart = complexvalue.imaginary();  
+> float2 real_part = complexvalue.v.xy  
+> float2 imag_part = complexvalue.v.zw  
+> float4 flt4value = complexvalue.v  
 
 ### Operators
 
