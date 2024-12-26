@@ -32,6 +32,7 @@ class MetalCompute {
         case kernelFunctionError(String)
         case pipelineStateError(String)
         case addBufferError(String)
+        case computeElementsError(String)
     }
     
     // Buffer types (arrays)
@@ -42,9 +43,9 @@ class MetalCompute {
     
     let fncName: String         // Kernel function name
     var bufferIndex: Int = 0    // I/O buffer index
-    var count: Int = 0          // Number of elements in buffer
+    var count: Int = 0          // Number of elements in compute argument buffer(s)
     
-    var inputBuffers: [MTLBuffer] = []
+    // var inputBuffers: [MTLBuffer] = []
     var resultBuffer: MTLBuffer?
     
     let device: MTLDevice
@@ -62,19 +63,27 @@ class MetalCompute {
     ///
     /// fncName - Name of kernel compute function
     ///
-    init(_ fncName: String) throws {
+    init(_ fncName: String, _ count: Int) throws {
+        guard count > 0 else { throw MetalError.computeElementsError("Number of elements must be greater than zero") }
+        
         guard let device = MTLCreateSystemDefaultDevice() else { throw MetalError.deviceError("Cannot create device") }
         self.device = device
+        
         guard let library = device.makeDefaultLibrary() else { throw MetalError.libraryError("Cannot create library") }
         self.library = library
+        
         guard let commandQueue = device.makeCommandQueue() else { throw MetalError.commandQueueError("Cannnot create command queue") }
         self.commandQueue = commandQueue
+        
         guard let commandBuffer = commandQueue.makeCommandBuffer() else { throw MetalError.commandQueueError("Cannot create command buffer") }
         self.commandBuffer = commandBuffer
+        
         guard let computeEncoder = commandBuffer.makeComputeCommandEncoder() else { throw MetalError.commandBufferError("Cannot create compute encoder") }
         self.computeEncoder = computeEncoder
+        
         guard let kernelFunction = library.makeFunction(name: fncName) else { throw MetalError.kernelFunctionError("Cannot make kernel function") }
         self.kernelFunction = kernelFunction
+        
         do {
             let pipelineState = try device.makeComputePipelineState(function: kernelFunction)
             self.pipelineState = pipelineState
@@ -84,6 +93,7 @@ class MetalCompute {
         }
         
         self.fncName = fncName
+        self.count = count
     }
     
     ///
@@ -99,12 +109,7 @@ class MetalCompute {
     /// Either true or false
     ///
     func addBuffer<T>(_ value: [T], _ bufferType: BufferType = .inputBuffer) throws {
-        if bufferIndex == 0 {
-            count = value.count
-        }
-        else if count != value.count {
-            throw MetalError.addBufferError("Element count mismatch")
-        }
+        guard count == value.count else { throw MetalError.addBufferError("Element count mismatch") }
         
         let bufferSize = MemoryLayout<T>.size * count
 
@@ -112,7 +117,7 @@ class MetalCompute {
             computeEncoder.setBuffer(buffer, offset: 0, index: bufferIndex)
             bufferIndex += 1
             if bufferType == .inputBuffer {
-                inputBuffers.append(buffer)
+                // inputBuffers.append(buffer)
             }
             else {
                 resultBuffer = buffer
@@ -176,6 +181,18 @@ class MetalCompute {
     func addValue(_ value: Double) {
         var v = Float2(value)
         computeEncoder.setBytes(&v, length: MemoryLayout<Float2>.size, index: bufferIndex)
+        bufferIndex += 1
+    }
+    
+    func addValue(_ value: Complex2) {
+        var v = value
+        computeEncoder.setBytes(&v, length: MemoryLayout<Complex2>.size, index: bufferIndex)
+        bufferIndex += 1
+    }
+    
+    func addValue(_ value: ComplexDouble) {
+        var v = Complex2(value)
+        computeEncoder.setBytes(&v, length: MemoryLayout<Complex2>.size, index: bufferIndex)
         bufferIndex += 1
     }
     
