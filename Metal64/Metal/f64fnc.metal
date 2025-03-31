@@ -297,21 +297,27 @@ float2 atan_f64(float2 a) {
 // Inverse tangent2
 float2 atan2_f64(float2 y, float2 x) {
     if (gt(x, float2(0.0f, 0.0f))) {
+        // x > 0
         return atan_f64(div_f64(y, x));
     }
     else if (lt(x, float2(0.0f, 0.0f)) && ge(y, float2(0.0f, 0.0f))) {
+        // x < 0 AND y >= 0
         return add_f64(atan_f64(div_f64(y, x)), pi_f2);
     }
-    else if (isZero(x) && lt(y, float2(0.0f, 0.0f))) {
+    else if (lt(x, float2(0.0f, 0.0f)) && lt(y, float2(0.0f, 0.0f))) {
+        // x < 0 AND y < 0
         return sub_f64(atan_f64(div_f64(y, x)), pi_f2);
     }
     else if (isZero(x) && gt(y, float2(0.0f, 0.0f))) {
+        // x = 0 AND y > 0
         return pi2_f2;
     }
     else if (isZero(x) && lt(y, float2(0.0f, 0.0f))) {
+        // x = 0 AND y < 0
         return -pi2_f2;
     }
     else {
+        // x = 0 AND y = 0
         return NAN;
     }
 }
