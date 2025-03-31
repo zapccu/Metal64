@@ -20,7 +20,7 @@
 
 using namespace metal;
 
-/// Class for 64 bit floating points
+/// Struct for 64 bit floating points
 struct f64 {
     float2 v;
     
@@ -84,6 +84,8 @@ bool operator == (f64, f64);
 bool operator != (f64, f64);
 bool operator < (f64, f64);
 bool operator > (f64, f64);
+bool operator <= (f64, f64);
+bool operator >= (f64, f64);
 
 bool isZero(f64);
 

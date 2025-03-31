@@ -63,7 +63,7 @@ func iterateDouble(_ C: Complex<Double>, _ maxIter: Int, _ bailout: Double) -> M
 }
 
 // Set number of elements to compute
-var count: Int = 200000
+var count: Int = 2000000
 
 var timeMetal: TimeInterval = 0
 var timeSwift: TimeInterval = 0
@@ -71,10 +71,10 @@ var t1: TimeInterval = 0
 var t2: TimeInterval = 0
 
 // ==========================================================
-//  Math operations
+//  Real f64 operations
 // ==========================================================
 
-print("\n**** Real Operations ****")
+print("\n**** Real f64 Operations ****")
 
 // Results
 struct RealResult {
@@ -89,7 +89,7 @@ struct RealResult {
 }
 
 do {
-    let metalCompute = try MetalCompute("add_arrays", count)
+    let metalCompute = try MetalCompute("compute_float_arrays", count)
     
     // Input Array 1
     let a1: [Float2] = Array(repeating: Float2(Double.pi * 2.0), count: count)
@@ -100,6 +100,7 @@ do {
     // Scalar value
     let x: Float2 = 1.0
     
+    // Add input values for Metal computation
     try metalCompute.addBuffer(a1)
     try metalCompute.addBuffer(a2)
     metalCompute.addValue(x)
@@ -144,20 +145,26 @@ var arr3: [Double] = Array(repeating: 0.0, count: count)
 
 t1 = Date().timeIntervalSince1970
 for i in 0..<count {
-    arr3[i] = arr1[i] + arr2[i] + 1.0
+    arr3[i] = arr1[i] + arr2[i]
+    arr3[i] = arr1[i] - arr2[i]
+    arr3[i] = arr1[i] * arr2[i]
+    arr3[i] = arr1[i] / arr2[i]
+    arr3[i] = sqrt(arr1[i])
+    arr3[i] = log(arr1[i])
+    arr3[i] = exp(arr1[i])
+    arr3[i] = pow(arr1[i], arr2[i])
 }
 t2 = Date().timeIntervalSince1970
 timeSwift = t2 - t1
 
-var timeFactor = timeSwift / timeMetal
-
 print("\nTime Metal for \(count) elements: \(timeMetal)")
 print("Time Swift for \(count) elements: \(timeSwift)")
-if timeFactor > 1 {
-    print("Metal is \(timeFactor) times faster than Swift")
+
+if timeSwift > timeMetal {
+    print("Metal is \(timeSwift / timeMetal) times faster than Swift")
 }
 else {
-    print("Swift is \(timeFactor) times faster than Metal")
+    print("Swift is \(timeMetal / timeSwift) times faster than Metal")
 }
 
 // ==========================================================
@@ -176,7 +183,7 @@ struct ComplexResult {
 print("\n**** Complex Operations ****")
 
 do {
-    let metalCompute = try MetalCompute("add_complex_arrays", count)
+    let metalCompute = try MetalCompute("compute_complex_arrays", count)
     
     // Input Array 1
     let a1: [Complex2] = Array(repeating: Complex2(Double.pi, Double.pi), count: count)
@@ -223,6 +230,10 @@ var carr3: [Complex<Double>] = Array(repeating: Complex<Double>(0.0, 0.0), count
 t1 = Date().timeIntervalSince1970
 for i in 0..<count {
     carr3[i] = carr1[i] + carr2[i]
+    carr3[i] = carr1[i] - carr2[i]
+    carr3[i] = carr1[i] * carr2[i]
+    carr3[i] = carr1[i] / carr2[i]
+    carr3[i] = carr1[i] * carr1[i]
 }
 print("\nSwift results:")
 for i in 0..<3 {
@@ -231,19 +242,18 @@ for i in 0..<3 {
 t2 = Date().timeIntervalSince1970
 timeSwift = t2 - t1
 
-timeFactor = timeSwift / timeMetal
-
 print("\nTime Metal for \(count) elements: \(timeMetal)")
 print("Time Swift for \(count) elements: \(timeSwift)")
-if timeFactor > 1 {
-    print("Metal is \(timeFactor) times faster than Swift")
+
+if timeSwift > timeMetal {
+    print("Metal is \(timeSwift / timeMetal) times faster than Swift")
 }
 else {
-    print("Swift is \(timeFactor) times faster than Metal")
+    print("Swift is \(timeMetal / timeSwift) times faster than Metal")
 }
 
 // ==========================================================
-//  Mandelbrot
+//  Mandelbrot with f64 / c64
 // ==========================================================
 
 print("\n**** Mandelbrot ****")
@@ -262,7 +272,7 @@ let height: Int = 1024
 count = width * height
 let dx: Double = 3.0 / Double(width)
 let dy: Double = 3.0 / Double(height)
-let maxIter: Int32 = 500
+var maxIter: Int32 = 500
 let bailout: Float2 = Float2(4.0)
 
 // Swift calculation
@@ -317,14 +327,12 @@ do {
     }
 }
 
-timeFactor = timeSwift / timeMetal
-
 print("\nTime Metal for \(count) elements: \(timeMetal)")
 print("Time Swift for \(count) elements: \(timeSwift)")
-if timeFactor > 1 {
-    print("Metal is \(timeFactor) times faster than Swift")
+
+if timeSwift > timeMetal {
+    print("Metal is \(timeSwift / timeMetal) times faster than Swift")
 }
 else {
-    print("Swift is \(timeFactor) times faster than Metal")
+    print("Swift is \(timeMetal / timeSwift) times faster than Metal")
 }
-

@@ -171,28 +171,29 @@ class MetalCompute {
         computeEncoder.setBytes(&v, length: MemoryLayout<Float>.size, index: bufferIndex)
         bufferIndex += 1
     }
-
-    func addValue(_ value: Float2) {
+    
+    func addValue(_ value: FltUint64) {
         var v = value
-        computeEncoder.setBytes(&v, length: MemoryLayout<Float2>.size, index: bufferIndex)
+        computeEncoder.setBytes(&v, length: MemoryLayout<FltUint64>.size, index: bufferIndex)
         bufferIndex += 1
     }
     
     func addValue(_ value: Double) {
-        var v = Float2(value)
-        computeEncoder.setBytes(&v, length: MemoryLayout<Float2>.size, index: bufferIndex)
+        var v = FltUint64(value)
+        // var v = Float2(value)
+        computeEncoder.setBytes(&v, length: MemoryLayout<FltUint64>.size, index: bufferIndex)
         bufferIndex += 1
     }
-    
-    func addValue(_ value: Complex2) {
+
+    func addValue(_ value: CplxUint64) {
         var v = value
-        computeEncoder.setBytes(&v, length: MemoryLayout<Complex2>.size, index: bufferIndex)
+        computeEncoder.setBytes(&v, length: MemoryLayout<CplxUint64>.size, index: bufferIndex)
         bufferIndex += 1
     }
-    
+
     func addValue(_ value: ComplexDouble) {
-        var v = Complex2(value)
-        computeEncoder.setBytes(&v, length: MemoryLayout<Complex2>.size, index: bufferIndex)
+        var v = CplxUint64(value)
+        computeEncoder.setBytes(&v, length: MemoryLayout<CplxUint64>.size, index: bufferIndex)
         bufferIndex += 1
     }
     

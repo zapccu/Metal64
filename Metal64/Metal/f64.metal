@@ -123,6 +123,14 @@ bool operator > (f64 a, f64 b) {
     return gt(a.v, b.v);
 }
 
+bool operator <= (f64 a, f64 b) {
+    return le(a.v, b.v);
+}
+
+bool operator >= (f64 a, f64 b) {
+    return ge(a.v, b.v);
+}
+
 bool isZero(f64 a) {
     return all(a.v == 0.0);
 }

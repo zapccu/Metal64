@@ -16,8 +16,8 @@
 
 using namespace metal;
 
-class c64 {
-public:
+
+struct c64 {
     float4 v;
     
     c64() {

@@ -5,16 +5,15 @@
 //
 //  Demonstration of 64 bit floating point and complex values
 //
-//  Created by Sebastian Provenzano on 12/15/21.
-//
 
 #include <metal_stdlib>
 #include "c64.h"
 
 using namespace metal;
 
+
 // ==========================================================
-//  Calculate Mandelbrot set, using classes c64 and f64
+//  Calculate Mandelbrot set using classes c64 and f64
 // ==========================================================
 
 // Iteration results
@@ -26,7 +25,8 @@ struct MandelbrotResult {
     float4 Zn;
 };
 
-// Mandelbrot iteration with datatypes c64 / f64. About 30-50% slower than using float2 functions
+// Mandelbrot iteration with datatypes c64 / f64.
+// This is about 30-50% slower than using float2 functions in iterateFlt2()
 MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
     MandelbrotResult r;
     c64 Z;
@@ -71,6 +71,8 @@ MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
     return r;
 }
 
+// Mandelbrot iteration with float2 functions
+// This is about 30-50% faster than using f64 / c64 classes in iterate()
 MandelbrotResult iterateFlt2(float4 C, float2 bailout, int maxIter) {
     MandelbrotResult r;
     float4 Z = 0.0;
@@ -85,7 +87,7 @@ MandelbrotResult iterateFlt2(float4 C, float2 bailout, int maxIter) {
     r.nZ = 0.0f;
     r.Zn = 0.0f;
     int i;
-        
+
     for(i=0; i <= maxIter; i++) {
         // 1st derivation of Z
         D = add_c64(mul_c64(mul_c64(D, Z), float4(2.0f, 0.0f, 0.0f, 0.0f)), float4(1.0f, 0.0f, 0.0f, 0.0f));
@@ -126,8 +128,13 @@ kernel void mandelbrot(device const float4 *C,
 {
     // Result array contains a MandelbrotResult element for each point in array C
     resultArray[index] = iterate(c64(C[index]), f64(bailout), maxIter);
+    
+    // Function iterateFlt2() is using float2 routines directly instead of f64/c64 classes
     //resultArray[index] = iterateFlt2(C[index], bailout, maxIter);
 }
+
+
+
 
 // ==========================================================
 //  Math operations on arrays using 64 bit floating point
@@ -146,7 +153,7 @@ struct RealResult {
 };
 
 // Kernel function for adding elements of 2 arrays
-kernel void add_arrays(device const float2 *arr1,
+kernel void compute_float_arrays(device const float2 *arr1,
                        device const float2 *arr2,
                        device const float2& val,
                        device RealResult *resultArray,
@@ -175,7 +182,7 @@ struct ComplexResults {
 };
 
 // Kernel function for adding elements of 2 complex arrays
-kernel void add_complex_arrays(device const float4 *arr1,
+kernel void compute_complex_arrays(device const float4 *arr1,
                        device const float4 *arr2,
                        device ComplexResults *resultArray,
                        uint   index [[ thread_position_in_grid ]])
@@ -187,4 +194,5 @@ kernel void add_complex_arrays(device const float4 *arr1,
     resultArray[index].div = div_c64(arr1[index], arr2[index]);
     resultArray[index].sqr = add_c64(sqr_c64(arr1[index]), arr2[index]);
 }
+
 

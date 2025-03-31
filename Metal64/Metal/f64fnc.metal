@@ -52,8 +52,8 @@ float4 sump(float2 a_ri, float2 b_ri) {
 
 // Split two 32 bit floats into four 16 bit floats
 float4 split4(float2 c) {
-    const float split = 4097;
-    float2 t = c * split;
+    // const float split = 4097;
+    float2 t = c * 4097.0;
     float2 c_hi = t - (t - c);
     float2 c_lo = c - c_hi;
     return float4(c_hi.x, c_lo.x, c_hi.y, c_lo.y);
@@ -72,13 +72,12 @@ float2 prod(float a, float b) {
 
 // Add 2 64 bit floating point values
 float2 add_f64(float2 a, float2 b) {
-    float4 st;
-    st = sump(a, b);
+    float4 st = sump(a, b);
     st.y += st.z;
     st.xy = sumq(st.xy);
     st.y += st.w;
-    st.xy = sumq(st.xy);
-    return st.xy;
+    return sumq(st.xy);
+    //return st.xy;
 }
 
 // Subtract 2 64 bit floating point values
@@ -102,8 +101,9 @@ float2 sqr_f64(float2 a) {
 
 // f64 square of float
 float2 sqr_f64(float a) {
-    float2 p = prod(a, a);
-    return sumq(p);
+    //float2 p = prod(a, a);
+    //return sumq(p);
+    return sumq(prod(a, a));
 }
 
 // Multiplication: f64 * f32

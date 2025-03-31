@@ -1,34 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1620"
-   version = "2.2">
+   version = "2.0">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
       buildArchitectures = "Automatic">
       <BuildActionEntries>
          <BuildActionEntry
-            buildForTesting = "YES"
+            buildForTesting = "NO"
             buildForRunning = "YES"
             buildForProfiling = "YES"
             buildForArchiving = "YES"
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "436C31662D0C28490098E040"
-               BuildableName = "Metal64"
-               BlueprintName = "Metal64"
+               BlueprintIdentifier = "43F99EB32D96A8E500972EE9"
+               BuildableName = "MetalUInt64"
+               BlueprintName = "MetalUInt64"
                ReferencedContainer = "container:Metal64.xcodeproj">
             </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <AutocreatedTestPlanReference>
-            </AutocreatedTestPlanReference>
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
@@ -58,9 +49,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "436C31662D0C28490098E040"
-            BuildableName = "Metal64"
-            BlueprintName = "Metal64"
+            BlueprintIdentifier = "43F99EB32D96A8E500972EE9"
+            BuildableName = "MetalUInt64"
+            BlueprintName = "MetalUInt64"
             ReferencedContainer = "container:Metal64.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -76,9 +67,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "436C31662D0C28490098E040"
-            BuildableName = "Metal64"
-            BlueprintName = "Metal64"
+            BlueprintIdentifier = "43F99EB32D96A8E500972EE9"
+            BuildableName = "MetalUInt64"
+            BlueprintName = "MetalUInt64"
             ReferencedContainer = "container:Metal64.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

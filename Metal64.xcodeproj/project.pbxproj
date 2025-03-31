@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		436CA7522D96D161003F1932 /* ComplexModule in Frameworks */ = {isa = PBXBuildFile; productRef = 436CA7512D96D161003F1932 /* ComplexModule */; };
+		436CA7542D96D161003F1932 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 436CA7532D96D161003F1932 /* Numerics */; };
+		436CA7562D96D161003F1932 /* RealModule in Frameworks */ = {isa = PBXBuildFile; productRef = 436CA7552D96D161003F1932 /* RealModule */; };
 		43E877102D0F16BD00C24283 /* ComplexModule in Frameworks */ = {isa = PBXBuildFile; productRef = 43E8770F2D0F16BD00C24283 /* ComplexModule */; };
 		43E877122D0F16BD00C24283 /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = 43E877112D0F16BD00C24283 /* Numerics */; };
 		43E877142D0F16BD00C24283 /* RealModule in Frameworks */ = {isa = PBXBuildFile; productRef = 43E877132D0F16BD00C24283 /* RealModule */; };
@@ -22,18 +25,33 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		43F99EB22D96A8E500972EE9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		436C31672D0C28490098E040 /* Metal64 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Metal64; sourceTree = BUILT_PRODUCTS_DIR; };
 		43840B692D1DD433004F4DA9 /* MetalCompute.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = MetalCompute.md; sourceTree = "<group>"; };
 		43F1D5B72D1C5927006B92E3 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		43F99EB42D96A8E500972EE9 /* MetalUInt64 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MetalUInt64; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		436C31692D0C28490098E040 /* Metal64 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Metal64;
+			sourceTree = "<group>";
+		};
+		43F99EB52D96A8E500972EE9 /* MetalUInt64 */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MetalUInt64;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -49,6 +67,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		43F99EB12D96A8E500972EE9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				436CA7542D96D161003F1932 /* Numerics in Frameworks */,
+				436CA7522D96D161003F1932 /* ComplexModule in Frameworks */,
+				436CA7562D96D161003F1932 /* RealModule in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -57,8 +85,10 @@
 			children = (
 				43840B692D1DD433004F4DA9 /* MetalCompute.md */,
 				436C31692D0C28490098E040 /* Metal64 */,
+				43F99EB52D96A8E500972EE9 /* MetalUInt64 */,
 				436C31682D0C28490098E040 /* Products */,
 				43F1D5B72D1C5927006B92E3 /* README.md */,
+				436CA7502D96D161003F1932 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -66,8 +96,16 @@
 			isa = PBXGroup;
 			children = (
 				436C31672D0C28490098E040 /* Metal64 */,
+				43F99EB42D96A8E500972EE9 /* MetalUInt64 */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		436CA7502D96D161003F1932 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -98,6 +136,31 @@
 			productReference = 436C31672D0C28490098E040 /* Metal64 */;
 			productType = "com.apple.product-type.tool";
 		};
+		43F99EB32D96A8E500972EE9 /* MetalUInt64 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 43F99EBA2D96A8E500972EE9 /* Build configuration list for PBXNativeTarget "MetalUInt64" */;
+			buildPhases = (
+				43F99EB02D96A8E500972EE9 /* Sources */,
+				43F99EB12D96A8E500972EE9 /* Frameworks */,
+				43F99EB22D96A8E500972EE9 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				43F99EB52D96A8E500972EE9 /* MetalUInt64 */,
+			);
+			name = MetalUInt64;
+			packageProductDependencies = (
+				436CA7512D96D161003F1932 /* ComplexModule */,
+				436CA7532D96D161003F1932 /* Numerics */,
+				436CA7552D96D161003F1932 /* RealModule */,
+			);
+			productName = MetalUInt64;
+			productReference = 43F99EB42D96A8E500972EE9 /* MetalUInt64 */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -105,11 +168,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1610;
-				LastUpgradeCheck = 1610;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					436C31662D0C28490098E040 = {
 						CreatedOnToolsVersion = 16.1;
+						LastSwiftMigration = 1610;
+					};
+					43F99EB32D96A8E500972EE9 = {
+						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
@@ -131,12 +198,20 @@
 			projectRoot = "";
 			targets = (
 				436C31662D0C28490098E040 /* Metal64 */,
+				43F99EB32D96A8E500972EE9 /* MetalUInt64 */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
 		436C31632D0C28490098E040 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43F99EB02D96A8E500972EE9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -180,6 +255,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -244,6 +320,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -268,12 +345,15 @@
 		436C316F2D0C28490098E040 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				MTL_FAST_MATH = YES;
 				MTL_MATH_FP32_FUNCTIONS = "";
 				"MTL_MATH_FP32_FUNCTIONS[sdk=*]" = "";
 				MTL_MATH_MODE = SAFE;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -281,10 +361,37 @@
 		436C31702D0C28490098E040 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				MTL_FAST_MATH = YES;
 				MTL_MATH_FP32_FUNCTIONS = "";
 				MTL_MATH_MODE = SAFE;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		43F99EB82D96A8E500972EE9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		43F99EB92D96A8E500972EE9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -311,6 +418,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		43F99EBA2D96A8E500972EE9 /* Build configuration list for PBXNativeTarget "MetalUInt64" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43F99EB82D96A8E500972EE9 /* Debug */,
+				43F99EB92D96A8E500972EE9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -325,6 +441,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		436CA7512D96D161003F1932 /* ComplexModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 43E8770E2D0F16BD00C24283 /* XCRemoteSwiftPackageReference "swift-numerics" */;
+			productName = ComplexModule;
+		};
+		436CA7532D96D161003F1932 /* Numerics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 43E8770E2D0F16BD00C24283 /* XCRemoteSwiftPackageReference "swift-numerics" */;
+			productName = Numerics;
+		};
+		436CA7552D96D161003F1932 /* RealModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 43E8770E2D0F16BD00C24283 /* XCRemoteSwiftPackageReference "swift-numerics" */;
+			productName = RealModule;
+		};
 		43E8770F2D0F16BD00C24283 /* ComplexModule */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 43E8770E2D0F16BD00C24283 /* XCRemoteSwiftPackageReference "swift-numerics" */;

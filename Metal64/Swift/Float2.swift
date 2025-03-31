@@ -8,7 +8,7 @@
 //  Created by Dirk Braner on 15.12.24.
 //
 
-/// Datatype for 64 bit Metal floating point values
+/// Datatypes for 64 bit Metal floating point values
 typealias Float2 = SIMD2<Float32>
 
 extension Double {
