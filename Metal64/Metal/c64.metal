@@ -107,6 +107,14 @@ c64 sqr(c64 a) {
     return c64(sqr_c64(a.v));
 }
 
+c64 sqrt(c64 a) {
+    return c64(sqrt_c64(a.v));
+}
+
+c64 exp(c64 a) {
+    return c64(exp_c64(a.v));
+}
+
 f64 norm(c64 a) {
     return f64(norm_c64(a.v));
 }
@@ -114,3 +122,5 @@ f64 norm(c64 a) {
 f64 abs(c64 a) {
     return f64(abs_c64(a.v));
 }
+
+

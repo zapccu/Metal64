@@ -357,6 +357,7 @@ float4 mul_c64(float4 a, float4 b) {
     return float4(sub_f64(r1, r2), add_f64(i1, i2));
 }
 
+// Square of 64 bit complex value
 float4 sqr_c64(float4 a) {
     float2 r1 = mul_f64(a.xy, a.xy);
     float2 r2 = mul_f64(a.zw, a.zw);
@@ -372,6 +373,21 @@ float4 div_c64(float4 a, float4 b) {
     return float4(r, i);
 }
 
+// 64 bit complex square root
+float4 sqrt(float4 a) {
+    float2 dc = abs_c64(a);
+    float2 r = sqrt_f64(div_f64(add_f64(dc, a.xy), 2.0));
+    float2 i = lt(a.zw, 0.0) ? -sqrt_f64(div_f64(sub_f64(dc, a.xy), 2.0)) : sqrt_f64(div_f64(sub_f64(dc, a.xy), 2.0));
+    return float4(r, i);
+}
+
+// 64 bit complex exponential function
+float4 exp_c64(float4 a) {
+    float2 e = exp_f64(a.xy);
+    return float4(mul_f64(e, cos_f64(a.zw)), mul_f64(e, sin_f64(a.zw)));
+}
+
+// Compare 64 bit complex values
 bool eq(float4 a, float4 b) {
     return all(a == b);
 }

@@ -60,8 +60,10 @@ float2 acos_f64(float2);
 float4 add_c64(float4, float4);
 float4 sub_c64(float4, float4);
 float4 mul_c64(float4, float4);
-float4 sqr_c64(float4 a);
+float4 sqr_c64(float4);
+float4 sqrt_c64(float4);
 float4 div_c64(float4, float4);
+float4 exp_c64(float4);
 
 bool eq(float4, float4);
 bool ne(float4, float4);

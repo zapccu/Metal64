@@ -101,6 +101,9 @@ bool operator == (c64, c64);
 bool operator != (c64, c64);
 
 c64 sqr(c64);
+c64 sqrt(c64);
+c64 exp(c64);
+
 f64 norm(c64);
 f64 abs(c64);
 

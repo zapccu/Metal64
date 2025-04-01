@@ -38,7 +38,7 @@ do {
    // input buffers elements as parameters
    let mc = try MetalCompute("myKernelFnc", cnt)
 
-   // Add input buffer and value to MetalCompute object
+   // Add input buffer and a single value to the MetalCompute object
    try mc.AddBuffer(arr);
    mc.AddValue(x)
 
@@ -68,7 +68,7 @@ The compute kernel function adds a Float2 value to each element of an Float2 inp
 
 using namespace metal;
 
-// The compute kernel function
+// The compute kernel function, name must match name specified in MetalCompute(), see Swift part
 kernel void myKernelFnc(device const float2 arr, 
                         device const float2& val,
                         device float2 *result,

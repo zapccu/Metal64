@@ -161,6 +161,8 @@ The comparison operators ==, != are only supporting c64 operands.
 | Function     | Result |
 |--------------|--------|
 | sqr(c64)     | Square |
+| sqrt(c64)    | Square root |
+| exp(c64)     | Exponential function |
 | norm(c64)    | real \* real + imag \* imag |
 | abs(c64)     | sqrt(norm(c64)) |
 
