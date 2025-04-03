@@ -111,6 +111,7 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 #### Other functions
 
 * isZero(f64) - Check if value is zero
+* sign(f64) - Return sign of value
 
 #### Constants
 

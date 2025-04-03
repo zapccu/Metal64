@@ -134,3 +134,7 @@ bool operator >= (f64 a, f64 b) {
 bool isZero(f64 a) {
     return all(a.v == 0.0);
 }
+
+int sign(f64 a) {
+    return sign_f64(a.v);
+}

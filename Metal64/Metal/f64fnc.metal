@@ -132,6 +132,19 @@ bool isZero(float2 a) {
     return all(a == 0.0);
 }
 
+// Return sign of value: -1, 0, 1
+int sign_f64(float2 a) {
+    if (all(a == 0.0)) {
+        return 0;
+    }
+    else if (a.x < 0.0 || (a.x == 0.0 && a.y < 0.0)) {
+        return -1;
+    }
+    else {
+        return 1;
+    }
+}
+
 // Equal
 bool eq(float2 a, float2 b) {
     return all(a == b);
@@ -283,7 +296,7 @@ float2 atan_iterate(float2 a, int n) {
 
 // Inverse tangent
 float2 atan_f64(float2 a) {
-    if (eq(a, float2(0.0f, 0.0f))) {
+    if (isZero(a)) {
         return float2(0.0f, 0.0f);
     }
     else if (gt(a, float2(1.0f, 0.0f))) {
@@ -296,23 +309,26 @@ float2 atan_f64(float2 a) {
 
 // Inverse tangent2
 float2 atan2_f64(float2 y, float2 x) {
-    if (gt(x, float2(0.0f, 0.0f))) {
+    int sy = sign_f64(y);
+    int sx = sign_f64(x);
+    
+    if (sx == 1) {
         // x > 0
         return atan_f64(div_f64(y, x));
     }
-    else if (lt(x, float2(0.0f, 0.0f)) && ge(y, float2(0.0f, 0.0f))) {
+    else if (sx == -1 && sy == 1) {
         // x < 0 AND y >= 0
         return add_f64(atan_f64(div_f64(y, x)), pi_f2);
     }
-    else if (lt(x, float2(0.0f, 0.0f)) && lt(y, float2(0.0f, 0.0f))) {
+    else if (sx == -1 && sy == -1) {
         // x < 0 AND y < 0
         return sub_f64(atan_f64(div_f64(y, x)), pi_f2);
     }
-    else if (isZero(x) && gt(y, float2(0.0f, 0.0f))) {
+    else if (sx == 0 && sy == 1) {
         // x = 0 AND y > 0
         return pi2_f2;
     }
-    else if (isZero(x) && lt(y, float2(0.0f, 0.0f))) {
+    else if (sx == 0 && sy == -1) {
         // x = 0 AND y < 0
         return -pi2_f2;
     }

@@ -88,6 +88,7 @@ bool operator <= (f64, f64);
 bool operator >= (f64, f64);
 
 bool isZero(f64);
+int sign(f64);
 
 #endif
 
