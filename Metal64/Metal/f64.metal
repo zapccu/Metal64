@@ -32,12 +32,12 @@ f64 sin(f64 a) {
 }
 
 /// Cosine
-f64 tan(f64 a) {
+f64 cos(f64 a) {
     return f64(cos_f64(a.v));
 }
 
 /// Tangent
-f64 cos(f64 a) {
+f64 tan(f64 a) {
     return f64(tan_f64(a.v));
 }
 
