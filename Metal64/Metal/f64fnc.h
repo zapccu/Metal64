@@ -32,7 +32,7 @@ float2 sqr_f64(float);
 float2 mulds(float2, float);
 float2 div_f64(float2, float2);
 
-bool isZero(float2);
+bool isZero_f64(float2);
 int sign_f64(float2);
 
 bool eq(float2, float2);

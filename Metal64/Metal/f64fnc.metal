@@ -128,7 +128,7 @@ float2 div_f64(float2 b, float2 a) {
 // ----------------------------------------------------------------------------
 
 // Check for zero
-bool isZero(float2 a) {
+bool isZero_f64(float2 a) {
     return all(a == 0.0);
 }
 
@@ -296,7 +296,7 @@ float2 atan_iterate(float2 a, int n) {
 
 // Inverse tangent
 float2 atan_f64(float2 a) {
-    if (isZero(a)) {
+    if (all(a == 0.0)) {
         return float2(0.0f, 0.0f);
     }
     else if (gt(a, float2(1.0f, 0.0f))) {
@@ -390,7 +390,7 @@ float4 div_c64(float4 a, float4 b) {
 }
 
 // 64 bit complex square root
-float4 sqrt(float4 a) {
+float4 sqrt_c64(float4 a) {
     float2 dc = abs_c64(a);
     float2 r = sqrt_f64(div_f64(add_f64(dc, a.xy), 2.0));
     float2 i = lt(a.zw, 0.0) ? -sqrt_f64(div_f64(sub_f64(dc, a.xy), 2.0)) : sqrt_f64(div_f64(sub_f64(dc, a.xy), 2.0));

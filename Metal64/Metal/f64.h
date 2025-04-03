@@ -44,11 +44,6 @@ struct f64 {
         v = float2(a, 0.0f);
         return *this;
     }
-    
-    /// Check if zero
-    bool isZero() {
-        return all(v == 0.0);
-    }
 };
 
 // Constants
