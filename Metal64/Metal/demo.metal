@@ -56,12 +56,12 @@ MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
             aZ = sqrt(nZ);
             logaZ = log(aZ);
             logRatio = 2.0 * logaZ / log(bailout);
-            smoothIter = 1.0 - log(logRatio) / log2_f64;
+            smoothIter = 1.0 - log(logRatio) / f64_log2;
             r.distance = (aZ * logaZ / norm(D) * 0.5).v;
             
             // Potential calculation
             logZn = log(nZ) / 2.0;
-            r.potential = (log(logZn / log2_f64) / log2_f64).v;
+            r.potential = (log(logZn / f64_log2) / f64_log2).v;
             r.iterations = i;
             r.nZ = nZ.v;
             r.Zn = Z.v;
@@ -110,12 +110,12 @@ MandelbrotResult iterateFlt2(float4 C, float2 bailout, int maxIter) {
             // Distance calculation
             aZ = sqrt_f64(nZ);
             logRatio = 2.0 * log(aZ) / log(bailout);
-            smoothIter = sub_f64(float2(1.0f, 0.0f), div_f64(logRatio, log2_f64.v));
+            smoothIter = sub_f64(float2(1.0f, 0.0f), div_f64(logRatio, f64_log2.v));
             r.distance = mul_f64(aZ, div_f64(div_f64(log_f64(aZ), norm_c64(D)), float2(2.0f, 0.0f)));
             
             // Potential calculation
             logZn = div_f64(log_f64(nZ), float2(2.0f, 0.0f));
-            r.potential = div_f64(log_f64(div_f64(logZn, log2_f64.v)), log2_f64.v);
+            r.potential = div_f64(log_f64(div_f64(logZn, f64_log2.v)), f64_log2.v);
             r.iterations = i;
             
             r.nZ = nZ;
