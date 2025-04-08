@@ -106,6 +106,7 @@ c64 exp(c64);
 
 f64 norm(c64);
 f64 abs(c64);
+f64 arg(c64);
 
 #endif
 

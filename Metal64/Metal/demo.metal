@@ -31,7 +31,7 @@ MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
     MandelbrotResult r;
     c64 Z;
     c64 D = 1.0;
-    f64 nZ, aZ;
+    f64 nZ, aZ, logaZ;
     f64 logRatio;
     f64 smoothIter;
     f64 logZn;
@@ -43,17 +43,21 @@ MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
     
     for(i=0; i <= maxIter; i++) {
         // 1st derivation of Z
-        D = D * 2.0 * Z + 1.0;
+        D = (D + D) * Z + 1.0;
         
-        Z = sqr(Z) + C;
+        float2x4 M = mandelbrot(Z.v, C.v, bailout.v);
         
-        nZ = norm(Z);
+        // Z = sqr(Z) + C;
+        
+        // nZ = norm(Z);
+        nZ.v = M[1].xy;
         if (nZ > bailout) {
             // Distance calculation
             aZ = sqrt(nZ);
-            logRatio = 2.0 * log(aZ) / log(bailout);
+            logaZ = log(aZ);
+            logRatio = 2.0 * logaZ / log(bailout);
             smoothIter = 1.0 - log(logRatio) / log2_f64;
-            r.distance = (aZ * log(aZ) / norm(D) * 0.5).v;
+            r.distance = (aZ * logaZ / norm(D) * 0.5).v;
             
             // Potential calculation
             logZn = log(nZ) / 2.0;
@@ -63,6 +67,7 @@ MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
             r.Zn = Z.v;
             return r;
         }
+        Z.v = M[0];
     }
     
     r.iterations = maxIter;
@@ -77,6 +82,8 @@ MandelbrotResult iterateFlt2(float4 C, float2 bailout, int maxIter) {
     MandelbrotResult r;
     float4 Z = 0.0;
     float4 D = float4(1.0f, 0.0f, 0.0f, 0.0f);
+    const float4 one = float4(1.0, 0.0, 0.0, 0.0);
+    const float4 two = float4(2.0, 0.0, 0.0, 0.0);
     float2 nZ = 0.0;
     float2 aZ = 0.0;
     float2 logRatio = 0.0f;
@@ -90,11 +97,15 @@ MandelbrotResult iterateFlt2(float4 C, float2 bailout, int maxIter) {
 
     for(i=0; i <= maxIter; i++) {
         // 1st derivation of Z
-        D = add_c64(mul_c64(mul_c64(D, Z), float4(2.0f, 0.0f, 0.0f, 0.0f)), float4(1.0f, 0.0f, 0.0f, 0.0f));
-        
-        Z = add_c64(sqr_c64(Z), C);
+        // D = add_c64(mul_c64(mul_c64(D, Z), float4(2.0f, 0.0f, 0.0f, 0.0f)), float4(1.0f, 0.0f, 0.0f, 0.0f));
+        D = add_c64(mul_c64(add_c64(D, D), Z), one);
+        // Z = add_c64(sqr_c64(Z), C);
 
-        nZ = norm_c64(Z);
+        float2 r1 = sqr_f64(Z.xy);
+        float2 r2 = sqr_f64(Z.zw);
+        nZ = add_f64(r1, r2);
+        
+        //nZ = norm_c64(Z);
         if (gt(nZ, bailout)) {
             // Distance calculation
             aZ = sqrt_f64(nZ);
@@ -111,6 +122,9 @@ MandelbrotResult iterateFlt2(float4 C, float2 bailout, int maxIter) {
             r.Zn = Z;
             return r;
         }
+
+        float2 i1 = mul_f64(Z.xy, Z.zw);
+        Z = float4(add_f64(sub_f64(r1, r2), C.xy), add_f64(add_f64(i1, i1), C.zw));
     }
     
     r.iterations = maxIter;
@@ -130,7 +144,7 @@ kernel void mandelbrot(device const float4 *C,
     resultArray[index] = iterate(c64(C[index]), f64(bailout), maxIter);
     
     // Function iterateFlt2() is using float2 routines directly instead of f64/c64 classes
-    //resultArray[index] = iterateFlt2(C[index], bailout, maxIter);
+    // resultArray[index] = iterateFlt2(C[index], bailout, maxIter);
 }
 
 
@@ -146,10 +160,15 @@ struct RealResult {
     f64 sub;
     f64 mul;
     f64 div;
+    f64 fmod;
     f64 sqrt;
     f64 log;
     f64 exp;
     f64 pow;
+    f64 sine;
+    f64 cosine;
+    f64 tangent;
+    f64 atangent;
 };
 
 // Kernel function for adding elements of 2 arrays
@@ -163,14 +182,20 @@ kernel void compute_float_arrays(device const float2 *arr1,
     resultArray[index].sub = sub_f64(arr1[index], arr2[index]);
     resultArray[index].mul = mul_f64(arr1[index], arr2[index]);
     resultArray[index].div = div_f64(arr1[index], arr2[index]);
+    resultArray[index].fmod = fmod_f64(arr1[index], arr2[index]);
     resultArray[index].sqrt = sqrt_f64(arr1[index]);
     resultArray[index].log = log_f64(arr1[index]);
     resultArray[index].exp = exp_f64(arr1[index]);
     resultArray[index].pow = pow_f64(arr1[index], arr2[index]);
+    resultArray[index].sine = sin_f64(arr1[index]);
+    resultArray[index].cosine = cos_f64(arr1[index]);
+    resultArray[index].tangent = tan_f64(arr1[index]);
+    resultArray[index].atangent = atan_f64(tan_f64(arr1[index]));
 }
 
 // ==========================================================
-//  Add Complex<Double> arrays by using class c64
+//  Math operations on Complex<Double> arrays by using
+//  class c64 functions
 // ==========================================================
 
 struct ComplexResults {

@@ -123,4 +123,7 @@ f64 abs(c64 a) {
     return f64(abs_c64(a.v));
 }
 
+f64 arg(c64 a) {
+    return f64(atan2_f64(a.v.zw, a.v.xy));
+}
 

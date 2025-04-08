@@ -21,6 +21,112 @@ struct MandelbrotResultDbl {
     var Zn: Complex<Double> = Complex<Double>(0.0, 0.0)
 }
 
+func generateFloat2() {
+    let angles: [Double] = [
+        7.8539816339744830962E-01,
+        4.6364760900080611621E-01,
+        2.4497866312686415417E-01,
+        1.2435499454676143503E-01,
+        6.2418809995957348474E-02,
+        3.1239833430268276254E-02,
+        1.5623728620476830803E-02,
+        7.8123410601011112965E-03,
+        3.9062301319669718276E-03,
+        1.9531225164788186851E-03,
+        9.7656218955931943040E-04,
+        4.8828121119489827547E-04,
+        2.4414062014936176402E-04,
+        1.2207031189367020424E-04,
+        6.1035156174208775022E-05,
+        3.0517578115526096862E-05,
+        1.5258789061315762107E-05,
+        7.6293945311019702634E-06,
+        3.8146972656064962829E-06,
+        1.9073486328101870354E-06,
+        9.5367431640596087942E-07,
+        4.7683715820308885993E-07,
+        2.3841857910155798249E-07,
+        1.1920928955078068531E-07,
+        5.9604644775390554414E-08,
+        2.9802322387695303677E-08,
+        1.4901161193847655147E-08,
+        7.4505805969238279871E-09,
+        3.7252902984619140453E-09,
+        1.8626451492309570291E-09,
+        9.3132257461547851536E-10,
+        4.6566128730773925778E-10,
+        2.3283064365386962890E-10,
+        1.1641532182693481445E-10,
+        5.8207660913467407226E-11,
+        2.9103830456733703613E-11,
+        1.4551915228366851807E-11,
+        7.2759576141834259033E-12,
+        3.6379788070917129517E-12,
+        1.8189894035458564758E-12,
+        9.0949470177292823792E-13,
+        4.5474735088646411896E-13,
+        2.2737367544323205948E-13,
+        1.1368683772161602974E-13,
+        5.6843418860808014870E-14,
+        2.8421709430404007435E-14,
+        1.4210854715202003717E-14,
+        7.1054273576010018587E-15,
+        3.5527136788005009294E-15,
+        1.7763568394002504647E-15,
+        8.8817841970012523234E-16,
+        4.4408920985006261617E-16,
+        2.2204460492503130808E-16,
+        1.1102230246251565404E-16,
+        5.5511151231257827021E-17,
+        2.7755575615628913511E-17,
+        1.3877787807814456755E-17,
+        6.9388939039072283776E-18,
+        3.4694469519536141888E-18,
+        1.7347234759768070944E-18
+    ]
+
+    let kprod: [Double] = [
+        0.70710678118654752440,
+        0.63245553203367586640,
+        0.61357199107789634961,
+        0.60883391251775242102,
+        0.60764825625616820093,
+        0.60735177014129595905,
+        0.60727764409352599905,
+        0.60725911229889273006,
+        0.60725447933256232972,
+        0.60725332108987516334,
+        0.60725303152913433540,
+        0.60725295913894481363,
+        0.60725294104139716351,
+        0.60725293651701023413,
+        0.60725293538591350073,
+        0.60725293510313931731,
+        0.60725293503244577146,
+        0.60725293501477238499,
+        0.60725293501035403837,
+        0.60725293500924945172,
+        0.60725293500897330506,
+        0.60725293500890426839,
+        0.60725293500888700922,
+        0.60725293500888269443,
+        0.60725293500888161574,
+        0.60725293500888134606,
+        0.60725293500888127864,
+        0.60725293500888126179,
+        0.60725293500888125757,
+        0.60725293500888125652,
+        0.60725293500888125626,
+        0.60725293500888125619,
+        0.60725293500888125617
+    ]
+    
+    for i in kprod {
+        let x = Float2(i)
+        print("float2(\(x.x), \(x.y)),")
+    }
+}
+
 // Mandelbrot iteration for complex point C
 func iterateDouble(_ C: Complex<Double>, _ maxIter: Int, _ bailout: Double) -> MandelbrotResultDbl {
     var r = MandelbrotResultDbl();
@@ -82,20 +188,28 @@ struct RealResult {
     var sub: Float2 = Float2(0.0)
     var mul: Float2 = Float2(0.0)
     var div: Float2 = Float2(0.0)
+    var fmod: Float2 = Float2(0.0)
     var sqrt: Float2 = Float2(0.0)
     var log: Float2 = Float2(0.0)
     var exp: Float2 = Float2(0.0)
     var pow: Float2 = Float2(0.0)
+    var sine: Float2 = Float2(0.0)
+    var cosine: Float2 = Float2(0.0)
+    var tangent: Float2 = Float2(0.0)
+    var atangent: Float2 = Float2(0.0)
 }
 
 do {
     let metalCompute = try MetalCompute("compute_float_arrays", count)
     
     // Input Array 1
-    let a1: [Float2] = Array(repeating: Float2(Double.pi * 2.0), count: count)
+    let a1: [Float2] = Array(repeating: 30.0, count: count)
     
     // Input Array 2
-    let a2: [Float2] = Array(repeating: Float2(Double.pi), count: count)
+    let a2: [Float2] = Array(repeating: 11.0, count: count)
+    
+    let a0: Double = 30.0
+    let a01: Double = 11.0
 
     // Scalar value
     let x: Float2 = 1.0
@@ -114,21 +228,31 @@ do {
         
         print("\nResults:")
         print("F64: \(Double(a1[0])) + \(Double(a2[0])) = \(Double(result[0].add))")
-        print("DBL: \(Double.pi * 2.0) + \(Double.pi) = \(Double.pi * 2.0 + Double.pi)")
+        print("DBL: \(a0) + \(a01) = \(a0 + a01)")
         print("F64: \(Double(a1[0])) - \(Double(a2[0])) = \(Double(result[0].sub))")
-        print("DBL: \(Double.pi * 2.0) - \(Double.pi) = \(Double.pi * 2.0 - Double.pi)")
+        print("DBL: \(a0) - \(a01) = \(a0 - a01)")
         print("F64: \(Double(a1[0])) * \(Double(a2[0])) = \(Double(result[0].mul))")
-        print("DBL: \(Double.pi * 2.0) * \(Double.pi) = \(Double.pi * 2.0 * Double.pi)")
+        print("DBL: \(a0) * \(a01) = \(a0 * a01)")
         print("F64: \(Double(a1[0])) / \(Double(a2[0])) = \(Double(result[0].div))")
-        print("DBL: \(Double.pi * 2.0) / \(Double.pi) = \(Double.pi * 2.0 / Double.pi)")
+        print("DBL: \(a0) / \(a01) = \(a0 / a01)")
+        print("F64: fmod \(Double(a1[0])),\(Double(a2[0])) = \(Double(result[0].fmod))")
+        print("DBL: fmod \(a0),\(a01) = \(fmod(a0, a01))")
         print("F64: sqrt \(Double(a1[0])) = \(Double(result[0].sqrt))")
-        print("DBL: sqrt \(Double.pi * 2.0) = \(sqrt(Double.pi * 2.0))")
+        print("DBL: sqrt \(a0) = \(sqrt(a0))")
         print("F64: log \(Double(a1[0])) = \(Double(result[0].log))")
-        print("DBL: log \(Double.pi * 2.0) = \(log(Double.pi * 2.0))")
+        print("DBL: log \(a0) = \(log(a0))")
         print("F64: exp \(Double(a1[0])) = \(Double(result[0].exp))")
-        print("DBL: exp \(Double.pi * 2.0) = \(exp(Double.pi * 2.0))")
+        print("DBL: exp \(a0) = \(exp(a0))")
         print("F64: pow \(Double(a1[0])), \(Double(a2[0])) = \(Double(result[0].pow))")
-        print("DBL: pow \(Double.pi * 2.0), \(Double.pi) = \(pow(Double.pi * 2.0, Double.pi))")
+        print("DBL: pow \(a0), \(a01) = \(pow(a0, a01))")
+        print("F64: sin \(Double(a1[0])) = \(Double(result[0].sine))")
+        print("DBL: sin \(a0) = \(sin(a0))")
+        print("F64: cos \(Double(a1[0])) = \(Double(result[0].cosine))")
+        print("DBL: cos \(a0) = \(cos(a0))")
+        print("F64: tan \(Double(a1[0])) = \(Double(result[0].tangent))")
+        print("DBL: tan \(a0) = \(tan(a0))")
+        print("F64: atan \(Double(a1[0])) = \(Double(result[0].atangent))")
+        print("DBL: atan \(tan(a0)) = \(atan(tan(a0)))")
     }
     else {
         print("Compute failed")
@@ -153,6 +277,10 @@ for i in 0..<count {
     arr3[i] = log(arr1[i])
     arr3[i] = exp(arr1[i])
     arr3[i] = pow(arr1[i], arr2[i])
+    arr3[i] = sin(arr1[i])
+    arr3[i] = cos(arr1[i])
+    arr3[i] = tan(arr1[i])
+    arr3[i] = atan(tan(arr1[i]))
 }
 t2 = Date().timeIntervalSince1970
 timeSwift = t2 - t1
@@ -336,3 +464,6 @@ if timeSwift > timeMetal {
 else {
     print("Swift is \(timeMetal / timeSwift) times faster than Metal")
 }
+
+print(Float2(Double.pi / 180.0))
+//generateFloat2()
