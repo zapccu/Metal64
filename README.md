@@ -95,6 +95,7 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 
 | Function     | Result |
 |--------------|--------|
+| fmod(f64,f64)| Modulo division |
 | sqrt(f64)    | Square root |
 | pow(f64,int) | Power |
 | pow(f64,f64) | Power |      
@@ -115,11 +116,13 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 
 #### Constants
 
-| Constant | Value  |
-|----------|--------|
-| f64_pi   | pi     |
-| f64_pi2  | pi / 2 |
-| f64_log2 | log(2) |
+| Constant  | Value    |
+|-----------|----------|
+| f64_pi    | pi       |
+| f64_pi2   | pi / 2   |
+| f64_pix2  | pi \* 2   |
+| f64_pi180 | pi / 180 |
+| f64_log2  | log(2)   |
 
 
 ### 64 bit complex floating point numbers

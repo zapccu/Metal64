@@ -47,10 +47,13 @@ struct f64 {
 };
 
 // Constants
-constant f64 pi_f64   = f64(3.1415927, -8.742278e-08);
-constant f64 pi2_f64  = f64(1.5707964, -4.371139e-08);
-constant f64 log2_f64 = f64(0.6931472, -1.9046542e-09);
+constant f64 f64_pi    = f64(3.1415927, -8.742278e-08);
+constant f64 f64_pi2   = f64(1.5707964, -4.371139e-08);
+constant f64 f64_pix2  = f64(6.2831855, -1.7484555e-07);
+constant f64 f64_pi180 = f64(0.017453292, 1.351996e-10);
+constant f64 f64_log2  = f64(0.6931472, -1.9046542e-09);
 
+f64 fmod(f64, f64);
 f64 sqrt(f64);
 f64 exp(f64);
 f64 log(f64);
