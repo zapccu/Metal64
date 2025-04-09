@@ -58,6 +58,7 @@ float2 sin_f64(float2);
 float2 cos_f64(float2);
 float2 tan_f64(float2);
 float2 atan_iterate(float2, int);
+float2 atan2_iterate(float2, float2, int);
 float2 atan_f64(float2);
 float2 atan2_f64(float2, float2);
 float2 asin_f64(float2);
