@@ -97,19 +97,19 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 
 | Function     | Result |
 |--------------|--------|
-| fmod(f64,f64)| Modulo division |
-| sqrt(f64)    | Square root |
-| pow(f64,int) | Power |
-| pow(f64,f64) | Power |      
-| exp(f64)     | Exponential |
-| log(f64)     | Natural logarithm |
-| sin(f64)     | Sine |
-| cos(f64)     | Cosine |
-| tan(f64)     | Tangent |
-| asin(f64)    | Arc sine |
-| acos(f64)    | Arc cosine |
-| atan(f64)    | Arc tangent |
-| atan2(f64,f64) | Arc tangent 2 |
+| fmod(f64 x,f64 y)| Modulo division |
+| sqrt(f64 x)    | Square root |
+| pow(f64 x,int y) | Power x^y|
+| pow(f64 x,f64 y) | Power x^y |      
+| exp(f64 x)     | Exponential |
+| log(f64 x)     | Natural logarithm |
+| sin(f64 x)     | Sine |
+| cos(f64 x)     | Cosine |
+| tan(f64 x)     | Tangent |
+| asin(f64 x)    | Arc sine |
+| acos(f64 x)    | Arc cosine |
+| atan(f64 x)    | Arc tangent |
+| atan2(f64 y,f64 x) | Arc tangent 2 |
 
 #### Other functions
 
