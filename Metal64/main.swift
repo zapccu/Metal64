@@ -139,8 +139,8 @@ func iterateDouble(_ C: Complex<Double>, _ maxIter: Int, _ bailout: Double) -> M
     
     for i in 0...maxIter {
         // 1st derivation of Z
-        D = D * Complex<Double>(2.0) * Z + Complex<Double>(1.0)
-        
+        D = (D + D) * Z + Complex<Double>(1.0)
+
         Z = Z * Z + C
         
         nZ = Z.lengthSquared;
@@ -251,7 +251,7 @@ do {
         print("DBL: cos \(a0) = \(cos(a0))")
         print("F64: tan \(Double(a1[0])) = \(Double(result[0].tangent))")
         print("DBL: tan \(a0) = \(tan(a0))")
-        print("F64: atan \(Double(a1[0])) = \(Double(result[0].atangent))")
+        print("F64: atan \(tan(Double(a1[0]))) = \(Double(result[0].atangent))")
         print("DBL: atan \(tan(a0)) = \(atan(tan(a0)))")
     }
     else {
@@ -465,5 +465,5 @@ else {
     print("Swift is \(timeMetal / timeSwift) times faster than Metal")
 }
 
-print(Float2(Double.pi / 180.0))
+print(Float2(1.0/log(2)))
 //generateFloat2()

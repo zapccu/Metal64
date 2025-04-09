@@ -28,6 +28,12 @@ extension Complex<Float64> {
             Double(Float2(complex2.z, complex2.w))
         )
     }
+    
+    func square() -> Complex<Float64> {
+        let realPart = self.real * self.real - self.imaginary * self.imaginary
+        let imaginaryPart = 2.0 * self.real * self.imaginary
+        return Complex<Float64>(realPart, imaginaryPart)
+    }
 }
 
 // Extend SIMD4 to support conversion of float / double datatypes to Complex2

@@ -19,6 +19,7 @@ constant float2 pix2_f2 = float2(6.2831855, -1.7484555e-07);    // PI * 2
 constant float2 pi2_f2  = float2(1.5707964, -4.371139e-08);     // PI / 2
 constant float2 pi180_f2 = float2(0.017453292, 1.351996e-10);   // PI / 180
 constant float2 log2_f2 = float2(0.6931472, -1.9046542e-09);    // LOG(2)
+constant float2 log12_f2 = float2(1.442695, 1.925963e-08);      // 1/LOG(2)
 
 float2 sumq(float, float);
 float2 sumq(float2);

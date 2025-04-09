@@ -440,16 +440,17 @@ float2 tan_f64(float2 a) {
 }
 
 // Arc tangent iteration
+// Should be substituted by CORDIC algorithm because n must be >100 to get accurate results
 float2 atan_iterate(float2 a, int n) {
     float2 a2 = mul_f64(a, a);
-    float2 d = float2(n * 2 + 1, 0.0);
+    float2 d = float2(n + n + 1, 0.0f);
     float2 f;
     int k;
     float2 k2;
     
     for (k=n; k>0; k--) {
-        f = float2(k * 2 - 1, 0.0f);
-        k2 = float2(k * k);
+        f = float2(k + k - 1, 0.0f);
+        k2 = float2(k * k, 0.0f);
         d = add_f64(f, div_f64(mul_f64(k2, a2), d));
     }
     
@@ -465,7 +466,7 @@ float2 atan_f64(float2 a) {
         return sub_f64(pi2_f2, atan_iterate(div_f64(float2(1.0f, 0.0f), a), 21));
     }
     else {
-        return atan_iterate(a, 21);
+        return atan_iterate(a, 100);
     }
 }
 

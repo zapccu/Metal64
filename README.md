@@ -42,7 +42,7 @@ The datatype Double is extended by a constructor to init a Double value with a F
 
 ### Construct 64 bit complex numbers (Complex2)
 
-The Swift datatype **Complex2** is an alias for the `SIMD4<Float32>` datatype. The following constructors
+The Swift datatype **Complex2** is an alias for the `SIMD4<Float32>` datatype. The following constructors are available:
 
 > Complex2()                  // 0  
 > Complex2(Double)            // Init real part. Imaginary part is set to 0  
@@ -66,7 +66,9 @@ The datatype ComplexDouble (an alias for Complex<Float64>) is extended by a cons
 ### 64 bit real floating point numbers
 
 The class f64 is used to define 64 bit real floating point variables in Metal. A 64 bit floating point number is internally stored as
-a float2 vector element "v" in a f64 object.
+a float2 vector element "v" in a f64 object. The metal source files must include "f64.h":
+
+`#include "f64.h"`
 
 #### Constructors
 
@@ -128,7 +130,9 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 ### 64 bit complex floating point numbers
 
 The class c64 is used to define 64 bit complex floating point variables in Metal. A 64 bit complex floating point number is internally stored as
-a float4 vector element "v" in a c64 object.
+a float4 vector element "v" in a c64 object. The metal source files must include "c64.h" (includes "f64.h" implicitly):
+
+`#include "c64.h"`
 
 #### Constructors
 
