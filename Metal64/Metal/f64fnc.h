@@ -42,7 +42,9 @@ int sign_f64(float2);
 bool eq(float2, float2);
 bool ne(float2, float2);
 bool lt(float2, float2);
+bool ltZero(float2);
 bool gt(float2, float2);
+bool gtZero(float2);
 bool le(float2, float2);
 bool ge(float2, float2);
 

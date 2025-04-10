@@ -27,6 +27,7 @@
 using namespace metal;
 
 // Constants for CORDIC algorithms
+// To get accurate results for trigonomical functions, number of iterations should be >= 40
 constant int CORDIC_ANGLES_LENGTH = 60;
 constant int CORDIC_KPROD_LENGTH  = 33;
 constant int CORDIC_ITERATIONS    = 50;
@@ -164,7 +165,6 @@ float4 sump(float2 a_ri, float2 b_ri) {
 
 // Split two 32 bit floats into four 16 bit floats
 float4 split4(float2 c) {
-    // const float split = 4097;
     float2 t = c * 4097.0;
     float2 c_hi = t - (t - c);
     float2 c_lo = c - c_hi;
@@ -203,6 +203,14 @@ float2 mul_f64(float2 a, float2 b) {
     return sumq(p);
 }
 
+
+// Multiplication: f64 * f32
+float2 mulds(float2 a, float b) {
+    float2 p = prod(a.x, b);
+    p.y += a.y * b;
+    return sumq(p);
+}
+
 // Square of f64
 float2 sqr_f64(float2 a) {
     float2 p = prod(a.x, a.x);
@@ -213,13 +221,6 @@ float2 sqr_f64(float2 a) {
 // f64 square of float
 float2 sqr_f64(float a) {
     return sumq(prod(a, a));
-}
-
-// Multiplication: f64 * f32
-float2 mulds(float2 a, float b) {
-    float2 p = prod(a.x, b);
-    p.y += a.y * b;
-    return sumq(p);
 }
 
 // Division: f64 / f64
@@ -269,9 +270,19 @@ bool lt(float2 a, float2 b) {
     return (a.x < b.x || (a.x == b.x && a.y < b.y));
 }
 
+// Less than zero
+bool ltZero(float2 a) {
+    return (a.x < 0.0 || (a.x == 0.0 && a.y < 0.0));
+}
+
 // Greater than
 bool gt(float2 a, float2 b) {
     return (a.x > b.x || (a.x == b.x && a.y > b.y));
+}
+
+// Greater than zero
+bool gtZero(float2 a) {
+    return (a.x > 0.0 || (a.x == 0.0 && a.y > 0.0));
 }
 
 // Less or equal
@@ -332,14 +343,15 @@ float2 pow_f64(float2 a, float2 b) {
 
 // Power f64, int
 float2 pow_f64(float2 a, int b) {
-    float2 r = 1.0f;
+    float2 r = F2_ONE;
+    int e = abs(b);
     int i;
     
-    for (i=0; i<b; i++) {
+    for (i=0; i<e; i++) {
         r = mul_f64(r, a);
     }
     
-    return r;
+    return b >= 0 ? r : div_f64(F2_ONE, r);
 }
 
 // Floating point modulo division
@@ -353,11 +365,9 @@ float2 angle_shift(float2 alpha, float2 beta) {
     float2 gamma;
 
     if (lt(alpha, beta)) {
-        // gamma = beta - fmod ( beta - alpha, 2.0 * pi_f2 ) + 2.0 * pi_f2;
         gamma = add_f64(sub_f64(beta, fmod_f64(sub_f64(beta, alpha), pix2_f2)), pix2_f2);
     }
     else {
-        // gamma = beta + fmod ( alpha - beta, 2.0 * pi_f2 );
         gamma = add_f64(beta, fmod_f64(sub_f64(alpha, beta), pix2_f2));
     }
 
@@ -398,7 +408,7 @@ float4 sincos_f64(float2 a, int n) {
 
     // Iterate
     for (j=1; j<=n; j++) {
-        sigma = lt(theta, F2_ZERO) ? -1.0 : 1.0;
+        sigma = ltZero(theta) ? -1.0 : 1.0;
 
         factor = mulds(poweroftwo, sigma);
 
@@ -412,11 +422,9 @@ float4 sincos_f64(float2 a, int n) {
         theta = sub_f64(theta, mulds(angle, sigma));
 
         poweroftwo = mulds(poweroftwo, 0.5);
-        // poweroftwo = div_f64(poweroftwo, float2(2.0, 0.0));
 
         // Update the angle from table, or eventually by just dividing by two
         angle = CORDIC_ANGLES_LENGTH < j+1 ? mulds(angle, 0.5) : angles[j];
-        // angle = CORDIC_ANGLES_LENGTH < j+1 ? div_f64(angle, float2(2.0, 0.0)) : angles[j];
     }
 
     // Adjust length of output vector to be [cos(beta), sin(beta)]
@@ -431,7 +439,6 @@ float4 sincos_f64(float2 a, int n) {
     //  Adjust for possible sign change because angle was originally not in quadrant 1 or 4.
     c = mulds(c, sign_factor);
     s = mulds(s, sign_factor);
-    //c = sqrt_f64(add_f64(float2(1.0f, 0.0f), -sqr_f64(s)));
 
     return float4(s, c);
 }
@@ -453,25 +460,6 @@ float2 tan_f64(float2 a) {
 }
 
 // Arc tangent iteration
-// Should be substituted by CORDIC algorithm because n must be >100 to get accurate results
-/*
-float2 atan_iterate(float2 a, int n) {
-    float2 a2 = mul_f64(a, a);
-    float2 d = float2(n + n + 1, 0.0f);
-    float2 f;
-    int k;
-    float2 k2;
-    
-    for (k=n; k>0; k--) {
-        f = float2(k + k - 1, 0.0f);
-        k2 = float2(k * k, 0.0f);
-        d = add_f64(f, div_f64(mul_f64(k2, a2), d));
-    }
-    
-    return div_f64(a, d);
-}
-*/
-
 float2 atan2_iterate(float2 y, float2 x, int n) {
     float2 angle;
     int j;
@@ -484,16 +472,16 @@ float2 atan2_iterate(float2 y, float2 x, int n) {
     float2 y1 = y;
     float2 y2;
 
-     if (lt(x1, F2_ZERO) && lt(y1, F2_ZERO)) {
+     if (ltZero(x1) && ltZero(y1)) {
          x1 = -x1;
          y1 = -y1;
      }
 
-     if (lt(x1, F2_ZERO)) {
+     if (ltZero(x1)) {
          x1 = -x1;
          sign_factor = -1.0;
      }
-     else if (lt(y1, F2_ZERO)) {
+     else if (ltZero(y1)) {
          y1 = -y1;
          sign_factor = -1.0;
      }
@@ -522,65 +510,23 @@ float2 atan2_iterate(float2 y, float2 x, int n) {
 // Inverse tangent
 float2 atan_f64(float2 a) {
     return atan2_iterate(a, F2_ONE, CORDIC_ITERATIONS);
-    
-    /*
-    if (all(a == 0.0)) {
-        return float2(0.0f, 0.0f);
-    }
-    else if (gt(a, float2(1.0f, 0.0f))) {
-        return sub_f64(pi2_f2, atan_iterate(div_f64(float2(1.0f, 0.0f), a), 21));
-    }
-    else {
-        return atan_iterate(a, 100);
-    }
-     */
 }
 
 // Inverse tangent2
 float2 atan2_f64(float2 y, float2 x) {
     return atan2_iterate(y, x, CORDIC_ITERATIONS);
-    
-    /*
-    int sy = sign_f64(y);
-    int sx = sign_f64(x);
-    
-    if (sx == 1) {
-        // x > 0
-        return atan_f64(div_f64(y, x));
-    }
-    else if (sx == -1 && sy == 1) {
-        // x < 0 AND y >= 0
-        return add_f64(atan_f64(div_f64(y, x)), pi_f2);
-    }
-    else if (sx == -1 && sy == -1) {
-        // x < 0 AND y < 0
-        return sub_f64(atan_f64(div_f64(y, x)), pi_f2);
-    }
-    else if (sx == 0 && sy == 1) {
-        // x = 0 AND y > 0
-        return pi2_f2;
-    }
-    else if (sx == 0 && sy == -1) {
-        // x = 0 AND y < 0
-        return -pi2_f2;
-    }
-    else {
-        // x = 0 AND y = 0
-        return NAN;
-    }
-     */
 }
 
 // Inverse sine
 float2 asin_f64(float2 a) {
-    float2 d = sqrt_f64(sub_f64(F2_ONE, mul_f64(a, a)));
-    return atan_f64(div_f64(a, d));
+    float2 d = sqrt_f64(sub_f64(F2_ONE, sqr_f64(a)));
+    return atan2_iterate(a, d, CORDIC_ITERATIONS);
 }
 
 // Inverse cosine
 float2 acos_f64(float2 a) {
-    float2 d = sqrt_f64(sub_f64(F2_ONE, mul_f64(a, a)));
-    return sub_f64(pi2_f2, atan_f64(div_f64(a, d)));
+    float2 d = sqrt_f64(sub_f64(F2_ONE, sqr_f64(a)));
+    return sub_f64(pi2_f2, atan2_iterate(a, d, CORDIC_ITERATIONS));
 }
 
 // ----------------------------------------------------------------------------
@@ -657,14 +603,23 @@ float2 abs_c64(float4 c) {
 //  Special functions
 // ----------------------------------------------------------------------------
 
-// Calculate Z = Z^2 + C
+// Calculate Z = Z^2 + C (experimental!)
+// Returns 2 float4 values:
+//   [0] = Zn
+//   [1].xy = norm (float2)
+//   [1].z  = flag (float): 0 = bailout reached, 1 = continue iteration
+//   [1].w  = unused
 float2x4 mandelbrot(float4 z, float4 c, float2 bailout) {
     float2 r1 = sqr_f64(z.xy);
     float2 r2 = sqr_f64(z.zw);
     float2 n = add_f64(r1, r2);
+    
+    if (ge(n, bailout)) return float2x4(z, float4(n, F2_ZERO));
+    
     float2 i1 = mul_f64(z.xy, z.zw);
     float4 z1 = float4(add_f64(sub_f64(r1, r2), c.xy), add_f64(add_f64(i1, i1), c.zw));
-    return float2x4(z1, float4(n, F2_ZERO));
+    
+    return float2x4(z1, float4(n, F2_ONE));
 }
 
 

@@ -45,13 +45,14 @@ MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
         // 1st derivation of Z
         D = (D + D) * Z + 1.0;
         
-        //float2x4 M = mandelbrot(Z.v, C.v, bailout.v);
+        float2x4 M = mandelbrot(Z.v, C.v, bailout.v);
         
-        Z = sqr(Z) + C;
+        // Z = sqr(Z) + C;
         
-        nZ = norm(Z);
+        // nZ = norm(Z);
         // nZ.v = M[1].xy;
-        if (nZ > bailout) {
+        // if (nZ > bailout) {
+        if (M[1].z == 0.0) {
             // Distance calculation
             aZ = sqrt(nZ);
             logaZ = log(aZ);
@@ -63,11 +64,11 @@ MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
             logZn = log(nZ) / 2.0;
             r.potential = (log(logZn * f64_1log2) * f64_1log2).v;
             r.iterations = i;
-            r.nZ = nZ.v;
-            r.Zn = Z.v;
+            r.nZ = M[1].xy; //nZ.v;
+            r.Zn = M[0]; //Z.v;
             return r;
         }
-        //Z.v = M[0];
+        Z.v = M[0];
     }
     
     r.iterations = maxIter;
