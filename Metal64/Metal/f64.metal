@@ -11,6 +11,11 @@
 
 using namespace metal;
 
+/// Floor
+f64 floor(f64 a) {
+    return f64(floor_f64(a.v));
+}
+
 /// Floating point modulo division
 f64 fmod(f64 a, f64 b) {
     return f64(fmod_f64(a.v, b.v));
@@ -23,21 +28,25 @@ f64 sqrt(f64 a) {
 
 /// Exponential function
 f64 exp(f64 a) {
+    // return f64(exp_iterate2(a.v));
     return f64(exp_f64(a.v));
 }
 
 /// Natural logarithm
 f64 log(f64 a) {
+    // return f64(log_iterate(a.v));
     return f64(log_f64(a.v));
 }
 
 /// Sine
 f64 sin(f64 a) {
+    // return f64(sincos_iterate(a.v).xy);
     return f64(sin_f64(a.v));
 }
 
 /// Cosine
 f64 cos(f64 a) {
+    // return f64(sincos_iterate(a.v).zw);
     return f64(cos_f64(a.v));
 }
 

@@ -57,12 +57,12 @@ MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
             aZ = sqrt(nZ);
             logaZ = log(aZ);
             logRatio = 2.0 * logaZ / log(bailout);
-            smoothIter = 1.0 - log(logRatio) * f64_1log2;
+            smoothIter = 1.0 - log(logRatio) * F64_1_LOG2;
             r.distance = (aZ * logaZ / norm(D) * 0.5).v;
             
             // Potential calculation
             logZn = log(nZ) / 2.0;
-            r.potential = (log(logZn * f64_1log2) * f64_1log2).v;
+            r.potential = (log(logZn * F64_1_LOG2) * F64_1_LOG2).v;
             r.iterations = i;
             r.nZ = M[1].xy; //nZ.v;
             r.Zn = M[0]; //Z.v;
@@ -111,12 +111,12 @@ MandelbrotResult iterateFlt2(float4 C, float2 bailout, int maxIter) {
             // Distance calculation
             aZ = sqrt_f64(nZ);
             logRatio = 2.0 * log(aZ) / log(bailout);
-            smoothIter = sub_f64(float2(1.0f, 0.0f), div_f64(logRatio, f64_log2.v));
+            smoothIter = sub_f64(float2(1.0f, 0.0f), div_f64(logRatio, F64_LOG2.v));
             r.distance = mul_f64(aZ, div_f64(div_f64(log_f64(aZ), norm_c64(D)), float2(2.0f, 0.0f)));
             
             // Potential calculation
             logZn = div_f64(log_f64(nZ), float2(2.0f, 0.0f));
-            r.potential = div_f64(log_f64(div_f64(logZn, f64_log2.v)), f64_log2.v);
+            r.potential = div_f64(log_f64(div_f64(logZn, F64_LOG2.v)), F64_LOG2.v);
             r.iterations = i;
             
             r.nZ = nZ;
@@ -169,6 +169,8 @@ struct RealResult {
     f64 sine;
     f64 cosine;
     f64 tangent;
+    f64 asine;
+    f64 acosine;
     f64 atangent;
 };
 
@@ -191,6 +193,8 @@ kernel void compute_float_arrays(device const float2 *arr1,
     resultArray[index].sine = sin_f64(arr1[index]);
     resultArray[index].cosine = cos_f64(arr1[index]);
     resultArray[index].tangent = tan_f64(arr1[index]);
+    resultArray[index].asine = asin_f64(arr1[index]);
+    resultArray[index].acosine = acos_f64(arr1[index]);
     resultArray[index].atangent = atan_f64(tan_f64(arr1[index]));
 }
 

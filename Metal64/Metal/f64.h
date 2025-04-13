@@ -47,13 +47,18 @@ struct f64 {
 };
 
 // Constants
-constant f64 f64_pi    = f64(3.1415927, -8.742278e-08);
-constant f64 f64_pi2   = f64(1.5707964, -4.371139e-08);
-constant f64 f64_pix2  = f64(6.2831855, -1.7484555e-07);
-constant f64 f64_pi180 = f64(0.017453292, 1.351996e-10);
-constant f64 f64_log2  = f64(0.6931472, -1.9046542e-09);
-constant f64 f64_1log2 = f64(1.442695, 1.925963e-08);
+constant f64 F64_PI     = f64(3.1415927, -8.742278e-08);    // PI
+constant f64 F64_PI_2   = f64(1.5707964, -4.371139e-08);    // PI / 2
+constant f64 F64_2_PI   = f64(6.2831855, -1.7484555e-07);   // PI * 2
+constant f64 F64_PI_180 = f64(0.017453292, 1.351996e-10);   // PI / 180
+constant f64 F64_LOG2   = f64(0.6931472, -1.9046542e-09);   // LOG(2)
+constant f64 F64_1_LOG2 = f64(1.442695, 1.925963e-08);      // 1 / LOG(2)
+constant f64 F64_E      = f64(2.7182817, 8.2548404e-08);    // E
+constant f64 F64_1_E    = f64(0.36787945, -9.149755e-09);   // 1/E
+constant f64 F64_1_3    = f64(0.33333334, -9.934108e-09);   // 1/3
 
+// Functions
+f64 floor(f64);
 f64 fmod(f64, f64);
 f64 sqrt(f64);
 f64 exp(f64);

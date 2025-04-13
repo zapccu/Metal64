@@ -9,6 +9,7 @@
 import Foundation
 import Metal
 import ComplexModule
+import simd
 
 let log2 = log(2.0)
 
@@ -121,7 +122,39 @@ func generateFloat2() {
         0.60725293500888125617
     ]
     
-    for i in kprod {
+    let fx_vec: [Double] = [
+        1.6487212707001282,
+        1.2840254166877414,
+        1.1331484530668263,
+        1.0644944589178593,
+        1.0317434074991028,
+        1.0157477085866857,
+        1.007843097206448,
+        1.0039138893383475,
+        1.0019550335910028,
+        1.0009770394924165,
+        1.0004884004786945,
+        1.0002441704297478,
+        1.0001220777633837,
+        1.0000610370189331,
+        1.000030518043791,
+        1.0000152589054785,
+        1.000007629423635,
+        1.0000038147045416,
+        1.0000019073504518,
+        1.0000009536747712,
+        1.000000476837272,
+        1.0000002384186075,
+        1.0000001192092967,
+        1.0000000596046466,
+        1.0000000298023228,
+        1.0000000149011612,
+        1.0000000074505806,
+        1.0000000037252903,
+        1.0000000018626451
+    ]
+    
+    for i in fx_vec {
         let x = Float2(i)
         print("float2(\(x.x), \(x.y)),")
     }
@@ -196,6 +229,8 @@ struct RealResult {
     var sine: Float2 = Float2(0.0)
     var cosine: Float2 = Float2(0.0)
     var tangent: Float2 = Float2(0.0)
+    var asine: Float2 = Float2(0.0)
+    var acosine : Float2 = Float2(0.0)
     var atangent: Float2 = Float2(0.0)
 }
 
@@ -203,12 +238,12 @@ do {
     let metalCompute = try MetalCompute("compute_float_arrays", count)
     
     // Input Array 1
-    let a1: [Float2] = Array(repeating: 30.0, count: count)
+    let a1: [Float2] = Array(repeating: 7.5, count: count)
     
     // Input Array 2
     let a2: [Float2] = Array(repeating: 11.0, count: count)
     
-    let a0: Double = 30.0
+    let a0: Double = 7.5
     let a01: Double = 11.0
 
     // Scalar value
@@ -251,6 +286,10 @@ do {
         print("DBL: cos \(a0) = \(cos(a0))")
         print("F64: tan \(Double(a1[0])) = \(Double(result[0].tangent))")
         print("DBL: tan \(a0) = \(tan(a0))")
+        print("F64: asin \(sin(Double(a1[0]))) = \(Double(result[0].asine))")
+        print("DBL: asin \(sin(a0)) = \(asin(sin(a0)))")
+        print("F64: acos \(cos(Double(a1[0]))) = \(Double(result[0].acosine))")
+        print("DBL: atan \(cos(a0)) = \(acos(cos(a0)))")
         print("F64: atan \(tan(Double(a1[0]))) = \(Double(result[0].atangent))")
         print("DBL: atan \(tan(a0)) = \(atan(tan(a0)))")
     }
@@ -280,6 +319,8 @@ for i in 0..<count {
     arr3[i] = sin(arr1[i])
     arr3[i] = cos(arr1[i])
     arr3[i] = tan(arr1[i])
+    arr3[i] = asin(sin(arr1[i]))
+    arr3[i] = acos(cos(arr1[i]))
     arr3[i] = atan(tan(arr1[i]))
 }
 t2 = Date().timeIntervalSince1970
@@ -465,5 +506,6 @@ else {
     print("Swift is \(timeMetal / timeSwift) times faster than Metal")
 }
 
-print(Float2(1.0/log(2)))
+
+print(floor(Float2(-0.5,-1.2)))
 //generateFloat2()

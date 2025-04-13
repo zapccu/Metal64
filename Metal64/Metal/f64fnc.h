@@ -10,23 +10,43 @@
 
 using namespace metal;
 
+
 // ----------------------------------------------------------------------------
 //  Constants
 // ----------------------------------------------------------------------------
 
-constant float2 pi_f2   = float2(3.1415927, -8.742278e-08);     // PI
-constant float2 pix2_f2 = float2(6.2831855, -1.7484555e-07);    // PI * 2
-constant float2 pi2_f2  = float2(1.5707964, -4.371139e-08);     // PI / 2
-constant float2 pi180_f2 = float2(0.017453292, 1.351996e-10);   // PI / 180
-constant float2 log2_f2 = float2(0.6931472, -1.9046542e-09);    // LOG(2)
-constant float2 log12_f2 = float2(1.442695, 1.925963e-08);      // 1/LOG(2)
+constant float2 F2_PI     = float2(3.1415927, -8.742278e-08);   // PI
+constant float2 F2_2_PI   = float2(6.2831855, -1.7484555e-07);  // PI * 2
+constant float2 F2_PI_2   = float2(1.5707964, -4.371139e-08);   // PI / 2
+constant float2 F2_PI_180 = float2(0.017453292, 1.351996e-10);  // PI / 180
+constant float2 F2_LOG2   = float2(0.6931472, -1.9046542e-09);  // LOG(2)
+constant float2 F2_1_LOG2 = float2(1.442695, 1.925963e-08);     // 1/LOG(2)
+constant float2 F2_E      = float2(2.7182817, 8.2548404e-08);   // E
+constant float2 F2_1_E    = float2(0.36787945, -9.149755e-09);  // 1/E
+constant float2 F2_1_3    = float2(0.33333334, -9.934108e-09);  // 1/3
 
+constant float2 F2_ZERO   = 0.0f;
+constant float2 F2_ONE    = float2(1.0f, 0.0f);
+
+
+// ----------------------------------------------------------------------------
+//  Functions
+// ----------------------------------------------------------------------------
+
+// Helper functions
 float2 flt2(float);
 float2 sumq(float, float);
 float2 sumq(float2);
 float4 sump(float2, float2);
 float4 split4(float2);
 float2 prod(float, float);
+
+// CORDIC iteration functions
+float4 sincos_iterate(float2);
+float2 atan2_iterate(float2, float2);
+float2 exp_iterate(float2);
+float2 exp_iterate2(float2);
+float2 log_iterate(float2);
 
 float2 add_f64(float2, float2);
 float2 sub_f64(float2, float2);
@@ -54,9 +74,9 @@ float2 log_f64(float2);
 float2 pow_f64(float2, float2);
 float2 pow_f64(float2, int);
 
+float2 floor_f64(float2);
 float2 fmod_f64(float2, float2);
 
-float4 sincos_f64(float2, int);
 float2 sin_f64(float2);
 float2 cos_f64(float2);
 float2 tan_f64(float2);
