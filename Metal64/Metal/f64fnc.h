@@ -43,6 +43,7 @@ float2 prod(float, float);
 
 // CORDIC iteration functions
 float4 sincos_iterate(float2);
+float2 asin_iterate(float2);
 float2 atan2_iterate(float2, float2);
 float2 exp_iterate(float2);
 float2 exp_iterate2(float2);

@@ -172,6 +172,7 @@ struct RealResult {
     f64 asine;
     f64 acosine;
     f64 atangent;
+    f64 atangent2;
 };
 
 // Kernel function for adding elements of 2 arrays
@@ -193,9 +194,11 @@ kernel void compute_float_arrays(device const float2 *arr1,
     resultArray[index].sine = sin_f64(arr1[index]);
     resultArray[index].cosine = cos_f64(arr1[index]);
     resultArray[index].tangent = tan_f64(arr1[index]);
-    resultArray[index].asine = asin_f64(arr1[index]);
-    resultArray[index].acosine = acos_f64(arr1[index]);
+    resultArray[index].asine = asin_f64(sin_f64(arr1[index]));
+    resultArray[index].acosine = acos_f64(cos_f64(arr1[index]));
     resultArray[index].atangent = atan_f64(tan_f64(arr1[index]));
+    resultArray[index].atangent2 = atan2_f64(arr1[index], arr1[index]);
+
 }
 
 // ==========================================================

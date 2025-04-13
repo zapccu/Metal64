@@ -232,6 +232,60 @@ float4 sincos_iterate(float2 a) {
     return float4(s, c);
 }
 
+float2 asin_iterate(float2 a) {
+    int i, j;
+    float2 t = a;
+    float2 angle;
+    float2 poweroftwo = F2_ONE;
+    float2 sigma;
+    float2 sign_z1;
+    float2 theta = 0.0;
+    float2 x1 = F2_ONE;
+    float2 x2;
+    float2 y1 = 0.0;
+    float2 y2;
+
+    if (gt(abs(t), F2_ONE)) return NAN;
+    
+    for (j=1; j<=CORDIC_TRIG_ITERATIONS; j++) {
+        if (ltZero(x1)) {
+            sign_z1 = flt2(-1.0);
+        }
+        else {
+            sign_z1 = F2_ONE;
+        }
+
+        if (le(y1, t)) {
+            sigma = sign_z1;
+        }
+        else {
+            sigma = -sign_z1;
+        }
+
+        if (j <= CORDIC_ANGLES_LENGTH) {
+            angle = trig_angles[j - 1];
+        }
+        else {
+            angle = mulds(angle, 0.5);
+        }
+
+        for (i=1; i<=2; i++) {
+            x2 = sub_f64(x1, mul_f64(sigma, mul_f64(poweroftwo, y1)));
+            y2 = add_f64(y1, mul_f64(sigma, mul_f64(poweroftwo, x1)));
+            x1 = x2;
+            y1 = y2;
+        }
+
+        theta  = add_f64(theta, mulds(mul_f64(sigma, angle), 2.0));
+
+        add_f64(t, mul_f64(t, sqr_f64(poweroftwo)));
+
+        poweroftwo = mulds(poweroftwo, 0.5);
+    }
+
+    return theta;
+}
+
 // Arc tangent iteration
 float2 atan2_iterate(float2 y, float2 x) {
     float2 angle;

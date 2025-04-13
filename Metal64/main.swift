@@ -232,6 +232,7 @@ struct RealResult {
     var asine: Float2 = Float2(0.0)
     var acosine : Float2 = Float2(0.0)
     var atangent: Float2 = Float2(0.0)
+    var atangent2: Float2 = Float2(0.0)
 }
 
 do {
@@ -289,9 +290,11 @@ do {
         print("F64: asin \(sin(Double(a1[0]))) = \(Double(result[0].asine))")
         print("DBL: asin \(sin(a0)) = \(asin(sin(a0)))")
         print("F64: acos \(cos(Double(a1[0]))) = \(Double(result[0].acosine))")
-        print("DBL: atan \(cos(a0)) = \(acos(cos(a0)))")
+        print("DBL: acos \(cos(a0)) = \(acos(cos(a0)))")
         print("F64: atan \(tan(Double(a1[0]))) = \(Double(result[0].atangent))")
         print("DBL: atan \(tan(a0)) = \(atan(tan(a0)))")
+        print("F64: atan2 \(Double(a1[0])),\(Double(a1[0])) = \(Double(result[0].atangent2))")
+        print("DBL: atan2 \(a0),\(a0) = \(atan2(a0, a0))")
     }
     else {
         print("Compute failed")

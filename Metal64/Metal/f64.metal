@@ -55,18 +55,22 @@ f64 tan(f64 a) {
     return f64(tan_f64(a.v));
 }
 
+/// Arc Sine
 f64 asin(f64 a) {
     return f64(asin_f64(a.v));
 }
 
+/// Arc Cosine
 f64 acos(f64 a) {
     return f64(acos_f64(a.v));
 }
 
+/// Arc Tangent
 f64 atan(f64 a) {
     return f64(atan_f64(a.v));
 }
 
+/// Arc Tangent2
 f64 atan2(f64 a, f64 b) {
     return f64(atan2_f64(a.v, b.v));
 }
