@@ -46,7 +46,6 @@ float4 sincos_iterate(float2);
 float2 asin_iterate(float2);
 float2 atan2_iterate(float2, float2);
 float2 exp_iterate(float2);
-float2 exp_iterate2(float2);
 float2 log_iterate(float2);
 
 float2 add_f64(float2, float2);

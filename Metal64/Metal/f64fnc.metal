@@ -207,6 +207,7 @@ float2 sqrt_f64(float2 a) {
 
 // Exponential
 float2 exp_f64(float2 a) {
+    /*
     float2 s = add_f64(a, F2_ONE);
     float2 t = a;
     float2 d = a;
@@ -220,7 +221,8 @@ float2 exp_f64(float2 a) {
     }
 
     return s;
-    //return exp_iterate(a);
+     */
+    return exp_iterate(a);
 }
 
 // Natural logarithm
@@ -232,8 +234,8 @@ float2 log_f64(float2 a) {
 
     xi.x = log(a.x);
     //return add_f64(add_f64(xi, mul_f64(exp_f64(-xi), a)), flt2(-1.0f));
-    return add_f64(add_f64(xi, mul_f64(exp_iterate2(-xi), a)), flt2(-1.0f));
-    // return log_iterate(a);
+    // return add_f64(add_f64(xi, mul_f64(exp_iterate2(-xi), a)), flt2(-1.0f));
+    return log_iterate(a);
 }
 
 // Power f64, f64
@@ -300,16 +302,13 @@ float2 atan2_f64(float2 y, float2 x) {
 
 // Inverse sine
 float2 asin_f64(float2 a) {
-    //float2 d = div_f64(a, add_f64(F2_ONE, sqrt_f64(sub_f64(F2_ONE, sqr_f64(a)))));
-    //return atan2_iterate(a, d);
     if(lt(a, flt2(-1)) || gt(a, F2_ONE)) return NAN;
+    // return asin_iterate(a);
     return atan2_iterate(a, sqrt_f64(sub_f64(F2_ONE, sqr_f64(a))));
 }
 
 // Inverse cosine
 float2 acos_f64(float2 a) {
-    //float2 d = sqrt_f64(sub_f64(F2_ONE, sqr_f64(a)));
-    //return sub_f64(F2_PI_2, atan2_iterate(a, d));
     if(lt(a, flt2(-1)) || gt(a, F2_ONE)) return NAN;
     return atan2_iterate(sqrt_f64(sub_f64(F2_ONE, sqr_f64(a))), a);
 }
