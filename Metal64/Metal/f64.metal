@@ -21,6 +21,11 @@ f64 fmod(f64 a, f64 b) {
     return f64(fmod_f64(a.v, b.v));
 }
 
+/// Square
+f64 sqr(f64 a) {
+    return f64(sqr_f64(a.v));
+}
+
 /// Square root of f64 value
 f64 sqrt(f64 a) {
     return f64(sqrt_f64(a.v));

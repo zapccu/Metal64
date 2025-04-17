@@ -61,6 +61,7 @@ constant f64 F64_1_3    = f64(0.33333334, -9.934108e-09);   // 1 / 3
 // Functions
 f64 floor(f64);
 f64 fmod(f64, f64);
+f64 sqr(f64);
 f64 sqrt(f64);
 f64 exp(f64);
 f64 log(f64);
