@@ -122,6 +122,7 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 | Constant   | Value      |
 |------------|------------|
 | F64_PI     | pi         |
+| F64_1_PI   | 1 / pi     |
 | F64_PI_2   | pi / 2     |
 | F64_2_PI   | pi \* 2    |
 | F64_PI_180 | pi / 180   |

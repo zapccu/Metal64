@@ -227,18 +227,18 @@ float2 exp_f64(float2 a) {
 
 // Natural logarithm
 float2 log_f64(float2 a) {
-    float2 xi = 0.0f;
-    
-    if (eq(a, F2_ONE)) return xi;
+    if (eq(a, F2_ONE)) return F2_ZERO;
     if (le(a, F2_ZERO)) return NAN;
 
-    xi.x = log(a.x);
+    // float2 xi = 0.0f;
+    // xi.x = log(a.x);
     //return add_f64(add_f64(xi, mul_f64(exp_f64(-xi), a)), flt2(-1.0f));
     // return add_f64(add_f64(xi, mul_f64(exp_iterate2(-xi), a)), flt2(-1.0f));
     return log_iterate(a);
 }
 
 // Power f64, f64
+// Returns NAN for a < 0
 float2 pow_f64(float2 a, float2 b) {
     return exp_f64(mul_f64(b, log_f64(a)));
 }
@@ -286,8 +286,11 @@ float2 cos_f64(float2 a) {
 
 // Tangent
 float2 tan_f64(float2 a) {
+    /*
     float4 sc = sincos_iterate(a);
     return div_f64(sc.xy, sc.zw);
+     */
+    return tan_iterate(a);
 }
 
 // Inverse tangent
@@ -303,14 +306,17 @@ float2 atan2_f64(float2 y, float2 x) {
 // Inverse sine
 float2 asin_f64(float2 a) {
     if(lt(a, flt2(-1)) || gt(a, F2_ONE)) return NAN;
-    // return asin_iterate(a);
-    return atan2_iterate(a, sqrt_f64(sub_f64(F2_ONE, sqr_f64(a))));
+    // asin_iterate() is faster while atan2_iterate is more accurate
+    return asin_iterate(a);
+    // return atan2_iterate(a, sqrt_f64(sub_f64(F2_ONE, sqr_f64(a))));
 }
 
 // Inverse cosine
 float2 acos_f64(float2 a) {
     if(lt(a, flt2(-1)) || gt(a, F2_ONE)) return NAN;
-    return atan2_iterate(sqrt_f64(sub_f64(F2_ONE, sqr_f64(a))), a);
+    // acos_iterate() is faster while atan2_iterate is more accurate
+    return acos_iterate(a);
+    // return atan2_iterate(sqrt_f64(sub_f64(F2_ONE, sqr_f64(a))), a);
 }
 
 // ----------------------------------------------------------------------------
