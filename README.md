@@ -101,8 +101,8 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 | fmod(f64 x,f64 y)| Modulo division |
 | sqr(f64 x)     | Square x \* x |
 | sqrt(f64 x)    | Square root |
-| pow(f64 x,int y) | Power x^y|
-| pow(f64 x,f64 y) | Power x^y |      
+| pow(f64 x,int y) | Power x ^ y |
+| pow(f64 x,f64 y) | Power x ^ y, for x > 0 |      
 | exp(f64 x)     | Exponential |
 | log(f64 x)     | Natural logarithm |
 | sin(f64 x)     | Sine |
