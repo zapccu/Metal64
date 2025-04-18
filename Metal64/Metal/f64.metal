@@ -31,49 +31,59 @@ f64 sqrt(f64 a) {
     return f64(sqrt_f64(a.v));
 }
 
+// Power, exponent = int
+f64 pow(f64 a, int b) {
+    return f64(pow_f64(a.v, b));
+}
+
+// Power, exponent = f64
+f64 pow(f64 a, f64 b) {
+    return f64(exp_iterate(mul_f64(b.v, log_iterate(a.v))));
+}
+
 /// Exponential function
 f64 exp(f64 a) {
-    return f64(exp_f64(a.v));
+    return f64(exp_iterate(a.v));
 }
 
 /// Natural logarithm
 f64 log(f64 a) {
-    return f64(log_f64(a.v));
+    return f64(log_iterate(a.v));
 }
 
 /// Sine
 f64 sin(f64 a) {
-    return f64(sin_f64(a.v));
+    return f64(sincos_iterate(a.v).xy);
 }
 
 /// Cosine
 f64 cos(f64 a) {
-    return f64(cos_f64(a.v));
+    return f64(sincos_iterate(a.v).zw);
 }
 
 /// Tangent
 f64 tan(f64 a) {
-    return f64(tan_f64(a.v));
+    return f64(tan_iterate(a.v));
 }
 
 /// Arc Sine
 f64 asin(f64 a) {
-    return f64(asin_f64(a.v));
+    return f64(asin_iterate(a.v));
 }
 
 /// Arc Cosine
 f64 acos(f64 a) {
-    return f64(acos_f64(a.v));
+    return f64(acos_iterate(a.v));
 }
 
 /// Arc Tangent
 f64 atan(f64 a) {
-    return f64(atan_f64(a.v));
+    return f64(atan2_iterate(a.v, F2_ONE));
 }
 
 /// Arc Tangent2
 f64 atan2(f64 a, f64 b) {
-    return f64(atan2_f64(a.v, b.v));
+    return f64(atan2_iterate(a.v, b.v));
 }
 
 // Overloaded operators

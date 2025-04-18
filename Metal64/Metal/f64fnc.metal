@@ -297,9 +297,7 @@ float2 atan2_f64(float2 y, float2 x) {
 }
 
 // Inverse sine
-float2 asin_f64(float2 a) {
-    if(lt(a, flt2(-1)) || gt(a, F2_ONE)) return NAN;
-    
+float2 asin_f64(float2 a) {    
     // asin_iterate() is faster while atan2_iterate is more accurate
     return asin_iterate(a);
     // return atan2_iterate(a, sqrt_f64(sub_f64(F2_ONE, sqr_f64(a))));

@@ -63,6 +63,8 @@ f64 floor(f64);
 f64 fmod(f64, f64);
 f64 sqr(f64);
 f64 sqrt(f64);
+f64 pow(f64, int);
+f64 pow(f64, f64);
 f64 exp(f64);
 f64 log(f64);
 f64 sin(f64);
