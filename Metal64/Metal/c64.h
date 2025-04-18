@@ -97,6 +97,7 @@ c64 operator / (c64, float);
 c64 operator / (float, c64);
 
 bool isZero(c64);
+bool notZero(c64);
 bool operator == (c64, c64);
 bool operator != (c64, c64);
 

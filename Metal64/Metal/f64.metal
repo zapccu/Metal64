@@ -26,32 +26,28 @@ f64 sqr(f64 a) {
     return f64(sqr_f64(a.v));
 }
 
-/// Square root of f64 value
+/// Square root
 f64 sqrt(f64 a) {
     return f64(sqrt_f64(a.v));
 }
 
 /// Exponential function
 f64 exp(f64 a) {
-    // return f64(exp_iterate2(a.v));
     return f64(exp_f64(a.v));
 }
 
 /// Natural logarithm
 f64 log(f64 a) {
-    // return f64(log_iterate(a.v));
     return f64(log_f64(a.v));
 }
 
 /// Sine
 f64 sin(f64 a) {
-    // return f64(sincos_iterate(a.v).xy);
     return f64(sin_f64(a.v));
 }
 
 /// Cosine
 f64 cos(f64 a) {
-    // return f64(sincos_iterate(a.v).zw);
     return f64(cos_f64(a.v));
 }
 
@@ -156,6 +152,10 @@ bool operator >= (f64 a, f64 b) {
 
 bool isZero(f64 a) {
     return all(a.v == 0.0);
+}
+
+bool notZero(f64 a) {
+    return any(a.v != 0.0);
 }
 
 int sign(f64 a) {

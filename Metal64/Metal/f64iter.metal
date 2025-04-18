@@ -545,7 +545,7 @@ float2 log_iterate(float2 a) {
     float2 poweroftwo = flt2(0.5);
     int w[CORDIC_LOGEXP_ITERATIONS];
     
-    // if (le(a, 0.0)) return NAN;
+    if (le(a, 0.0)) return NAN;
     
     while (le(F2_E, a)) {
         k++;

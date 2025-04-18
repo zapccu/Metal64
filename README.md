@@ -115,8 +115,9 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 
 #### Other functions
 
-* isZero(f64) - Check if value is zero
-* sign(f64) - Return sign of value
+* isZero(f64 x) - Check if value is zero
+* notZero(f64 x) - Check if value is not zero
+* sign(f64 x) - Return sign of value: -1, 0, 1
 
 #### Constants
 
@@ -185,6 +186,7 @@ The comparison operators ==, != are only supporting c64 operands.
 #### Other functions
 
 * isZero(c64) - Check if value is zero
+* notZero(c64) - Check if value is not zero
 * c64.real() - Return real part
 * c64.imaginary() - Return imag part
 

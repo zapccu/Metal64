@@ -11,7 +11,9 @@ import Metal
 import ComplexModule
 import simd
 
-let log2 = log(2.0)
+let C_LOG2 = log(2.0)
+let C_1_LOG2 = 1.0 / log(2.0)
+let C_1_LOG2_2 = C_1_LOG2 / 2.0
 
 // Results of an iteration in Swift
 struct MandelbrotResultDbl {
@@ -220,7 +222,7 @@ func iterateDouble(_ C: Complex<Double>, _ maxIter: Int, _ bailout: Double) -> M
     var nZ: Double = 0.0
     var aZ: Double = 0.0
     var logRatio: Double = 0.0
-    var logZn: Double = 0.0
+    //var logZn: Double = 0.0
     
     for i in 0...maxIter {
         // 1st derivation of Z
@@ -233,12 +235,12 @@ func iterateDouble(_ C: Complex<Double>, _ maxIter: Int, _ bailout: Double) -> M
             // Distance calculation
             aZ = sqrt(nZ);
             logRatio = 2.0 * log(aZ) / log(bailout);
-            _ = 1.0 - log(logRatio) / log2
+            _ = 1.0 - log(logRatio) * C_1_LOG2
             r.distance = aZ * log(aZ) / D.lengthSquared / 2.0
             
             // Potential calculation
-            logZn = log(nZ) / 2.0
-            r.potential = log(logZn / log2) / log2
+            // logZn = log(nZ) / 2.0
+            r.potential = log(log(nZ) * C_1_LOG2_2) * C_1_LOG2
             
             r.iterations = i
             r.nZ = nZ
@@ -511,6 +513,9 @@ for y in 0..<height {
         if y == 500 && x >= 500 && x < 503 {
             print("\(Complex<Double>(x0, y0)): i=\(r.iterations), d=\(r.distance), p=\(r.potential), n=\(r.nZ), Zn=\(ComplexDouble(r.Zn))")
         }
+        else if y == 300 && x == 300 {
+            print("\(Complex<Double>(x0, y0)): i=\(r.iterations), d=\(r.distance), p=\(r.potential), n=\(r.nZ), Zn=\(ComplexDouble(r.Zn))")
+        }
     }
 }
 t2 = Date().timeIntervalSince1970
@@ -541,10 +546,12 @@ do {
         timeMetal = t2 - t1
         
         print("\nMetal results:")
-        let offset = 500 * width + 500
+        var offset = 500 * width + 500
         for i in 0..<3 {
             print("\(Complex<Double>(C[i+offset])): i=\(result[i+offset].iterations), d=\(Double(result[i+offset].distance)), p=\(Double(result[i+offset].potential)), n=\(Double(result[i+offset].nZ)), Zn=\(ComplexDouble(result[i+offset].Zn))")
         }
+        offset = 300 * width + 300
+        print("\(Complex<Double>(C[offset])): i=\(result[offset].iterations), d=\(Double(result[offset].distance)), p=\(Double(result[offset].potential)), n=\(Double(result[offset].nZ)), Zn=\(ComplexDouble(result[offset].Zn))")
     }
     else {
         print("Compute failed")

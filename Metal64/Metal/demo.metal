@@ -45,14 +45,14 @@ MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
         // 1st derivation of Z
         D = (D + D) * Z + 1.0;
         
-        float2x4 M = mandelbrot(Z.v, C.v, bailout.v);
+        // float2x4 M = mandelbrot(Z.v, C.v, bailout.v);
         
-        // Z = sqr(Z) + C;
+        Z = sqr(Z) + C;
         
-        // nZ = norm(Z);
+        nZ = norm(Z);
         // nZ.v = M[1].xy;
-        // if (nZ > bailout) {
-        if (M[1].z == 0.0) {
+        if (nZ > bailout) {
+        //if (M[1].z == 0.0) {
             // Distance calculation
             aZ = sqrt(nZ);
             logaZ = log(aZ);
@@ -61,14 +61,16 @@ MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
             r.distance = (aZ * logaZ / norm(D) * 0.5).v;
             
             // Potential calculation
-            logZn = log(nZ) / 2.0;
+            logZn = log(nZ) * 0.5;
             r.potential = (log(logZn * F64_1_LOG2) * F64_1_LOG2).v;
             r.iterations = i;
-            r.nZ = M[1].xy; //nZ.v;
-            r.Zn = M[0]; //Z.v;
+            r.nZ = nZ.v;
+            r.Zn = Z.v;
+            //r.nZ = M[1].xy; //nZ.v;
+            //r.Zn = M[0]; //Z.v;
             return r;
         }
-        Z.v = M[0];
+        //Z.v = M[0];
     }
     
     r.iterations = maxIter;
@@ -84,7 +86,6 @@ MandelbrotResult iterateFlt2(float4 C, float2 bailout, int maxIter) {
     float4 Z = 0.0;
     float4 D = float4(1.0f, 0.0f, 0.0f, 0.0f);
     const float4 one = float4(1.0, 0.0, 0.0, 0.0);
-    const float4 two = float4(2.0, 0.0, 0.0, 0.0);
     float2 nZ = 0.0;
     float2 aZ = 0.0;
     float2 logRatio = 0.0f;
@@ -149,8 +150,6 @@ kernel void mandelbrot(device const float4 *C,
 }
 
 
-
-
 // ==========================================================
 //  Math operations on arrays using 64 bit floating point
 //  functions
@@ -175,7 +174,7 @@ struct RealResult {
     f64 atangent2;
 };
 
-// Kernel function for adding elements of 2 arrays
+// Kernel function for combining elements of 2 real number arrays
 kernel void compute_float_arrays(device const float2 *arr1,
                        device const float2 *arr2,
                        device const float2& val,
@@ -214,7 +213,7 @@ struct ComplexResults {
     float4 sqr;
 };
 
-// Kernel function for adding elements of 2 complex arrays
+// Kernel function for combining elements of 2 complex number arrays
 kernel void compute_complex_arrays(device const float4 *arr1,
                        device const float4 *arr2,
                        device ComplexResults *resultArray,

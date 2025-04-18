@@ -95,6 +95,10 @@ bool isZero(c64 a) {
     return all(a.v == 0.0);
 }
 
+bool notZero(c64 a) {
+    return any(a.v != 0.0);
+}
+
 bool operator == (c64 a, c64 b) {
     return all(a.v == b.v);
 }
