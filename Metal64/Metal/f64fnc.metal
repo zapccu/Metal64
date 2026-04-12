@@ -21,6 +21,9 @@
 //
 //  References:
 //
+//    "Extended-Precision Floating-Point Numbers for GPU Computation"
+//    Andrew Thall, Alma College
+//
 //    CORDIC algorithms: // https://people.sc.fsu.edu/~jburkardt/c_src/cordic/cordic.html
 //
 
@@ -99,7 +102,6 @@ float2 mul_f64(float2 a, float2 b) {
     p.y += a.x * b.y + a.y * b.x;
     return sumq(p);
 }
-
 
 // Multiplication: f64 * f32
 float2 mulds(float2 a, float b) {
@@ -207,29 +209,11 @@ float2 sqrt_f64(float2 a) {
 
 // Exponential
 float2 exp_f64(float2 a) {
-    /*
-    float2 s = add_f64(a, F2_ONE);
-    float2 t = a;
-    float2 d = a;
-    int m = 2;
-    
-    while (abs(t.x) > 1e-20) {
-        d = div_f64(a, flt2(m));
-        t = mul_f64(t, d);
-        s = add_f64(s, t);
-        m++;
-    }
-
-    return s;
-     */
     return exp_iterate(a);
 }
 
 // Natural logarithm
 float2 log_f64(float2 a) {
-    if (eq(a, F2_ONE)) return F2_ZERO;
-    if (le(a, F2_ZERO)) return NAN;
-
     return log_iterate(a);
 }
 

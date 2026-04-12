@@ -169,11 +169,11 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					436C31662D0C28490098E040 = {
 						CreatedOnToolsVersion = 16.1;
-						LastSwiftMigration = 1610;
+						LastSwiftMigration = 1630;
 					};
 					43F99EB32D96A8E500972EE9 = {
 						CreatedOnToolsVersion = 16.2;
@@ -283,6 +283,7 @@
 				"MTL_MATH_MODE[sdk=*]" = SAFE;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -342,6 +343,7 @@
 				MTL_MATH_MODE = SAFE;
 				"MTL_MATH_MODE[sdk=*]" = SAFE;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;

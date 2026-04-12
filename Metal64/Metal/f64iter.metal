@@ -33,7 +33,11 @@ constant int CORDIC_MAX_ITERATIONS    = 50;
 //
 
 // Lookup table for 1 / power of 2
-// for i = 1..n: x[i] = 1 / 2 ^ i
+//
+// Building the table (starting with index 0):
+//
+//    for i = 1..n: x[i] = 1 / 2 ^ i
+//
 constant float2 pot[CORDIC_MAX_ITERATIONS] = {
     float2(1.0, 0.0),
     float2(0.5, 0.0),
@@ -304,9 +308,6 @@ float4 sincos_iterate(float2 a) {
     }
     
     //  Adjust for possible sign change because angle was originally not in quadrant 1 or 4.
-    // c = mulds(c, sign_factor);
-    // s = mulds(s, sign_factor);
-
     return sign_factor < 0 ? float4(-s, -c) : float4(s, c);
 }
 
@@ -545,6 +546,7 @@ float2 log_iterate(float2 a) {
     float2 poweroftwo = flt2(0.5);
     int w[CORDIC_LOGEXP_ITERATIONS];
     
+    if (eq(a, F2_ONE)) return F2_ZERO;
     if (le(a, 0.0)) return NAN;
     
     while (le(F2_E, a)) {

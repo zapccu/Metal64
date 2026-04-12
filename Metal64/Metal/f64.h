@@ -25,7 +25,7 @@ struct f64 {
     float2 v;
     
     f64() {
-        v = float2(0.0f, 0.0f);
+        v = F2_ZERO;
     }
     
     f64(float a) {

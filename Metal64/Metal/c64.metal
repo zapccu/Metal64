@@ -4,6 +4,8 @@
 //
 //  Created by Dirk Braner on 22.12.24.
 //
+//  Complex operations
+//
 
 #include <metal_stdlib>
 
@@ -127,6 +129,7 @@ f64 abs(c64 a) {
     return f64(abs_c64(a.v));
 }
 
+// Argument: arg(a+bi) = atan2(b, a)
 f64 arg(c64 a) {
     return f64(atan2_f64(a.v.zw, a.v.xy));
 }
