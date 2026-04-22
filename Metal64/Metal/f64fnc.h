@@ -36,6 +36,8 @@ constant float2 F2_ONE    = float2(1.0f, 0.0f);
 
 // Helper functions
 float2 flt2(float);
+float2 quick_renorm(float2);
+float2 full_renorm(float2);
 float2 sumq(float, float);
 float2 sumq(float2);
 float4 sump(float2, float2);

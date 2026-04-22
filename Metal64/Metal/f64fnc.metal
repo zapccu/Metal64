@@ -1,5 +1,5 @@
 //
-//  f64fnc.h
+//  f64fnc.metal
 //
 //  Functions for 64 bit floating point GPU/Metal calculations
 //
@@ -24,7 +24,7 @@
 //    "Extended-Precision Floating-Point Numbers for GPU Computation"
 //    Andrew Thall, Alma College
 //
-//    CORDIC algorithms: // https://people.sc.fsu.edu/~jburkardt/c_src/cordic/cordic.html
+//    CORDIC algorithms: https://people.sc.fsu.edu/~jburkardt/c_src/cordic/cordic.html
 //
 
 #include <metal_stdlib>
@@ -41,6 +41,25 @@ using namespace metal;
 // Convert float32 to float2
 float2 flt2(float a) {
     return float2(a, 0.0f);
+}
+
+// Fast normalization (single pass)
+// Ensure, that |a.y| <= 0.5 * f64_epsilon of a.x
+float2 quick_renorm(float2 a) {
+    float s = a.x + a.y;
+    float e = a.y - (s - a.x);
+    return float2(s, e);
+}
+
+// Full normalization (two pass)
+float2 full_renorm(float2 a) {
+    // 1st pass
+    float s = a.x + a.y;
+    float e = a.y - (s - a.x);
+    // 2nd pass
+    float ss = s + e;
+    float ee = e - (ss - s);
+    return float2(ss, ee);
 }
 
 // Add hi and lo
@@ -225,27 +244,32 @@ float2 pow_f64(float2 a, float2 b) {
 
 // Power f64, int
 float2 pow_f64(float2 a, int b) {
-    float2 r = F2_ONE;
+    if (b == 0) return float2(1.0, 0.0);
+        
+    float2 r = float2(1.0, 0.0);
+    float2 base = a;
     int e = abs(b);
-    int i;
-    
-    for (i=0; i<e; i++) {
-        r = mul_f64(r, a);
+        
+    while (e > 0) {
+        if (e % 2 == 1) {
+            r = mul_f64(r, base);
+        }
+        base = sqr_f64(base); // Square
+        e /= 2;
     }
-    
+        
     // a ^ -b = 1 / a ^ b
-    return b >= 0 ? r : div_f64(F2_ONE, r);
+    return b >= 0 ? r : div_f64(float2(1.0, 0.0), r);
 }
 
 // Floor
 float2 floor_f64(float2 a) {
-    if(ltZero(a)) {
-        float2 f = floor(a);
-        return flt2(f.x < 0.0 ? f.x : f.y);
+    float x_floor = floor(a.x);
+    if (x_floor == a.x) {
+        // If high part is Integer, low part is relevant
+        return sumq(x_floor, floor(a.y));
     }
-    else {
-        return float2((int)a.x);
-    }
+    return float2(x_floor, 0.0);
 }
 
 // Floating point modulo division

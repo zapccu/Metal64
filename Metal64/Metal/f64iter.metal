@@ -307,6 +307,10 @@ float4 sincos_iterate(float2 a) {
         s = mul_f64(s, fkprod);
     }
     
+    // Normalize
+    s = quick_renorm(s);
+    c = quick_renorm(c);
+    
     //  Adjust for possible sign change because angle was originally not in quadrant 1 or 4.
     return sign_factor < 0 ? float4(-s, -c) : float4(s, c);
 }
@@ -354,7 +358,10 @@ float2 tan_iterate(float2 a) {
         angle = j + 1 > CORDIC_ANGLES_LENGTH ? mulds(angle, 0.5) : trig_angles[j];
     }
 
-    return div_f64(s, c);
+    float2 result = div_f64(s, c);
+    
+    // Normalize
+    return quick_renorm(result);
 }
 
 // Arc sine CORDIC algorithm
@@ -393,7 +400,8 @@ float2 asin_iterate(float2 a) {
         poweroftwo = mulds(poweroftwo, 0.5);
     }
 
-    return theta;
+    // Normalize
+    return quick_renorm(theta);
 }
 
 // Arc cosine CORDIC algorithm
@@ -434,7 +442,8 @@ float2 acos_iterate(float2 a) {
         poweroftwo = mulds(poweroftwo, 0.5);
     }
 
-    return theta;
+    // Normalize
+    return quick_renorm(theta);
 }
 
 // Arc tangent 2 CORDIC algorithm
@@ -480,7 +489,11 @@ float2 atan2_iterate(float2 y, float2 x) {
         poweroftwo = mulds(poweroftwo, 0.5);
     }
 
-    return sign_factor < 0 ? -theta : theta;
+    float2 result = sign_factor < 0 ? -theta : theta;
+    
+    // Normalize
+    return quick_renorm(result);
+
 }
 
 // Exponential function CORDIC algorithm
@@ -535,7 +548,8 @@ float2 exp_iterate(float2 a) {
         }
     }
     
-    return fx;
+    // Normalize
+    return quick_renorm(fx);
 }
 
 // Natural logarithm CORDIC algorithm
@@ -585,6 +599,9 @@ float2 log_iterate(float2 a) {
         poweroftwo = mulds(poweroftwo, 0.5);
     }
     
-    return add_f64(a, flt2(k));
+    float2 result = add_f64(a, flt2(k));
+    
+    // Normalize
+    return quick_renorm(result);
 }
 
