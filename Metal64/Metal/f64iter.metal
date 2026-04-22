@@ -573,11 +573,11 @@ float2 log_iterate(float2 a) {
         a = mul_f64(a, F2_E);
     }
     
-    // Determine the weights.
+    // Determine the weights
     for (i=0; i<CORDIC_LOGEXP_ITERATIONS; i++) {
         w[i] = 0;
         
-        ai = i < CORDIC_LOGEXP_LENGTH ? ai = logexp[i] : add_f64(mulds(sub_f64(ai, F2_ONE), 0.5), F2_ONE);
+        ai = i < CORDIC_LOGEXP_LENGTH ? logexp[i] : add_f64(mulds(sub_f64(ai, F2_ONE), 0.5), F2_ONE);
         
         if (lt(ai, a)) {
             w[i] = 1;
