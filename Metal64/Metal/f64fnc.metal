@@ -110,9 +110,21 @@ float2 add_f64(float2 a, float2 b) {
     return sumq(st.xy);
 }
 
+// Add float to 64 bit floating point
+float2 add_ds(float2 a, float b) {
+    float2 s = sumq(a.x, b);
+    s.y += a.y;
+    return sumq(s);
+}
+
 // Subtract 2 64 bit floating point values
 float2 sub_f64(float2 a, float2 b) {
     return add_f64(a, -b);
+}
+
+// Subtract float from f64
+float2 sub_ds(float2 a, float b) {
+    return add_ds(a, -b);
 }
 
 // Multiplication: f64 * f64
@@ -123,7 +135,7 @@ float2 mul_f64(float2 a, float2 b) {
 }
 
 // Multiplication: f64 * f32
-float2 mulds(float2 a, float b) {
+float2 mul_ds(float2 a, float b) {
     float2 p = prod(a.x, b);
     p.y += a.y * b;
     return sumq(p);
@@ -142,11 +154,11 @@ float2 sqr_f64(float a) {
 }
 
 // Division: f64 / f64
-float2 div_f64(float2 b, float2 a) {
-    float xn = 1.0f / a.x;
-    float yn = b.x * xn;
-    float2 ayn = mulds(a, yn);
-    float diff = sub_f64(b, ayn).x;
+float2 div_f64(float2 a, float2 b) {
+    float xn = 1.0f / b.x;
+    float yn = a.x * xn;
+    float2 byn = mul_ds(b, yn);
+    float diff = sub_f64(a, byn).x;
     float2 p = prod(xn, diff);
     return add_f64(flt2(yn), p);
 }
@@ -161,7 +173,7 @@ bool isZero_f64(float2 a) {
 }
 
 // Return sign of value: -1: <0, 0: =0, 1: >0
-int sign_f64(float2 a) {
+float sign_f64(float2 a) {
     if (all(a == 0.0)) {
         return 0;
     }
@@ -264,19 +276,21 @@ float2 pow_f64(float2 a, int b) {
 
 // Floor
 float2 floor_f64(float2 a) {
-    float x_floor = floor(a.x);
-    if (x_floor == a.x) {
+    float hi = floor(a.x);
+    if (hi == a.x) {
         // If high part is Integer, low part is relevant
-        return sumq(x_floor, floor(a.y));
+        return sumq(hi, floor(a.y));
     }
-    return float2(x_floor, 0.0);
+    else {
+        return sumq(hi, 0.0);
+    }
 }
 
 // Floating point modulo division
 float2 fmod_f64(float2 a, float2 b) {
     float2 d = div_f64(a, b);
-    float i = float(int(d.x));
-    return sub_f64(a, mulds(b, i));
+    float i = floor(d.x);
+    return sub_f64(a, mul_ds(b, i));
 }
 
 // Sine
@@ -362,8 +376,8 @@ float4 div_c64(float4 a, float4 b) {
 // 64 bit complex square root
 float4 sqrt_c64(float4 a) {
     float2 dc = abs_c64(a);
-    float2 r = sqrt_f64(mulds(add_f64(dc, a.xy), 0.5));
-    float2 i = lt(a.zw, F2_ZERO) ? -sqrt_f64(mulds(sub_f64(dc, a.xy), 0.5)) : sqrt_f64(mulds(sub_f64(dc, a.xy), 0.5));
+    float2 r = sqrt_f64(mul_ds(add_f64(dc, a.xy), 0.5));
+    float2 i = lt(a.zw, F2_ZERO) ? -sqrt_f64(mul_ds(sub_f64(dc, a.xy), 0.5)) : sqrt_f64(mul_ds(sub_f64(dc, a.xy), 0.5));
     return float4(r, i);
 }
 

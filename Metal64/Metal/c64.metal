@@ -66,11 +66,11 @@ c64 operator * (f64 b, c64 a) {
 }
 
 c64 operator * (c64 a, float b) {
-    return c64(mulds(a.v.xy, b), mulds(a.v.zw, b));
+    return c64(mul_ds(a.v.xy, b), mul_ds(a.v.zw, b));
 }
 
 c64 operator * (float b, c64 a) {
-    return c64(mulds(a.v.xy, b), mulds(a.v.zw, b));
+    return c64(mul_ds(a.v.xy, b), mul_ds(a.v.zw, b));
 }
 
 c64 operator / (c64 a, c64 b) {

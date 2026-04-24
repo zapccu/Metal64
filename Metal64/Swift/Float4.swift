@@ -8,9 +8,10 @@
 import Foundation
 
 extension SIMD4<Float32> {
-    /// Konvertiert einen hochpräzisen String in ein float4 (Emuliertes 128-bit Float)
+    
+    /// Convert a high precision String to float4 (emulate 128-bit Float)
     init(_ numericString: String) {
-        // Wir nutzen Decimal für die initiale hohe Präzision beim Parsen
+        // Use Decimal for high precision parsing
         guard let decimalValue = Decimal(string: numericString) else {
             self.init(0, 0, 0, 0)
             return
@@ -18,19 +19,19 @@ extension SIMD4<Float32> {
         
         var remaining = decimalValue
         
-        // 1. Extrahiere den gröbsten Teil (High)
+        // Extract high part
         let f1 = Float32(truncating: remaining as NSNumber)
         remaining -= Decimal(Double(f1))
         
-        // 2. Extrahiere den nächsten Rest
+        // Extract rest
         let f2 = Float32(truncating: remaining as NSNumber)
         remaining -= Decimal(Double(f2))
         
-        // 3. Und den nächsten...
+        // Extract rest
         let f3 = Float32(truncating: remaining as NSNumber)
         remaining -= Decimal(Double(f3))
         
-        // 4. Der letzte Rest (Low)
+        // Extract rest (low)
         let f4 = Float32(truncating: remaining as NSNumber)
         
         self.init(f1, f2, f3, f4)

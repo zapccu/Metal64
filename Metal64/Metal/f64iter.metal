@@ -25,70 +25,11 @@ constant int CORDIC_ASIN_ITERATIONS   = 50;
 constant int CORDIC_ACOS_ITERATIONS   = 50;
 constant int CORDIC_ATAN_ITERATIONS   = 50;
 constant int CORDIC_LOGEXP_ITERATIONS = 50;
-constant int CORDIC_MAX_ITERATIONS    = 50;
 
 
 //
 // Predefined values
 //
-
-// Lookup table for 1 / power of 2
-//
-// Building the table (starting with index 0):
-//
-//    for i = 1..n: x[i] = 1 / 2 ^ i
-//
-constant float2 pot[CORDIC_MAX_ITERATIONS] = {
-    float2(1.0, 0.0),
-    float2(0.5, 0.0),
-    float2(0.25, 0.0),
-    float2(0.125, 0.0),
-    float2(0.0625, 0.0),
-    float2(0.03125, 0.0),
-    float2(0.015625, 0.0),
-    float2(0.0078125, 0.0),
-    float2(0.00390625, 0.0),
-    float2(0.001953125, 0.0),
-    float2(0.0009765625, 0.0),
-    float2(0.00048828125, 0.0),
-    float2(0.00024414062, 0.0),
-    float2(0.00012207031, 0.0),
-    float2(6.1035156e-05, 0.0),
-    float2(3.0517578e-05, 0.0),
-    float2(1.5258789e-05, 0.0),
-    float2(7.6293945e-06, 0.0),
-    float2(3.8146973e-06, 0.0),
-    float2(1.9073486e-06, 0.0),
-    float2(9.536743e-07, 0.0),
-    float2(4.7683716e-07, 0.0),
-    float2(2.3841858e-07, 0.0),
-    float2(1.1920929e-07, 0.0),
-    float2(5.9604645e-08, 0.0),
-    float2(2.9802322e-08, 0.0),
-    float2(1.4901161e-08, 0.0),
-    float2(7.450581e-09, 0.0),
-    float2(3.7252903e-09, 0.0),
-    float2(1.8626451e-09, 0.0),
-    float2(9.313226e-10, 0.0),
-    float2(4.656613e-10, 0.0),
-    float2(2.3283064e-10, 0.0),
-    float2(1.1641532e-10, 0.0),
-    float2(5.820766e-11, 0.0),
-    float2(2.910383e-11, 0.0),
-    float2(1.4551915e-11, 0.0),
-    float2(7.275958e-12, 0.0),
-    float2(3.637979e-12, 0.0),
-    float2(1.8189894e-12, 0.0),
-    float2(9.094947e-13, 0.0),
-    float2(4.5474735e-13, 0.0),
-    float2(2.2737368e-13, 0.0),
-    float2(1.1368684e-13, 0.0),
-    float2(5.684342e-14, 0.0),
-    float2(2.842171e-14, 0.0),
-    float2(1.4210855e-14, 0.0),
-    float2(7.1054274e-15, 0.0),
-    float2(3.5527137e-15, 0.0),
-};
 
 // Lookup table for trigonomical iterations
 //
@@ -256,7 +197,7 @@ float4 sincos_iterate(float2 a) {
     float2 factor;
     int j;
     float2 fkprod;
-    float2 poweroftwo = F2_ONE;
+    float poweroftwo = 1.0;
     int sigma = 0;
     int sign_factor = 1;
     float2 theta = 0.0;
@@ -271,7 +212,7 @@ float4 sincos_iterate(float2 a) {
         sign_factor = -1;
     }
     else if (lt(F2_PI_2, theta)) {
-        theta = sub_f64(theta, F2_PI_2);
+        theta = sub_f64(theta, F2_PI);
         sign_factor = -1;
     }
     
@@ -290,11 +231,10 @@ float4 sincos_iterate(float2 a) {
         // Update the remaining angle
         theta = sub_f64(theta, sigma < 0 ? -angle : angle);
 
-        // poweroftwo = pot[j];
-        poweroftwo = mulds(poweroftwo, 0.5);
+        poweroftwo *= 0.5;
 
         // Update the angle from table, or eventually by just dividing by two
-        angle = j < CORDIC_ANGLES_LENGTH ? trig_angles[j] : mulds(angle, 0.5);
+        angle = j < CORDIC_ANGLES_LENGTH ? trig_angles[j] : mul_ds(angle, 0.5);
     }
 
     // Adjust length of output vector to be [cos(beta), sin(beta)]
@@ -323,7 +263,7 @@ float2 tan_iterate(float2 a) {
     float2 c2;
     float2 factor;
     int j;
-    float2 poweroftwo = F2_ONE;
+    float poweroftwo = 1.0;
     int sigma;
     float2 theta;
     
@@ -352,10 +292,10 @@ float2 tan_iterate(float2 a) {
         // Update the remaining angle
         theta = sigma < 0 ? add_f64(theta, angle) : sub_f64(theta, angle);
 
-        poweroftwo = mulds(poweroftwo, 0.5);
+        poweroftwo *= 0.5;
 
         // Update the angle from table, or eventually by just dividing by two.
-        angle = j + 1 > CORDIC_ANGLES_LENGTH ? mulds(angle, 0.5) : trig_angles[j];
+        angle = j + 1 > CORDIC_ANGLES_LENGTH ? mul_ds(angle, 0.5) : trig_angles[j];
     }
 
     float2 result = div_f64(s, c);
@@ -370,7 +310,7 @@ float2 asin_iterate(float2 a) {
     int sigma;
     int sign_z1;
     float2 angle;
-    float2 poweroftwo = F2_ONE;
+    float poweroftwo = 1.0;
     float2 theta = 0.0;
     float2 x1 = F2_ONE;
     float2 y1 = 0.0;
@@ -383,7 +323,7 @@ float2 asin_iterate(float2 a) {
         sign_z1 = ltZero(x1) ? -1 : 1;
         sigma = le(y1, a) ? sign_z1 : -sign_z1;
         
-        angle = j <= CORDIC_ANGLES_LENGTH ? trig_angles[j - 1] : mulds(angle, 0.5);
+        angle = j <= CORDIC_ANGLES_LENGTH ? trig_angles[j - 1] : mul_ds(angle, 0.5);
 
         factor = sigma < 0 ? -poweroftwo : poweroftwo;
         
@@ -393,11 +333,11 @@ float2 asin_iterate(float2 a) {
             x1 = x2;
         }
 
-        theta = add_f64(theta, mulds(sigma < 0 ? -angle : angle, 2.0));
+        theta = add_f64(theta, mul_ds(sigma < 0 ? -angle : angle, 2.0));
 
         a = add_f64(a, mul_f64(a, sqr_f64(poweroftwo)));
 
-        poweroftwo = mulds(poweroftwo, 0.5);
+        poweroftwo *= 0.5;
     }
 
     // Normalize
@@ -409,7 +349,7 @@ float2 acos_iterate(float2 a) {
     float2 angle;
     int i;
     int j;
-    float2 poweroftwo = F2_ONE;
+    float poweroftwo = 1.0;
     int sigma;
     int sign_z2;
     float2 theta = 0.0;
@@ -425,7 +365,7 @@ float2 acos_iterate(float2 a) {
 
         sigma = le(a, x1) ? sign_z2 : -sign_z2;
 
-        angle = j <= CORDIC_ANGLES_LENGTH ? trig_angles[j - 1] : mulds(angle, 0.5);
+        angle = j <= CORDIC_ANGLES_LENGTH ? trig_angles[j - 1] : mul_ds(angle, 0.5);
 
         factor = sigma < 0 ? -poweroftwo : poweroftwo;
 
@@ -435,11 +375,11 @@ float2 acos_iterate(float2 a) {
             x1 = x2;
         }
 
-        theta = add_f64(theta, mulds(sigma < 0 ? -angle : angle, 2.0));
+        theta = add_f64(theta, mul_ds(sigma < 0 ? -angle : angle, 2.0));
 
         a = add_f64(a, mul_f64(a, sqr_f64(poweroftwo)));
 
-        poweroftwo = mulds(poweroftwo, 0.5);
+        poweroftwo *= 0.5;
     }
 
     // Normalize
@@ -451,7 +391,7 @@ float2 acos_iterate(float2 a) {
 float2 atan2_iterate(float2 y, float2 x) {
     float2 angle;
     int j;
-    float2 poweroftwo = F2_ONE;
+    float poweroftwo = 1.0;
     int sigma;
     int sign_factor = 1;
     float2 theta = 0.0f;
@@ -477,7 +417,7 @@ float2 atan2_iterate(float2 y, float2 x) {
     for (j=1; j<=CORDIC_ATAN_ITERATIONS; j++) {
         sigma = le(y1, F2_ZERO) ? 1 : -1;
 
-        angle = j <= CORDIC_ANGLES_LENGTH ? trig_angles[j-1] : mulds(angle, 0.5);
+        angle = j <= CORDIC_ANGLES_LENGTH ? trig_angles[j-1] : mul_ds(angle, 0.5);
 
         factor = sigma < 0 ? -poweroftwo : poweroftwo;
         x2 = sub_f64(x1, mul_f64(factor, y1));
@@ -486,7 +426,7 @@ float2 atan2_iterate(float2 y, float2 x) {
 
         theta = sub_f64(theta, sigma < 0 ? -angle : angle);
 
-        poweroftwo = mulds(poweroftwo, 0.5);
+        poweroftwo *= 0.5;
     }
 
     float2 result = sign_factor < 0 ? -theta : theta;
@@ -519,21 +459,21 @@ float2 exp_iterate(float2 a) {
         else {
             w[i] = 0;
         }
-        poweroftwo = mulds(poweroftwo, 0.5);
+        poweroftwo = mul_ds(poweroftwo, 0.5);
     }
     
     // Calculate products
     for (i=0; i<CORDIC_LOGEXP_ITERATIONS; i++) {
         if (w[i]) {
-            ai = i < CORDIC_LOGEXP_LENGTH ? logexp[i] : add_f64(F2_ONE, mulds(sub_f64(ai, F2_ONE), 0.5));
+            ai = i < CORDIC_LOGEXP_LENGTH ? logexp[i] : add_f64(F2_ONE, mul_ds(sub_f64(ai, F2_ONE), 0.5));
             fx = mul_f64(fx, ai);
         }
     }
     
     // Perform residual multiplication
-    float2 z12 = mulds(z, 0.5);
+    float2 z12 = mul_ds(z, 0.5);
     float2 z13 = mul_f64(z, F2_1_3);
-    float2 z14 = mulds(z, 0.25);
+    float2 z14 = mul_ds(z, 0.25);
     fx = mul_f64(fx, add_f64(F2_ONE, mul_f64(z, add_f64(F2_ONE, mul_f64(z12, add_f64(F2_ONE, mul_f64(z13, add_f64(F2_ONE, z14))))))));
 
     // Account for factor EXP(X_INT).
@@ -557,7 +497,7 @@ float2 log_iterate(float2 a) {
     float2 ai;
     int i;
     int k = 0;
-    float2 poweroftwo = flt2(0.5);
+    float poweroftwo = 0.5;
     int w[CORDIC_LOGEXP_ITERATIONS];
     
     if (eq(a, F2_ONE)) return F2_ZERO;
@@ -577,7 +517,7 @@ float2 log_iterate(float2 a) {
     for (i=0; i<CORDIC_LOGEXP_ITERATIONS; i++) {
         w[i] = 0;
         
-        ai = i < CORDIC_LOGEXP_LENGTH ? logexp[i] : add_f64(mulds(sub_f64(ai, F2_ONE), 0.5), F2_ONE);
+        ai = i < CORDIC_LOGEXP_LENGTH ? logexp[i] : add_f64(mul_ds(sub_f64(ai, F2_ONE), 0.5), F2_ONE);
         
         if (lt(ai, a)) {
             w[i] = 1;
@@ -587,16 +527,16 @@ float2 log_iterate(float2 a) {
     
     a = sub_f64(a, F2_ONE);
     
-    float2 x12 = mulds(a, 0.5);
+    float2 x12 = mul_ds(a, 0.5);
     float2 x13 = mul_f64(a, F2_1_3);
-    float2 x14 = mulds(a, 0.25);
+    float2 x14 = mul_ds(a, 0.25);
 
     a = mul_f64(a, sub_f64(1.0, mul_f64(x12, add_f64(F2_ONE, mul_f64(x13, sub_f64(F2_ONE, x14))))));
 
     // Assemble
     for (i=0; i<CORDIC_LOGEXP_ITERATIONS; i++) {
-        if (w[i]) a = add_f64(a, poweroftwo);
-        poweroftwo = mulds(poweroftwo, 0.5);
+        if (w[i]) a = add_ds(a, poweroftwo);
+        poweroftwo *= 0.5;
     }
     
     float2 result = add_f64(a, flt2(k));

@@ -23,9 +23,10 @@ extension SIMD2<Float32>: @retroactive ExpressibleByFloatLiteral {
     
     /// Convert Double to Float2
     init(_ number: Double = 0.0) {
-        let hi = Float32(number) // Die ersten ~7 Stellen
-        let lo = Float32(number - Double(hi)) // Der Rest
+        let hi = Float32(number)                // First ~7 digits
+        let lo = Float32(number - Double(hi))   // Rest
         self.init(x: hi, y: lo)
+        
         /*
         var hi: Float32 = 0.0
         var lo: Float32 = 0.0
@@ -37,7 +38,7 @@ extension SIMD2<Float32>: @retroactive ExpressibleByFloatLiteral {
             lo = Float32(number - Double(hi))
         }
         self.init(x: hi, y: lo)
-         */
+        */
     }
     
     /// Convert Float to Float2
@@ -54,6 +55,7 @@ extension SIMD2<Float32>: @retroactive ExpressibleByFloatLiteral {
     public init(floatLiteral number: Double) {
         self.init(number)
     }
+    
 }
 
 

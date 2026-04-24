@@ -54,17 +54,19 @@ float2 exp_iterate(float2);
 float2 log_iterate(float2);
 
 float2 add_f64(float2, float2);
+float2 add_ds(float2, float);
 float2 sub_f64(float2, float2);
+float2 sub_ds(float2, float);
 float2 mul_f64(float2, float2);
 float2 sqr_f64(float2);
 float2 sqr_f64(float);
-float2 mulds(float2, float);
+float2 mul_ds(float2, float);
 float2 div_f64(float2, float2);
 
 bool isZero_f64(float2);
 bool ltZero(float2);
 bool gtZero(float2);
-int sign_f64(float2);
+float sign_f64(float2);
 
 bool eq(float2, float2);
 bool ne(float2, float2);

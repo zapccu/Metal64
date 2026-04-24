@@ -93,11 +93,11 @@ f64 operator + (f64 a, f64 b) {
 }
 
 f64 operator + (f64 a, float b) {
-    return f64(add_f64(a.v, float2(b, 0.0f)));
+    return f64(add_ds(a.v, b));
 }
 
 f64 operator + (float b, f64 a) {
-    return f64(add_f64(a.v, float2(b, 0.0f)));
+    return f64(add_ds(a.v, b));
 }
 
 f64 operator - (f64 a, f64 b) {
@@ -105,11 +105,11 @@ f64 operator - (f64 a, f64 b) {
 }
 
 f64 operator - (f64 a, float b) {
-    return f64(sub_f64(a.v, float2(b, 0.0f)));
+    return f64(sub_ds(a.v, b));
 }
 
 f64 operator - (float b, f64 a) {
-    return f64(sub_f64(a.v, float2(b, 0.0f)));
+    return f64(-sub_ds(a.v, b));
 }
 
 f64 operator * (f64 a, f64 b) {
@@ -117,11 +117,11 @@ f64 operator * (f64 a, f64 b) {
 }
 
 f64 operator * (f64 a, float b) {
-    return f64(mulds(a.v, b));
+    return f64(mul_ds(a.v, b));
 }
 
 f64 operator * (float a, f64 b) {
-    return f64(mulds(b.v, a));
+    return f64(mul_ds(b.v, a));
 }
 
 f64 operator / (f64 a, f64 b) {
