@@ -101,6 +101,11 @@ float2 prod(float a, float b) {
 //  Real operations
 // ----------------------------------------------------------------------------
 
+// Negate
+float2 neg_f64(float2 a) {
+    return float2(-a.x, -a.y);
+}
+
 // Add 2 64 bit floating point values
 float2 add_f64(float2 a, float2 b) {
     float4 st = sump(a, b);
@@ -117,6 +122,13 @@ float2 add_ds(float2 a, float b) {
     return sumq(s);
 }
 
+// Add float to 64 bit floating point
+float2 add_sd(float a, float2 b) {
+    float2 s = sumq(b.x, a);
+    s.y += b.y;
+    return sumq(s);
+}
+
 // Subtract 2 64 bit floating point values
 float2 sub_f64(float2 a, float2 b) {
     return add_f64(a, -b);
@@ -125,6 +137,11 @@ float2 sub_f64(float2 a, float2 b) {
 // Subtract float from f64
 float2 sub_ds(float2 a, float b) {
     return add_ds(a, -b);
+}
+
+// Subtract f64 from float
+float2 sub_sd(float a, float2 b) {
+    return -add_sd(a, b);
 }
 
 // Multiplication: f64 * f64
@@ -161,6 +178,16 @@ float2 div_f64(float2 a, float2 b) {
     float diff = sub_f64(a, byn).x;
     float2 p = prod(xn, diff);
     return add_f64(flt2(yn), p);
+}
+
+// Rounding
+float2 round_f64(float2 a) {
+    float2 h = flt2(0.5f);
+    if (gtZero(a)) {
+        return floor_f64(add_f64(a, h));
+    } else {
+        return neg_f64(floor_f64(add_f64(neg_f64(a), h)));
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -239,13 +266,107 @@ float2 sqrt_f64(float2 a) {
 }
 
 // Exponential
+/*
 float2 exp_f64(float2 a) {
     return exp_iterate(a);
 }
+ */
+
+
+constant float2 F2_LN2_HI = float2(0.693147182f, 0.0f);
+constant float2 F2_LN2_LO = float2(-1.90465429995776020e-9f, 0.0f);
+
+float2 exp_f64(float2 x) {
+    if (gt(x, F2_EXPMAX)) return flt2(INFINITY);
+    if (lt(x, F2_EXPMIN)) return F2_ZERO;
+
+    float2 fm = round_f64(div_f64(x, F2_LOG2));
+    int m = (int)fm.x;
+
+    // Hochpräzise Argumentreduktion in zwei Schritten
+    float2 r = sub_f64(x, mul_f64(fm, F2_LN2_HI));
+    r = sub_f64(r,         mul_f64(fm, F2_LN2_LO));
+
+    float2 er = exp_core(r);
+    
+    float scale = ldexp(1.0f, m);
+    er.x *= scale;
+    er.y *= scale;
+    
+    return er;
+}
+
+
+float2 exp_core(float2 r) {
+    float2 res = float2(7.6471636e-13f, 1.22007105e-20f);                   // 1/15!
+    res = add_f64(float2(1.1470745e-11f, 2.3722077e-19f), mul_f64(r, res)); // 1/14!
+    res = add_f64(float2(1.6059044e-10, -5.3525265e-18), mul_f64(r, res));  // 1/13!
+    res = add_f64(float2(2.0876756e-09, 1.108284e-16),  mul_f64(r, res));   // 1/12!
+    res = add_f64(float2(2.5052108e-08, 4.417623e-16),  mul_f64(r, res));
+    res = add_f64(float2(2.755732e-07, -7.575112e-15),  mul_f64(r, res));
+    res = add_f64(float2(2.7557319e-06, 3.7935712e-14),  mul_f64(r, res));
+    res = add_f64(float2(2.4801588e-05, -3.406996e-13),  mul_f64(r, res));
+    res = add_f64(float2(0.0001984127, -2.7255969e-12),  mul_f64(r, res));
+    res = add_f64(float2(0.0013888889, -3.3631094e-11),  mul_f64(r, res));
+    res = add_f64(float2(0.008333334, -4.346172e-10),  mul_f64(r, res));
+    res = add_f64(float2(0.041666668, -1.2417635e-09),  mul_f64(r, res));
+    res = add_f64(float2(0.16666667, -4.967054e-09),  mul_f64(r, res));
+    res = add_f64(float2(0.5, 0.0),  mul_f64(r, res));
+    res = add_f64(F2_ONE, mul_f64(r, res));  // 1 + r*(...)
+    res = add_f64(F2_ONE, mul_f64(r, res));  // exp(r) = 1 + r*(1 + ...)
+    
+    return res;
+}
+
+/*
+float2 log_f64(float2 a) {
+    // CORDIC
+    return log_iterate(a);
+}
+*/
 
 // Natural logarithm
 float2 log_f64(float2 a) {
-    return log_iterate(a);
+    if (eq(a, F2_ONE)) return F2_ZERO;
+    if (le(a, F2_ZERO)) return flt2(NAN);
+
+    // Extract exponent from float32
+    uint bits = as_type<uint>(a.x);
+    int e = (int)((bits >> 23) & 0xFF) - 127;
+
+    // m = a * 2^-e, exact because 2^-e is a power of 2
+    float2 m = mul_f64(a, flt2(ldexp(1.0f, -e)));
+
+    // Ensure that m in [1, 2)
+    if (lt(m, F2_ONE)) { m = mul_f64(m, flt2(2.0f)); e--; }
+    if (ge(m, flt2(2.0f))) { m = mul_f64(m, flt2(0.5f)); e++; }
+
+    float2 ln_m = log_remez(m);
+    return add_f64(ln_m, mul_f64(flt2((float)e), F2_LOG2));
+}
+
+float2 log_remez(float2 m) {
+    float2 t  = div_f64(sub_ds(m, 1.0f), add_ds(m, 1.0f));
+    float2 t2 = mul_f64(t, t);
+
+    // 1/23 + t²*(1/21 + t²*(1/19 + t²*1)) ...
+    // Do not use a loop or lookup table! This would drop the performance.
+    // Start with 1/23: error <= 1e-14
+    float2 r = F2_1_23;
+    r = add_f64(F2_1_21, mul_f64(t2, r));
+    r = add_f64(F2_1_19, mul_f64(t2, r));
+    r = add_f64(F2_1_17, mul_f64(t2, r));
+    r = add_f64(F2_1_15, mul_f64(t2, r));
+    r = add_f64(F2_1_13, mul_f64(t2, r));
+    r = add_f64(F2_1_11, mul_f64(t2, r));
+    r = add_f64(F2_1_9, mul_f64(t2, r));
+    r = add_f64(F2_1_7, mul_f64(t2, r));
+    r = add_f64(F2_1_5, mul_f64(t2, r));
+    r = add_f64(F2_1_3, mul_f64(t2, r));
+    r = add_f64(F2_ONE, mul_f64(t2, r));
+    r = mul_f64(mul_ds(t, 2.0f), r);         // 2t  * (...)
+
+    return r;
 }
 
 // Power f64, f64

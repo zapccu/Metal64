@@ -117,12 +117,12 @@ do {
     let metalCompute = try MetalCompute("compute_float_arrays", count)
     
     // Input Array 1
-    let a1: [Float2] = Array(repeating: 7.5, count: count)
+    let a1: [Float2] = Array(repeating: 1.5, count: count)
     
     // Input Array 2
     let a2: [Float2] = Array(repeating: 3.3, count: count)
     
-    let a0: Double = 7.5
+    let a0: Double = 1.5
     let a01: Double = 3.3
 
     // Scalar value
@@ -143,36 +143,67 @@ do {
         print("\nResults:")
         print("F64: \(Double(a1[0])) + \(Double(a2[0])) = \(Double(result[0].add))")
         print("DBL: \(a0) + \(a01) = \(a0 + a01)")
+        print("Delta: \(abs(a0 + a01 - Double(result[0].add))))\n")
+        
         print("F64: \(Double(a1[0])) - \(Double(a2[0])) = \(Double(result[0].sub))")
         print("DBL: \(a0) - \(a01) = \(a0 - a01)")
+        print("Delta: \(abs(a0 - a01 - Double(result[0].sub)))\n")
+        
         print("F64: \(Double(a1[0])) * \(Double(a2[0])) = \(Double(result[0].mul))")
         print("DBL: \(a0) * \(a01) = \(a0 * a01)")
+        print("Delta: \(abs(a0 * a01 - Double(result[0].mul)))\n")
+        
         print("F64: \(Double(a1[0])) / \(Double(a2[0])) = \(Double(result[0].div))")
         print("DBL: \(a0) / \(a01) = \(a0 / a01)")
+        print("Delta: \(abs(a0 / a01 - Double(result[0].div)))\n")
+        
         print("F64: fmod \(Double(a1[0])),\(Double(a2[0])) = \(Double(result[0].fmod))")
         print("DBL: fmod \(a0),\(a01) = \(fmod(a0, a01))")
+        print("Delta: \(abs(fmod(a0, a01) - Double(result[0].fmod)))\n")
+        
         print("F64: sqrt \(Double(a1[0])) = \(Double(result[0].sqrt))")
         print("DBL: sqrt \(a0) = \(sqrt(a0))")
+        print("Delta: \(abs(sqrt(a0) - Double(result[0].sqrt)))\n")
+        
         print("F64: log \(Double(a1[0])) = \(Double(result[0].log))")
         print("DBL: log \(a0) = \(log(a0))")
+        print("Delta: \(abs(log(a0) - Double(result[0].log)))\n")
+        
         print("F64: exp \(Double(a1[0])) = \(Double(result[0].exp))")
         print("DBL: exp \(a0) = \(exp(a0))")
+        print("Delta: \(abs(exp(a0) - Double(result[0].exp)))\n")
+        
         print("F64: pow \(Double(a1[0])), \(Double(a2[0])) = \(Double(result[0].pow))")
         print("DBL: pow \(a0), \(a01) = \(pow(a0, a01))")
+        print("Delta: \(abs(pow(a0, a01) - Double(result[0].pow)))\n")
+        
         print("F64: sin \(Double(a1[0])) = \(Double(result[0].sine))")
         print("DBL: sin \(a0) = \(sin(a0))")
+        print("Delta: \(abs(sin(a0) - Double(result[0].sine)))\n")
+        
         print("F64: cos \(Double(a1[0])) = \(Double(result[0].cosine))")
         print("DBL: cos \(a0) = \(cos(a0))")
+        print("Delta: \(abs(cos(a0) - Double(result[0].cosine)))\n")
+        
         print("F64: tan \(Double(a1[0])) = \(Double(result[0].tangent))")
         print("DBL: tan \(a0) = \(tan(a0))")
+        print("Delta: \(abs(tan(a0) - Double(result[0].tangent)))\n")
+        
         print("F64: asin \(sin(Double(a1[0]))) = \(Double(result[0].asine))")
         print("DBL: asin \(sin(a0)) = \(asin(sin(a0)))")
+        print("Delta: \(abs(asin(sin(a0)) - Double(result[0].asine)))\n")
+        
         print("F64: acos \(cos(Double(a1[0]))) = \(Double(result[0].acosine))")
         print("DBL: acos \(cos(a0)) = \(acos(cos(a0)))")
+        print("Delta: \(abs(acos(cos(a0)) - Double(result[0].acosine)))\n")
+        
         print("F64: atan \(tan(Double(a1[0]))) = \(Double(result[0].atangent))")
         print("DBL: atan \(tan(a0)) = \(atan(tan(a0)))")
+        print("Delta: \(abs(atan(tan(a0)) - Double(result[0].atangent)))\n")
+        
         print("F64: atan2 \(Double(a1[0])),\(Double(a1[0])) = \(Double(result[0].atangent2))")
         print("DBL: atan2 \(a0),\(a0) = \(atan2(a0, a0))")
+        print("Delta: \(abs(atan2(a0, a0) - Double(result[0].atangent2)))\n")
     }
     else {
         print("Compute failed")
@@ -396,3 +427,9 @@ else {
 
 // Uncomment the following line to calculate lookup tables for CORDIC algorithms
 // generateFloat2()
+
+
+
+
+
+
