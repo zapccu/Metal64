@@ -38,12 +38,14 @@ constant float2 F2_1_23   = float2(0.04347826,  -8.0984575e-10);
 
 constant float2 F2_ZERO   = 0.0f;
 constant float2 F2_ONE    = float2(1.0f, 0.0f);
+constant float4 F4_ONE    = float4(1.0f, 0.0f, 0.0f, 0.0f);
 
 // exp(x) > 0 für alle x, aber float32 läuft über bei:
 constant float2 F2_EXPMAX = float2(88.02969f,  2.6030809e-07f);  // 127 * ln(2)
 constant float2 F2_EXPMIN = float2(-87.33655f, 2.3201194e-07f);  // -126 * ln(2)
 
 // 1/(n+1), n=0..20. div_one_by[1] = 1/2
+/*
 constant float2 div_one_by_n[23] = {
     float2(1.0, 0.0),
     float2(0.5, 0.0),
@@ -69,13 +71,15 @@ constant float2 div_one_by_n[23] = {
     float2(0.045454547, -1.3546511e-09),
     float2(0.04347826, -8.0984575e-10)
 };
-
+*/
 // ----------------------------------------------------------------------------
 //  Functions
 // ----------------------------------------------------------------------------
 
 // Helper functions
 float2 flt2(float);
+float4 flt4(float);
+float4 flt4(float2);
 float2 quick_renorm(float2);
 float2 full_renorm(float2);
 float2 sumq(float, float);

@@ -20,7 +20,7 @@
 
 using namespace metal;
 
-/// Struct for 64 bit floating points
+// Struct for 64 bit floating points
 struct f64 {
     float2 v;
     
@@ -44,6 +44,11 @@ struct f64 {
         v = float2(a, 0.0f);
         return *this;
     }
+    
+    f64 operator = (int a) {
+        v = float2(float(a), 0.0f);
+        return *this;
+    }
 };
 
 // Constants
@@ -60,6 +65,7 @@ constant f64 F64_1_3    = f64(0.33333334, -9.934108e-09);   // 1 / 3
 
 // Functions
 f64 floor(f64);
+f64 round(f64);
 f64 fmod(f64, f64);
 f64 sqr(f64);
 f64 sqrt(f64);

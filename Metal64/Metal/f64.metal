@@ -46,47 +46,47 @@ f64 pow(f64 a, f64 b) {
     return f64(exp_iterate(mul_f64(b.v, log_iterate(a.v))));
 }
 
-/// Exponential function
+// Exponential function
 f64 exp(f64 a) {
     return f64(exp_iterate(a.v));
 }
 
-/// Natural logarithm
+// Natural logarithm
 f64 log(f64 a) {
     return f64(log_iterate(a.v));
 }
 
-/// Sine
+// Sine
 f64 sin(f64 a) {
     return f64(sincos_iterate(a.v).xy);
 }
 
-/// Cosine
+// Cosine
 f64 cos(f64 a) {
     return f64(sincos_iterate(a.v).zw);
 }
 
-/// Tangent
+// Tangent
 f64 tan(f64 a) {
     return f64(tan_iterate(a.v));
 }
 
-/// Arc Sine
+// Arc Sine
 f64 asin(f64 a) {
     return f64(asin_iterate(a.v));
 }
 
-/// Arc Cosine
+// Arc Cosine
 f64 acos(f64 a) {
     return f64(acos_iterate(a.v));
 }
 
-/// Arc Tangent
+// Arc Tangent
 f64 atan(f64 a) {
     return f64(atan2_iterate(a.v, F2_ONE));
 }
 
-/// Arc Tangent2
+// Arc Tangent2
 f64 atan2(f64 a, f64 b) {
     return f64(atan2_iterate(a.v, b.v));
 }

@@ -84,11 +84,12 @@ MandelbrotResult iterate(c64 C, f64 bailout, int maxIter) {
 MandelbrotResult iterateFlt2(float4 C, float2 bailout, int maxIter) {
     MandelbrotResult r;
     float4 Z = 0.0;
-    float4 D = float4(1.0f, 0.0f, 0.0f, 0.0f);
-    const float4 one = float4(1.0, 0.0, 0.0, 0.0);
+    float4 D = F4_ONE;
     float2 nZ = 0.0;
     float2 aZ = 0.0;
+    float2 logaZ = 0.0;
     float2 logRatio = 0.0f;
+    float2 rcpLogBailout = div_f64(F2_ONE, log_f64(bailout));
     float2 smoothIter = 0.0f;
     float2 logZn = 0.0f;
     r.distance = 0.0f;
@@ -100,7 +101,7 @@ MandelbrotResult iterateFlt2(float4 C, float2 bailout, int maxIter) {
     for(i=0; i <= maxIter; i++) {
         // 1st derivation of Z
         // D = add_c64(mul_c64(mul_c64(D, Z), float4(2.0f, 0.0f, 0.0f, 0.0f)), float4(1.0f, 0.0f, 0.0f, 0.0f));
-        D = add_c64(mul_c64(add_c64(D, D), Z), one);
+        D = add_c64(mul_c64(add_c64(D, D), Z), F4_ONE);
         // Z = add_c64(sqr_c64(Z), C);
 
         float2 r1 = sqr_f64(Z.xy);
@@ -111,13 +112,14 @@ MandelbrotResult iterateFlt2(float4 C, float2 bailout, int maxIter) {
         if (gt(nZ, bailout)) {
             // Distance calculation
             aZ = sqrt_f64(nZ);
-            logRatio = 2.0 * log(aZ) / log(bailout);
-            smoothIter = sub_f64(float2(1.0f, 0.0f), div_f64(logRatio, F64_LOG2.v));
-            r.distance = mul_f64(aZ, div_f64(div_f64(log_f64(aZ), norm_c64(D)), float2(2.0f, 0.0f)));
+            logaZ = log_f64(aZ);
+            logRatio = mul_f64(mul_ds(logaZ, 2.0), rcpLogBailout);
+            smoothIter = sub_f64(F2_ONE, div_f64(logRatio, F2_LOG2));
+            r.distance = mul_f64(aZ, div_f64(div_f64(logaZ, norm_c64(D)), flt2(2.0f)));
             
             // Potential calculation
-            logZn = div_f64(log_f64(nZ), float2(2.0f, 0.0f));
-            r.potential = div_f64(log_f64(div_f64(logZn, F64_LOG2.v)), F64_LOG2.v);
+            logZn = div_f64(log_f64(nZ), flt2(2.0));
+            r.potential = div_f64(log_f64(div_f64(logZn, F2_LOG2)), F2_LOG2);
             r.iterations = i;
             
             r.nZ = nZ;
@@ -143,10 +145,10 @@ kernel void mandelbrot(device const float4 *C,
                        uint   index [[ thread_position_in_grid ]])
 {
     // Result array contains a MandelbrotResult element for each point in array C
-    resultArray[index] = iterate(c64(C[index]), f64(bailout), maxIter);
+    // resultArray[index] = iterate(c64(C[index]), f64(bailout), maxIter);
     
     // Function iterateFlt2() is using float2 routines directly instead of f64/c64 classes
-    // resultArray[index] = iterateFlt2(C[index], bailout, maxIter);
+    resultArray[index] = iterateFlt2(C[index], bailout, maxIter);
 }
 
 

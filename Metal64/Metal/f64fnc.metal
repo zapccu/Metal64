@@ -43,6 +43,16 @@ float2 flt2(float a) {
     return float2(a, 0.0f);
 }
 
+// Convert float32 to float4
+float4 flt4(float a) {
+    return float4(a, 0.0f, 0.0f, 0.0f);
+}
+
+// Convert float2 to float4
+float4 flt4(float2 a) {
+    return float4(a.x, a.y, 0.0f, 0.0f);
+}
+
 // Fast normalization (single pass)
 // Ensure, that |a.y| <= 0.5 * f64_epsilon of a.x
 float2 quick_renorm(float2 a) {
@@ -317,13 +327,6 @@ float2 exp_core(float2 r) {
     
     return res;
 }
-
-/*
-float2 log_f64(float2 a) {
-    // CORDIC
-    return log_iterate(a);
-}
-*/
 
 // Natural logarithm
 float2 log_f64(float2 a) {
