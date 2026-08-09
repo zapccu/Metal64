@@ -1,14 +1,6 @@
 
 This project is emulating 64 bit floating point real and complex numbers in Metal.
 
-# Two approaches
-
-The project contains two different approaches for emulating 64 bit floating point values in Metal:
-
-1. Emulate by using 32 bit floating point values
-2. Emulate by using 64 bit unsinged integer values
-
-Variant 1 can be found in folder "Metal64", variant 2 in folder "MetailUInt64". Variant 1 is faster than variant 2.
 
 # Xcode requirements and settings
 
@@ -20,7 +12,7 @@ IEEE conformity of floating point numbers.
 
 The option **Relax IEEE Compliance** under *Apple Clang - Code Generation* must be set to **No**.
 
-# Variant 1: Metal64
+# Metal64
 ## Swift Part
 ### Construct 64 bit floating point numbers (Float2)
 
@@ -191,6 +183,4 @@ The comparison operators ==, != are only supporting c64 operands.
 * c64.real() - Return real part
 * c64.imaginary() - Return imag part
 
-# Variant 2: MetalUInt64
 
-tbd.
