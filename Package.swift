@@ -24,7 +24,7 @@ let package = Package(
         .target(
             name: "Metal64",
             dependencies: [
-                .product(name: "swift-numerics", package: "swift-numerics")
+                .product(name: "Numerics", package: "swift-numerics")
             ]
         ),
     ]
