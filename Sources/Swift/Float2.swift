@@ -9,12 +9,12 @@
 //
 
 /// Datatypes for 64 bit Metal floating point values
-typealias Float2 = SIMD2<Float32>
+public typealias Float2 = SIMD2<Float32>
 
 extension Double {
     
     /// Convert Float2 to Double
-    init(_ float2: Float2) {
+    public init(_ float2: Float2) {
         self = Double(float2.x) + Double(float2.y)
     }
 }
@@ -22,7 +22,7 @@ extension Double {
 extension SIMD2<Float32>: @retroactive ExpressibleByFloatLiteral {
     
     /// Convert Double to Float2
-    init(_ number: Double = 0.0) {
+    public init(_ number: Double = 0.0) {
         let hi = Float32(number)                // First ~7 digits
         let lo = Float32(number - Double(hi))   // Rest
         self.init(x: hi, y: lo)
@@ -42,13 +42,18 @@ extension SIMD2<Float32>: @retroactive ExpressibleByFloatLiteral {
     }
     
     /// Convert Float to Float2
-    init(_ number: Float) {
+    public init(_ number: Float) {
         self.init(x: number, y: 0.0)
     }
     
     /// Convert Int to Float2
-    init(_ number: Int) {
+    public init(_ number: Int) {
         self.init(Float(number))
+    }
+    
+    /// Convert String to Float2
+    public init(_ sval: String) {
+        self.init(Double(sval) ?? 0.0)
     }
     
     /// Assign Double value to Float2

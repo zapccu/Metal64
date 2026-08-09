@@ -98,6 +98,7 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 | Function       | Result |
 |----------------|--------|
 | floor(f64 x)   | Floor function |
+| round(f64 x)   | Round value |
 | fmod(f64 x,f64 y)| Modulo division |
 | sqr(f64 x)     | Square x \* x |
 | sqrt(f64 x)    | Square root |

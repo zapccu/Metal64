@@ -20,10 +20,10 @@ import Metal
 /// 2. Add input parameters (arrays or scalar values)
 /// 3. Call compute() method => returns array with results
 ///
-class MetalCompute {
+public class MetalCompute {
 
     // Error codes
-    enum MetalError: Error {
+    public enum MetalError: Error {
         case deviceError(String)
         case libraryError(String)
         case commandQueueError(String)
@@ -36,7 +36,7 @@ class MetalCompute {
     }
     
     // Buffer types (arrays)
-    enum BufferType: Int {
+    public enum BufferType: Int {
         case inputBuffer = 1
         case resultBuffer = 2
     }
@@ -63,7 +63,7 @@ class MetalCompute {
     ///
     /// fncName - Name of kernel compute function
     ///
-    init(_ fncName: String, _ count: Int) throws {
+    public init(_ fncName: String, _ count: Int) throws {
         guard count > 0 else { throw MetalError.computeElementsError("Number of elements must be greater than zero") }
         
         guard let device = MTLCreateSystemDefaultDevice() else { throw MetalError.deviceError("Cannot create device") }
@@ -108,12 +108,17 @@ class MetalCompute {
     ///
     /// Either true or false
     ///
-    func addBuffer<T>(_ value: [T], _ bufferType: BufferType = .inputBuffer) throws {
+    public func addBuffer<T>(_ value: [T], _ bufferType: BufferType = .inputBuffer) throws {
         guard count == value.count else { throw MetalError.addBufferError("Element count mismatch") }
         
         let bufferSize = MemoryLayout<T>.size * count
 
-        if let buffer = device.makeBuffer(bytes: value, length: bufferSize, options: .storageModeShared) {
+        let buffer = value.withUnsafeBufferPointer { (bufferPtr) -> MTLBuffer? in
+            guard let baseAddress = bufferPtr.baseAddress else { return nil }
+            return device.makeBuffer(bytes: baseAddress, length: bufferSize, options: .storageModeShared)
+        }
+
+        if let buffer = buffer {
             computeEncoder.setBuffer(buffer, offset: 0, index: bufferIndex)
             bufferIndex += 1
             if bufferType == .inputBuffer {
@@ -141,7 +146,7 @@ class MetalCompute {
     ///
     /// Either true or false
     ///
-    func addBuffer<T>(_ count: Int, _ initValue: T, _ bufferType: BufferType = .inputBuffer) throws {
+    public func addBuffer<T>(_ count: Int, _ initValue: T, _ bufferType: BufferType = .inputBuffer) throws {
         try addBuffer(Array(repeating: initValue, count: count), bufferType)
     }
     
@@ -154,46 +159,45 @@ class MetalCompute {
     ///
     /// Either true or false
     ///
-    func addValue(_ value: Int64) {
+    public func addValue(_ value: Int64) {
         var v = value
         computeEncoder.setBytes(&v, length: MemoryLayout<Int64>.size, index: bufferIndex)
         bufferIndex += 1
     }
 
-    func addValue(_ value: Int32) {
+    public func addValue(_ value: Int32) {
         var v = value
         computeEncoder.setBytes(&v, length: MemoryLayout<Int32>.size, index: bufferIndex)
         bufferIndex += 1
     }
     
-    func addValue(_ value: Float) {
+    public func addValue(_ value: Float) {
         var v = value
         computeEncoder.setBytes(&v, length: MemoryLayout<Float>.size, index: bufferIndex)
         bufferIndex += 1
     }
-    
-    func addValue(_ value: FltUint64) {
-        var v = value
-        computeEncoder.setBytes(&v, length: MemoryLayout<FltUint64>.size, index: bufferIndex)
-        bufferIndex += 1
-    }
-    
-    func addValue(_ value: Double) {
-        var v = FltUint64(value)
-        // var v = Float2(value)
-        computeEncoder.setBytes(&v, length: MemoryLayout<FltUint64>.size, index: bufferIndex)
-        bufferIndex += 1
-    }
 
-    func addValue(_ value: CplxUint64) {
+    public func addValue(_ value: Float2) {
         var v = value
-        computeEncoder.setBytes(&v, length: MemoryLayout<CplxUint64>.size, index: bufferIndex)
+        computeEncoder.setBytes(&v, length: MemoryLayout<Float2>.size, index: bufferIndex)
         bufferIndex += 1
     }
-
-    func addValue(_ value: ComplexDouble) {
-        var v = CplxUint64(value)
-        computeEncoder.setBytes(&v, length: MemoryLayout<CplxUint64>.size, index: bufferIndex)
+    
+    public func addValue(_ value: Double) {
+        var v = Float2(value)
+        computeEncoder.setBytes(&v, length: MemoryLayout<Float2>.size, index: bufferIndex)
+        bufferIndex += 1
+    }
+    
+    public func addValue(_ value: Complex2) {
+        var v = value
+        computeEncoder.setBytes(&v, length: MemoryLayout<Complex2>.size, index: bufferIndex)
+        bufferIndex += 1
+    }
+    
+    public func addValue(_ value: ComplexDouble) {
+        var v = Complex2(value)
+        computeEncoder.setBytes(&v, length: MemoryLayout<Complex2>.size, index: bufferIndex)
         bufferIndex += 1
     }
     
@@ -208,7 +212,7 @@ class MetalCompute {
     ///
     /// Unsafe buffer pointer of type T pointing to results or nil on error
     ///
-    func compute<T>(_ initValue: T) -> UnsafeBufferPointer<T>? {
+    public func compute<T>(_ initValue: T) -> UnsafeBufferPointer<T>? {
         do {
             try addBuffer(count, initValue, .resultBuffer)
             

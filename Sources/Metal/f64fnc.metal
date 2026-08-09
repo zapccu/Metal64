@@ -380,22 +380,25 @@ float2 pow_f64(float2 a, float2 b) {
 
 // Power f64, int
 float2 pow_f64(float2 a, int b) {
-    if (b == 0) return float2(1.0, 0.0);
-        
-    float2 r = float2(1.0, 0.0);
+    if (b == 0) return F2_ONE;
+    if (b == 1) return a;
+    if (b == 2) return sqr_f64(a);
+    if (b == -1) return div_f64(F2_ONE, a);
+
+    float2 r = F2_ONE;
     float2 base = a;
     int e = abs(b);
-        
+
     while (e > 0) {
-        if (e % 2 == 1) {
+        if (e & 1) {
             r = mul_f64(r, base);
         }
         base = sqr_f64(base); // Square
-        e /= 2;
+        e >>= 1;
     }
         
     // a ^ -b = 1 / a ^ b
-    return b >= 0 ? r : div_f64(float2(1.0, 0.0), r);
+    return b >= 0 ? r : div_f64(F2_ONE, r);
 }
 
 // Floor
