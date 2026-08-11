@@ -1,17 +1,18 @@
 //
-//  f128fnc.metal
+//  f128.h
 //  Metal64
 //
-//  Created by Dirk Braner on 12.02.26.
+//  Created by Dirk Braner on 12.04.26.
 //
-// Experimental code for implementing 128 bit floating point numbers
-// Currently only +, -, * are supported.
 
-#include <metal_stdlib>
+#ifndef __F128FNC_H
+#define __F128FNC_H
+
 using namespace metal;
 
+
 // Calculate s = a + b and error e
-inline float2 two_sum(float a, float b) {
+static inline float2 two_sum(float a, float b) {
     float s = a + b;
     float v = s - a;
     float e = (a - (s - v)) + (b - v);
@@ -19,13 +20,13 @@ inline float2 two_sum(float a, float b) {
 }
 
 // Quick version of two_sum if |a| >= |b|
-inline float2 quick_two_sum(float a, float b) {
+static inline float2 quick_two_sum(float a, float b) {
     float s = a + b;
     float e = b - (s - a);
     return float2(s, e);
 }
 
-float4 qf_add(float4 a, float4 b) {
+static float4 qf_add(float4 a, float4 b) {
     float2 s;
     float4 r;
 
@@ -51,12 +52,12 @@ float4 qf_add(float4 a, float4 b) {
     return r;
 }
 
-float4 qf_sub(float4 a, float4 b) {
+static inline float4 qf_sub(float4 a, float4 b) {
     return qf_add(a, b * -1.0f);
 }
 
 // Split float into 2 parts
-inline float2 split(float a) {
+static inline float2 split(float a) {
     float t = a * ((1 << 12) + 1);
     float a_hi = t - (t - a);
     float a_lo = a - a_hi;
@@ -64,7 +65,7 @@ inline float2 split(float a) {
 }
 
 // Exact multiplication of 2 floats
-inline float2 two_prod(float a, float b) {
+static inline float2 two_prod(float a, float b) {
     float x = a * b;
     float2 a_s = split(a);
     float2 b_s = split(b);
@@ -72,7 +73,7 @@ inline float2 two_prod(float a, float b) {
     return float2(x, err);
 }
 
-float4 qf_mul(float4 a, float4 b) {
+static float4 qf_mul(float4 a, float4 b) {
     float2 p;
 
     p = two_prod(a.x, b.x);
@@ -87,7 +88,7 @@ float4 qf_mul(float4 a, float4 b) {
     return r;
 }
 
-float4 qf_mulopt(float4 a, float4 b) {
+static float4 qf_mulopt(float4 a, float4 b) {
     float2 p;
 
     p = two_prod(a.x, b.x);
@@ -110,3 +111,7 @@ float4 qf_mulopt(float4 a, float4 b) {
 
     return r;
 }
+
+
+#endif
+

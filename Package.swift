@@ -21,12 +21,12 @@ let package = Package(
         )
     ],
     targets: [
-        // Target 1: Enthalten sind .metal Shader-Dateien
         .target(
             name: "Metal64",
             dependencies: [
                 .product(name: "Numerics", package: "swift-numerics")
             ],
+            publicHeadersPath: "include",
             cSettings: [
                 .unsafeFlags([
                     "-Xmetal", "-fno-fast-math",

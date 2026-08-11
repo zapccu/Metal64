@@ -10,6 +10,9 @@
 
 import Metal
 
+public protocol MetalData {
+    
+}
 
 ///
 /// Class for Initializing and running Metal compute shaders from Swift
@@ -45,14 +48,13 @@ public class MetalCompute {
     var bufferIndex: Int = 0    // I/O buffer index
     var count: Int = 0          // Number of elements in compute argument buffer(s)
     
-    // var inputBuffers: [MTLBuffer] = []
     var resultBuffer: MTLBuffer?
     
     let device: MTLDevice
     let library: MTLLibrary
-    let commandQueue: MTLCommandQueue
-    let commandBuffer: MTLCommandBuffer
-    let computeEncoder: MTLComputeCommandEncoder
+    var commandQueue: MTLCommandQueue?
+    var commandBuffer: MTLCommandBuffer?
+    var computeEncoder: MTLComputeCommandEncoder?
     let kernelFunction: MTLFunction
     let pipelineState: MTLComputePipelineState
     
@@ -72,14 +74,9 @@ public class MetalCompute {
         guard let library = device.makeDefaultLibrary() else { throw MetalError.libraryError("Cannot create library") }
         self.library = library
         
-        guard let commandQueue = device.makeCommandQueue() else { throw MetalError.commandQueueError("Cannnot create command queue") }
-        self.commandQueue = commandQueue
-        
-        guard let commandBuffer = commandQueue.makeCommandBuffer() else { throw MetalError.commandQueueError("Cannot create command buffer") }
-        self.commandBuffer = commandBuffer
-        
-        guard let computeEncoder = commandBuffer.makeComputeCommandEncoder() else { throw MetalError.commandBufferError("Cannot create compute encoder") }
-        self.computeEncoder = computeEncoder
+        self.commandQueue = nil
+        self.commandBuffer = nil
+        self.computeEncoder = nil
         
         guard let kernelFunction = library.makeFunction(name: fncName) else { throw MetalError.kernelFunctionError("Cannot make kernel function") }
         self.kernelFunction = kernelFunction
@@ -96,35 +93,68 @@ public class MetalCompute {
         self.count = count
     }
     
-    ///
-    /// Create a buffer as a copy of specified array and add buffer to compute encoder
-    ///
-    /// Parameters:
-    ///
-    /// values - Array with initial buffer values
-    /// bufferType - Type of buffer: .inputBuffer or .resultBuffer
-    ///
-    /// Return values:
-    ///
-    /// Either true or false
-    ///
-    public func addBuffer<T>(_ value: [T], _ bufferType: BufferType = .inputBuffer) throws {
+    /// Prepare command queue, command buffer and compute encoder
+    public func prepareComputeEncoder() throws {
+        guard let commandQueue = device.makeCommandQueue() else {
+            throw MetalError.commandQueueError("Cannnot create command queue")
+        }
+        self.commandQueue = commandQueue
+        
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+            throw MetalError.commandQueueError("Cannot create command buffer")
+        }
+        self.commandBuffer = commandBuffer
+        
+        guard let computeEncoder = commandBuffer.makeComputeCommandEncoder() else {
+            throw MetalError.commandBufferError("Cannot create compute encoder")
+        }
+        self.computeEncoder = computeEncoder
+    }
+    
+    /// Add UnsafeMutableBuffer to encoder
+    /// - Parameters:
+    ///   - buffer: The buffer
+    ///   - bufferType: Type of buffer. Default = .inputBuffer
+    public func addBuffer<T>(_ buffer: UnsafeMutableBufferPointer<T>, _ bufferType: BufferType = .inputBuffer) throws {
+        guard let computeEncoder else { throw MetalError.addBufferError("Cannot get compute encoder") }
+        
+        guard count == buffer.count else { throw MetalError.addBufferError("Element count mismatch") }
+        let bufferSize = MemoryLayout<T>.stride * count
+
+        guard let baseAddress = buffer.baseAddress else { throw MetalError.addBufferError("Cannot get buffer base address") }
+        
+        if let metalBuffer = device.makeBuffer(bytes: baseAddress, length: bufferSize, options: .storageModeShared) {
+            computeEncoder.setBuffer(metalBuffer, offset: 0, index: bufferIndex)
+            bufferIndex += 1
+            if bufferType == .resultBuffer {
+                resultBuffer = metalBuffer
+            }
+        }
+        else {
+            throw MetalError.addBufferError("Cannot create buffer")
+        }
+    }
+
+    /// Add array to compute encoder
+    /// - Parameters:
+    ///   - value: The array
+    ///   - bufferType: Type of buffer. Default = .inputBuffer
+    public func addArray<T>(_ value: [T], _ bufferType: BufferType = .inputBuffer) throws {
+        guard let computeEncoder else { throw MetalError.addBufferError("Cannot get compute encoder") }
+
         guard count == value.count else { throw MetalError.addBufferError("Element count mismatch") }
         
-        let bufferSize = MemoryLayout<T>.size * count
+        let bufferSize = MemoryLayout<T>.stride * count
 
-        let buffer = value.withUnsafeBufferPointer { (bufferPtr) -> MTLBuffer? in
-            guard let baseAddress = bufferPtr.baseAddress else { return nil }
+        let buffer = try value.withUnsafeBufferPointer { (bufferPtr) -> MTLBuffer? in
+            guard let baseAddress = bufferPtr.baseAddress else { throw MetalError.addBufferError("Cannot get buffer base address") }
             return device.makeBuffer(bytes: baseAddress, length: bufferSize, options: .storageModeShared)
         }
 
         if let buffer = buffer {
             computeEncoder.setBuffer(buffer, offset: 0, index: bufferIndex)
             bufferIndex += 1
-            if bufferType == .inputBuffer {
-                // inputBuffers.append(buffer)
-            }
-            else {
+            if bufferType == .resultBuffer {
                 resultBuffer = buffer
             }
         }
@@ -133,88 +163,70 @@ public class MetalCompute {
         }
     }
     
-    ///
-    /// Create a buffer with specified number of elements and add buffer to compute encoder
-    ///
-    /// Parameters:
-    ///
-    /// count - Number of elements in Buffer
-    /// initValue - Initial value of type T for buffer
-    /// bufferType - Type of buffer: .inputBuffer or .resultBuffer
-    ///
-    /// Return values:
-    ///
-    /// Either true or false
-    ///
-    public func addBuffer<T>(_ count: Int, _ initValue: T, _ bufferType: BufferType = .inputBuffer) throws {
-        try addBuffer(Array(repeating: initValue, count: count), bufferType)
+    /// Create array with specified number of elements and add it to compute encoder
+    /// - Parameters:
+    ///   - count: Number of array elements
+    ///   - initValue: Initial value for array elements
+    ///   - bufferType: Type of buffer. Default = .inputBuffer
+    public func addArray<T>(_ count: Int, _ initValue: T, _ bufferType: BufferType = .inputBuffer) throws {
+        try addArray(Array(repeating: initValue, count: count), bufferType)
     }
     
-    ///
+    /// Add a struct conform to MetalData to compute encoder
+    /// - Parameter value: The structure
+    public func addStruct<T: MetalData>(_ value: T) throws {
+        var v = value
+        
+        guard let computeEncoder else { throw MetalError.addBufferError("Cannot get compute encoder") }
+
+        withUnsafePointer(to: &v) { ptr in
+            computeEncoder.setBytes(ptr, length: MemoryLayout<T>.stride, index: bufferIndex)
+        }
+
+        bufferIndex += 1
+    }
+    
     /// Add a value to compute encoder
-    ///
-    /// Parameters:
-    ///
-    /// value - A numeric value of type Int, Float, Float2 or Double
-    ///
-    /// Either true or false
-    ///
-    public func addValue(_ value: Int64) {
+    /// - Parameter value: The value
+    public func addValue<T>(_ value: T) throws {
         var v = value
-        computeEncoder.setBytes(&v, length: MemoryLayout<Int64>.size, index: bufferIndex)
-        bufferIndex += 1
-    }
+        
+        guard let computeEncoder else { throw MetalError.computeEncoderError("Cannot get compute encoder") }
 
-    public func addValue(_ value: Int32) {
-        var v = value
-        computeEncoder.setBytes(&v, length: MemoryLayout<Int32>.size, index: bufferIndex)
+        computeEncoder.setBytes(&v, length: MemoryLayout<T>.size, index: bufferIndex)
         bufferIndex += 1
     }
     
-    public func addValue(_ value: Float) {
-        var v = value
-        computeEncoder.setBytes(&v, length: MemoryLayout<Float>.size, index: bufferIndex)
-        bufferIndex += 1
-    }
+    /// Add array to compute decoder
+    /// - Parameter value: Array of values
+    public func addValue<T>(_ value: [T]) throws {
+        guard let computeEncoder else { throw MetalError.computeEncoderError("Cannot get compute encoder") }
 
-    public func addValue(_ value: Float2) {
-        var v = value
-        computeEncoder.setBytes(&v, length: MemoryLayout<Float2>.size, index: bufferIndex)
-        bufferIndex += 1
+        let bufferSize = MemoryLayout<T>.stride * count
+
+        let buffer = try value.withUnsafeBufferPointer { (bufferPtr) -> MTLBuffer? in
+            guard let baseAddress = bufferPtr.baseAddress else { throw MetalError.addBufferError("Cannot get buffer base address") }
+            return device.makeBuffer(bytes: baseAddress, length: bufferSize, options: .storageModeShared)
+        }
+
+        if let buffer = buffer {
+            computeEncoder.setBuffer(buffer, offset: 0, index: bufferIndex)
+            bufferIndex += 1
+        }
+        else {
+            throw MetalError.addBufferError("Cannot create buffer")
+        }
     }
     
-    public func addValue(_ value: Double) {
-        var v = Float2(value)
-        computeEncoder.setBytes(&v, length: MemoryLayout<Float2>.size, index: bufferIndex)
-        bufferIndex += 1
-    }
-    
-    public func addValue(_ value: Complex2) {
-        var v = value
-        computeEncoder.setBytes(&v, length: MemoryLayout<Complex2>.size, index: bufferIndex)
-        bufferIndex += 1
-    }
-    
-    public func addValue(_ value: ComplexDouble) {
-        var v = Complex2(value)
-        computeEncoder.setBytes(&v, length: MemoryLayout<Complex2>.size, index: bufferIndex)
-        bufferIndex += 1
-    }
-    
-    ///
     /// Call kernel function
-    ///
-    /// Parameters:
-    ///
-    /// initValue - Initial value of type T for result buffer
-    ///
-    /// Return values:
-    ///
-    /// Unsafe buffer pointer of type T pointing to results or nil on error
-    ///
-    public func compute<T>(_ initValue: T) -> UnsafeBufferPointer<T>? {
+    /// - Parameter initValue: Initial value for result array
+    /// - Returns: Result array or nil on error
+    public func compute<T>(_ initValue: T) -> [T]? {
         do {
-            try addBuffer(count, initValue, .resultBuffer)
+            guard let computeEncoder else { throw MetalError.computeEncoderError("Cannot get compute encoder") }
+            guard let commandBuffer else { throw MetalError.commandBufferError("Cannot get command buffer") }
+            
+            try addArray(count, initValue, .resultBuffer)
             
             // Calculate number of worker threads
             let gridSize = MTLSizeMake(count, 1, 1)
@@ -228,9 +240,13 @@ public class MetalCompute {
             commandBuffer.commit()
             commandBuffer.waitUntilCompleted()
             
-            // Convert result buffer
+            self.computeEncoder = nil
+            self.commandBuffer = nil
+            self.commandQueue = nil
+            
+            // Convert result buffer into array
             let converted = resultBuffer!.contents().bindMemory(to: T.self, capacity: count)
-            return UnsafeBufferPointer(start: converted, count: count)
+            return Array(UnsafeBufferPointer(start: converted, count: count))
         } catch {
             return nil
         }

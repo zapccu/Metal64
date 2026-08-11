@@ -1,5 +1,5 @@
 //
-//  f64iter.metal
+//  f64iter.h
 //
 //  Part of Metal64
 //
@@ -8,10 +8,6 @@
 //  Created by Dirk Braner on 11.04.25.
 //
 
-#include <metal_stdlib>
-
-#include "f64fnc.h"
-
 using namespace metal;
 
 //
@@ -19,12 +15,12 @@ using namespace metal;
 //
 
 // Number of iterations
-constant int CORDIC_SINCOS_ITERATIONS = 50;
-constant int CORDIC_TAN_ITERATIONS    = 50;
-constant int CORDIC_ASIN_ITERATIONS   = 50;
-constant int CORDIC_ACOS_ITERATIONS   = 50;
-constant int CORDIC_ATAN_ITERATIONS   = 50;
-constant int CORDIC_LOGEXP_ITERATIONS = 50;
+static constant int CORDIC_SINCOS_ITERATIONS = 50;
+static constant int CORDIC_TAN_ITERATIONS    = 50;
+static constant int CORDIC_ASIN_ITERATIONS   = 50;
+static constant int CORDIC_ACOS_ITERATIONS   = 50;
+static constant int CORDIC_ATAN_ITERATIONS   = 50;
+static constant int CORDIC_LOGEXP_ITERATIONS = 50;
 
 
 //
@@ -37,8 +33,8 @@ constant int CORDIC_LOGEXP_ITERATIONS = 50;
 //
 //   for i=1..n: x[i-1] = arctan (0.5 ^ i)
 //
-constant int CORDIC_ANGLES_LENGTH = 60;
-constant float2 trig_angles[CORDIC_ANGLES_LENGTH] = {
+static constant int CORDIC_ANGLES_LENGTH = 60;
+static constant float2 trig_angles[CORDIC_ANGLES_LENGTH] = {
     float2(0.7853982, -2.1855694e-08),
     float2(0.4636476, 5.0121587e-09),
     float2(0.24497867, -3.1786778e-09),
@@ -109,8 +105,8 @@ constant float2 trig_angles[CORDIC_ANGLES_LENGTH] = {
 //
 // max(n) = 24 (values are constant after 24 elements)
 //
-constant int CORDIC_KPROD_LENGTH = 24;
-constant float2 trig_kprod[CORDIC_KPROD_LENGTH] = {
+static constant int CORDIC_KPROD_LENGTH = 24;
+static constant float2 trig_kprod[CORDIC_KPROD_LENGTH] = {
     float2(0.70710677, 1.21016175e-08),
     float2(0.6324555, 4.251236e-09),
     float2(0.613572, -1.0379318e-08),
@@ -143,8 +139,8 @@ constant float2 trig_kprod[CORDIC_KPROD_LENGTH] = {
 //
 //   for i=1..n: x[i-1] = exp(2 ^ (-i))
 //
-constant int CORDIC_LOGEXP_LENGTH = 29;
-constant float2 logexp[CORDIC_LOGEXP_LENGTH] = {
+static constant int CORDIC_LOGEXP_LENGTH = 29;
+static constant float2 logexp[CORDIC_LOGEXP_LENGTH] = {
     float2(1.6487212, 5.2590998e-08),
     float2(1.2840254, -1.39915795e-08),
     float2(1.1331484, 2.1288873e-08),
@@ -177,7 +173,7 @@ constant float2 logexp[CORDIC_LOGEXP_LENGTH] = {
 };
 
 // Shift angle of sine/cosine iteration
-float2 angle_shift(float2 alpha, float2 beta) {
+static inline float2 angle_shift(float2 alpha, float2 beta) {
     float2 gamma;
 
     if (lt(alpha, beta)) {
@@ -191,7 +187,7 @@ float2 angle_shift(float2 alpha, float2 beta) {
 }
 
 // Sine/Cosine CORDIC algorithm
-float4 sincos_iterate(float2 a) {
+static float4 sincos_iterate(float2 a) {
     float2 angle;
     float2 c2;
     float factor;
@@ -256,7 +252,7 @@ float4 sincos_iterate(float2 a) {
 }
 
 // Tangent CORDIC algorithm
-float2 tan_iterate(float2 a) {
+static float2 tan_iterate(float2 a) {
     float2 angle;
     float2 c = F2_ONE;
     float2 s = 0.0;
@@ -305,7 +301,7 @@ float2 tan_iterate(float2 a) {
 }
 
 // Arc sine CORDIC algorithm
-float2 asin_iterate(float2 a) {
+static float2 asin_iterate(float2 a) {
     int i, j;
     int sigma;
     int sign_z1;
@@ -345,7 +341,7 @@ float2 asin_iterate(float2 a) {
 }
 
 // Arc cosine CORDIC algorithm
-float2 acos_iterate(float2 a) {
+static float2 acos_iterate(float2 a) {
     float2 angle;
     int i;
     int j;
@@ -388,7 +384,7 @@ float2 acos_iterate(float2 a) {
 
 // Arc tangent 2 CORDIC algorithm
 // For arc tangent set x = 1
-float2 atan2_iterate(float2 y, float2 x) {
+static float2 atan2_iterate(float2 y, float2 x) {
     float2 angle;
     int j;
     float poweroftwo = 1.0;
@@ -437,7 +433,7 @@ float2 atan2_iterate(float2 y, float2 x) {
 }
 
 // Exponential function CORDIC algorithm
-float2 exp_iterate(float2 a) {
+static float2 exp_iterate(float2 a) {
     float2 ai;
     float2 fx = F2_ONE;
     int i;
@@ -493,7 +489,7 @@ float2 exp_iterate(float2 a) {
 }
 
 // Natural logarithm CORDIC algorithm
-float2 log_iterate(float2 a) {
+static float2 log_iterate(float2 a) {
     float2 ai;
     int i;
     int k = 0;
