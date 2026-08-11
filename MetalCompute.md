@@ -9,7 +9,7 @@ Enclose all statements in a do block to handle exceptions.
 
 ```
 do {
-   // Input argument buffers have 10000 elements
+   // Number of elements in input argument buffer(s)
    let cnt: Int = 10000
 
    // Create the MetalCompute object, pass name of compute kernel functions and number of
@@ -42,7 +42,8 @@ do {
    try mc.AddBuffer(arr);
    mc.AddValue(x)
 
-   // Execute compute kernel. The compute() method creates a result buffer and initializes it with Float2(0.0)
+   // Execute compute kernel. The compute() method creates a result buffer of type Float2 and initializes it with Float2(0.0).
+   // Type of result buffer is dervived from type of initial value.
    if let result = mc.compute(Float2(0.0)) {
       print("Success! Results:")
       for element in result {
