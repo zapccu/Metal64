@@ -20,7 +20,10 @@ public typealias Complex2 = SIMD4<Float32>
 /// Datatype for double precision complex values
 public typealias ComplexDouble = Complex<Float64>
 
+/*
 extension Complex<Float64> {
+    
+    public static let zero: Complex<Float64> = .zero
 
     /// Convert Complex2 to ComplexDouble
     public init(_ complex2: Complex2) {
@@ -36,6 +39,7 @@ extension Complex<Float64> {
         return Complex<Float64>(realPart, imaginaryPart)
     }
 }
+ */
 
 // Extend SIMD4 to support conversion of float / double datatypes to Complex2
 extension SIMD4<Float32>: @retroactive ExpressibleByFloatLiteral {

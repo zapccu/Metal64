@@ -17,9 +17,12 @@ extension Double {
     public init(_ float2: Float2) {
         self = Double(float2.x) + Double(float2.y)
     }
+    
 }
 
 extension SIMD2<Float32>: @retroactive ExpressibleByFloatLiteral {
+    
+    public static let zero: Float2 = 0.0
     
     /// Convert Double to Float2
     public init(_ number: Double = 0.0) {
