@@ -175,11 +175,9 @@ public class MetalCompute {
     /// Add a struct conform to MetalData to compute encoder
     /// - Parameter value: The structure
     public func addStruct<T: MetalData>(_ value: T) throws {
-        var v = value
-        
         guard let computeEncoder else { throw MetalError.addBufferError("Cannot get compute encoder") }
 
-        withUnsafePointer(to: &v) { ptr in
+        withUnsafePointer(to: value) { ptr in
             computeEncoder.setBytes(ptr, length: MemoryLayout<T>.stride, index: bufferIndex)
         }
 
@@ -189,11 +187,11 @@ public class MetalCompute {
     /// Add a value to compute encoder
     /// - Parameter value: The value
     public func addValue<T>(_ value: T) throws {
-        var v = value
-        
         guard let computeEncoder else { throw MetalError.computeEncoderError("Cannot get compute encoder") }
 
-        computeEncoder.setBytes(&v, length: MemoryLayout<T>.size, index: bufferIndex)
+        withUnsafePointer(to: value) { ptr in
+            computeEncoder.setBytes(ptr, length: MemoryLayout<T>.size, index: bufferIndex)
+        }
         bufferIndex += 1
     }
     
