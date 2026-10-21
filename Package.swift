@@ -26,13 +26,10 @@ let package = Package(
             dependencies: [
                 .product(name: "Numerics", package: "swift-numerics")
             ],
-            publicHeadersPath: "include",
-            cSettings: [
-                .unsafeFlags([
-                    "-Xmetal", "-fno-fast-math",
-                    "-Xmetal", "-fno-relax-ieee"
-                ])
-            ]
+            // No unsafeFlags here: SwiftPM refuses packages with unsafe flags as remote
+            // dependencies, and the flags had no effect because the Metal sources are
+            // compiled by the app target. Set Metal math mode to "Safe" there (see README).
+            publicHeadersPath: "include"
         ),
     ]
 )

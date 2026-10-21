@@ -91,7 +91,7 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 |----------------|--------|
 | floor(f64 x)   | Floor function |
 | round(f64 x)   | Round value |
-| fmod(f64 x,f64 y)| Modulo division |
+| fmod(f64 x,f64 y)| Modulo division, floor based: result has the sign of y (like Python %, unlike C fmod) |
 | sqr(f64 x)     | Square x \* x |
 | sqrt(f64 x)    | Square root |
 | pow(f64 x,int y) | Power x ^ y |
@@ -104,7 +104,7 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 | asin(f64 x)    | Arc sine |
 | acos(f64 x)    | Arc cosine |
 | atan(f64 x)    | Arc tangent |
-| atan2(f64 y,f64 x) | Arc tangent 2 |
+| atan2(f64 y,f64 x) | Arc tangent 2, result in [-pi, pi] |
 
 #### Other functions
 
@@ -184,3 +184,12 @@ The comparison operators ==, != are only supporting c64 operands.
 * c64.imaginary() - Return imag part
 
 
+# Tests
+
+The folder *CPUTests* contains regression tests for the Metal headers. The headers are compiled
+unchanged with clang against a small float32 emulation of the Metal types (*CPUTests/metal_stdlib*)
+and the results are compared with long double reference values. No GPU or Xcode is needed:
+
+`CPUTests/run.sh`
+
+The emulation uses IEEE float32 arithmetic without FMA contraction, like Metal with math mode *Safe*.

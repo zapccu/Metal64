@@ -62,8 +62,8 @@ static constant float2 F2_ONE    = float2(1.0f, 0.0f);
 static constant float4 F4_ONE    = float4(1.0f, 0.0f, 0.0f, 0.0f);
 
 // exp(x) > 0 for all x, but float32 overflow at:
-static constant float2 F2_EXPMAX = float2(88.02969f,  2.6030809e-07f);  // 127 * ln(2)
-static constant float2 F2_EXPMIN = float2(-87.33655f, 2.3201194e-07f);  // -126 * ln(2)
+static constant float2 F2_EXPMAX = float2(88.02969f,  -1.6724026e-06f);  // 127 * ln(2)
+static constant float2 F2_EXPMIN = float2(-87.33655f,  3.1010095e-06f);  // -126 * ln(2)
 
 
 // ----------------------------------------------------------------------------
@@ -123,7 +123,8 @@ static inline float2 full_renorm(float2 a) {
     return float2(ss, ee);
 }
 
-// Add hi and lo
+// Add hi and lo (Fast-Two-Sum)
+// Precondition: |a| >= |b| (or a == 0). Use two_sum() if the order is unknown.
 static inline float2 sumq(float a, float b) {
     float s = a + b;
     float e = b - (s - a);
@@ -136,6 +137,14 @@ static inline float2 sumq(float2 a) {
     return float2(s, e);
 }
 
+// Error-free sum of two floats without precondition on magnitudes (Knuth Two-Sum)
+static inline float2 two_sum(float a, float b) {
+    float s = a + b;
+    float v = s - a;
+    float e = (a - (s - v)) + (b - v);
+    return float2(s, e);
+}
+
 static inline float4 sump(float2 a_ri, float2 b_ri) {
     float2 s = a_ri + b_ri;
     float2 v = s - a_ri;
@@ -143,18 +152,13 @@ static inline float4 sump(float2 a_ri, float2 b_ri) {
     return float4(s.x, e.x, s.y, e.y);
 }
 
-// Split two 32 bit floats into four 16 bit floats
-static inline float4 split4(float2 c) {
-    float2 t = c * 4097.0;
-    float2 c_hi = t - (t - c);
-    float2 c_lo = c - c_hi;
-    return float4(c_hi.x, c_lo.x, c_hi.y, c_lo.y);
-}
-
+// Error-free product of two floats (Two-Product): a * b = p + e exactly.
+// Metal's fma() is correctly rounded, so fma(a, b, -p) yields the exact rounding error.
+// This replaces the Veltkamp/Dekker split (c * 4097), which needs ~17 operations
+// and overflows for |a|, |b| > ~8e34, producing NaN.
 static inline float2 prod(float a, float b) {
     float p = a * b;
-    float4 s = split4(float2(a, b));
-    float e = ((s.x * s.z - p) + s.x * s.w + s.y * s.z) + s.y * s.w;
+    float e = fma(a, b, -p);
     return float2(p, e);
 }
 
@@ -230,6 +234,11 @@ static inline float2 neg_f64(float2 a) {
     return float2(-a.x, -a.y);
 }
 
+// Absolute value (abs() on float2 works component wise and must not be used)
+static inline float2 abs_f64(float2 a) {
+    return ltZero(a) ? neg_f64(a) : a;
+}
+
 // Add 2 64 bit floating point values
 static inline float2 add_f64(float2 a, float2 b) {
     float4 st = sump(a, b);
@@ -241,14 +250,14 @@ static inline float2 add_f64(float2 a, float2 b) {
 
 // Add float to 64 bit floating point
 static inline float2 add_ds(float2 a, float b) {
-    float2 s = sumq(a.x, b);
+    float2 s = two_sum(a.x, b);
     s.y += a.y;
     return sumq(s);
 }
 
 // Add float to 64 bit floating point
 static inline float2 add_sd(float a, float2 b) {
-    float2 s = sumq(b.x, a);
+    float2 s = two_sum(b.x, a);
     s.y += b.y;
     return sumq(s);
 }
@@ -265,7 +274,7 @@ static inline float2 sub_ds(float2 a, float b) {
 
 // Subtract f64 from float
 static inline float2 sub_sd(float a, float2 b) {
-    return -add_sd(a, b);
+    return add_sd(a, -b);
 }
 
 // Multiplication: f64 * f64
@@ -321,6 +330,10 @@ static inline float2 round_f64(float2 a) {
 
 // Square root
 static inline float2 sqrt_f64(float2 a) {
+    // rsqrt(0) = inf and 0 * inf = NaN, so handle 0 and negative values first
+    if (a.x <= 0.0f) {
+        return a.x == 0.0f ? F2_ZERO : float2(NAN, NAN);
+    }
     float xn = rsqrt(a.x);
     float yn = a.x * xn;
     float diff = (sub_f64(a, sqr_f64(yn))).x;
@@ -458,10 +471,20 @@ static inline float2 floor_f64(float2 a) {
 }
 
 // Floating point modulo division
+// Floor based like Python's %: result has the sign of b (C fmod truncates instead)
 static inline float2 fmod_f64(float2 a, float2 b) {
-    float2 d = div_f64(a, b);
-    float i = floor(d.x);
-    return sub_f64(a, mul_ds(b, i));
+    float2 i = floor_f64(div_f64(a, b));
+    float2 r = sub_f64(a, mul_f64(b, i));
+    // Correct off-by-one quotients caused by rounding of the division
+    if (gtZero(b)) {
+        if (ltZero(r))  r = add_f64(r, b);
+        else if (ge(r, b)) r = sub_f64(r, b);
+    }
+    else {
+        if (gtZero(r))  r = add_f64(r, b);
+        else if (le(r, b)) r = sub_f64(r, b);
+    }
+    return r;
 }
 
 // Sine
@@ -484,25 +507,33 @@ static inline float2 atan_f64(float2 a) {
     return atan2_iterate(a, F2_ONE);
 }
 
-// Inverse tangent2
+// Inverse tangent2, result in [-pi, pi]
+// atan2_iterate() computes atan(y/x) and is only valid in the right half plane,
+// so the CORDIC runs in the first quadrant and the quadrant is restored afterwards.
 static inline float2 atan2_f64(float2 y, float2 x) {
-    return atan2_iterate(y, x);
+    if (isZero_f64(x) && isZero_f64(y)) return F2_ZERO;
+    float2 r = atan2_iterate(abs_f64(y), abs_f64(x));
+    if (ltZero(x)) r = sub_f64(F2_PI, r);
+    return ltZero(y) ? neg_f64(r) : r;
+}
+
+// sqrt(1 - a^2) computed as sqrt((1 - a) * (1 + a)) to avoid cancellation near |a| = 1
+static inline float2 sqrt_1_minus_sqr(float2 a) {
+    return sqrt_f64(mul_f64(sub_sd(1.0f, a), add_sd(1.0f, a)));
 }
 
 // Inverse sine
+// asin_iterate() is faster but loses precision for |a| close to 1,
+// so the more accurate atan2 based formula is used.
 static inline float2 asin_f64(float2 a) {
-    // asin_iterate() is faster while atan2_iterate is more accurate
-    return asin_iterate(a);
-    // return atan2_iterate(a, sqrt_f64(sub_f64(F2_ONE, sqr_f64(a))));
+    if (gt(abs_f64(a), F2_ONE)) return float2(NAN, NAN);
+    return atan2_f64(a, sqrt_1_minus_sqr(a));
 }
 
 // Inverse cosine
 static inline float2 acos_f64(float2 a) {
-    if(lt(a, flt2(-1)) || gt(a, F2_ONE)) return NAN;
-    
-    // acos_iterate() is faster while atan2_iterate is more accurate
-    return acos_iterate(a);
-    // return atan2_iterate(sqrt_f64(sub_f64(F2_ONE, sqr_f64(a))), a);
+    if (gt(abs_f64(a), F2_ONE)) return float2(NAN, NAN);
+    return atan2_f64(sqrt_1_minus_sqr(a), a);
 }
 
 // ----------------------------------------------------------------------------
@@ -555,7 +586,8 @@ static inline float4 sqrt_c64(float4 a) {
 // 64 bit complex exponential function
 static inline float4 exp_c64(float4 a) {
     float2 e = exp_f64(a.xy);
-    return float4(mul_f64(e, cos_f64(a.zw)), mul_f64(e, sin_f64(a.zw)));
+    float4 sc = sincos_iterate(a.zw);   // .xy = sin, .zw = cos, computed only once
+    return float4(mul_f64(e, sc.zw), mul_f64(e, sc.xy));
 }
 
 // Compare 64 bit complex values

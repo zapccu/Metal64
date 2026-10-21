@@ -1,0 +1,72 @@
+// Minimal CPU emulation of the Metal types used by Metal64.
+//
+// Only covers what the Metal64 headers need. All arithmetic is IEEE float32;
+// compile with -ffp-contract=off so the compiler doesn't fuse operations into FMA.
+// This allows the unchanged Metal headers to be compiled and tested with clang on any machine.
+#pragma once
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <algorithm>
+
+typedef unsigned int uint;
+
+struct bool2 { bool x, y; };
+struct bool4 { bool x, y, z, w; };
+
+struct float2 {
+    float x, y;
+    float2() = default;
+    float2(float a) : x(a), y(a) {}
+    float2(double a) : x((float)a), y((float)a) {}
+    float2(int a) : x((float)a), y((float)a) {}
+    float2(float a, float b) : x(a), y(b) {}
+    float2(double a, double b) : x((float)a), y((float)b) {}
+    float2(float a, double b) : x(a), y((float)b) {}
+    float2(double a, float b) : x((float)a), y(b) {}
+    float2(int a, float b) : x((float)a), y(b) {}
+};
+static inline float2 operator+(float2 a, float2 b) { return float2(a.x + b.x, a.y + b.y); }
+static inline float2 operator-(float2 a, float2 b) { return float2(a.x - b.x, a.y - b.y); }
+static inline float2 operator*(float2 a, float2 b) { return float2(a.x * b.x, a.y * b.y); }
+static inline float2 operator*(float2 a, float b) { return float2(a.x * b, a.y * b); }
+static inline float2 operator*(float2 a, double b) { return a * (float)b; }
+static inline float2 operator/(float2 a, float b) { return float2(a.x / b, a.y / b); }
+static inline float2 operator-(float2 a) { return float2(-a.x, -a.y); }
+static inline bool2 operator==(float2 a, float2 b) { return {a.x == b.x, a.y == b.y}; }
+static inline bool2 operator!=(float2 a, float2 b) { return {a.x != b.x, a.y != b.y}; }
+static inline bool2 operator==(float2 a, double b) { return a == float2(b); }
+static inline bool2 operator!=(float2 a, double b) { return a != float2(b); }
+
+struct float4 {
+    union {
+        struct { float x, y, z, w; };
+        struct { float2 xy, zw; };
+    };
+    float4() = default;
+    float4(float a) : x(a), y(a), z(a), w(a) {}
+    float4(double a) : float4((float)a) {}
+    float4(float a, float b, float c, float d) : x(a), y(b), z(c), w(d) {}
+    float4(double a, double b, double c, double d) : x(a), y(b), z(c), w(d) {}
+    float4(float a, double b, double c, double d) : x(a), y(b), z(c), w(d) {}
+    float4(float2 a, float2 b) : x(a.x), y(a.y), z(b.x), w(b.y) {}
+    float4(float2 a, float b, float c) : x(a.x), y(a.y), z(b), w(c) {}
+};
+static inline bool4 operator==(float4 a, float4 b) { return {a.x == b.x, a.y == b.y, a.z == b.z, a.w == b.w}; }
+static inline bool4 operator!=(float4 a, float4 b) { return {a.x != b.x, a.y != b.y, a.z != b.z, a.w != b.w}; }
+static inline bool4 operator==(float4 a, double b) { return a == float4(b); }
+static inline bool4 operator!=(float4 a, double b) { return a != float4(b); }
+
+#define constant const
+
+namespace metal {
+    using std::fma; using std::floor; using std::ldexp; using std::min; using std::max; using std::isnan;
+    using std::sqrt; using std::exp; using std::sin; using std::cos; using std::atan2;
+    static inline bool all(bool2 b) { return b.x && b.y; }
+    static inline bool any(bool2 b) { return b.x || b.y; }
+    static inline bool all(bool4 b) { return b.x && b.y && b.z && b.w; }
+    static inline bool any(bool4 b) { return b.x || b.y || b.z || b.w; }
+    static inline float rsqrt(float a) { return 1.0f / std::sqrt(a); }
+    static inline float2 abs(float2 a) { return float2(std::fabs(a.x), std::fabs(a.y)); }
+    template <typename T, typename U> static inline T as_type(U u) { T t; std::memcpy(&t, &u, sizeof t); return t; }
+}

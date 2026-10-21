@@ -27,7 +27,9 @@ extension SIMD2<Float32>: @retroactive ExpressibleByFloatLiteral {
     /// Convert Double to Float2
     public init(_ number: Double = 0.0) {
         let hi = Float32(number)                // First ~7 digits
-        let lo = Float32(number - Double(hi))   // Rest
+        // For infinity, NaN or values beyond Float32 range hi is not finite and
+        // number - hi would be inf - inf = NaN, so the low part is set to 0
+        let lo = hi.isFinite ? Float32(number - Double(hi)) : 0.0   // Rest
         self.init(x: hi, y: lo)
         
         /*
@@ -50,8 +52,9 @@ extension SIMD2<Float32>: @retroactive ExpressibleByFloatLiteral {
     }
     
     /// Convert Int to Float2
+    /// Converted via Double, because Float only represents integers up to 2^24 exactly
     public init(_ number: Int) {
-        self.init(Float(number))
+        self.init(Double(number))
     }
     
     /// Convert String to Float2

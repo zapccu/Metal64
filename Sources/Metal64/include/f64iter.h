@@ -313,7 +313,7 @@ static float2 asin_iterate(float2 a) {
     float2 x2;
     float factor;
 
-    if (gt(abs(a), F2_ONE)) return NAN;
+    if (gt(abs_f64(a), F2_ONE)) return float2(NAN, NAN);
     
     for (j=1; j<=CORDIC_ASIN_ITERATIONS; j++) {
         sign_z1 = ltZero(x1) ? -1 : 1;
@@ -354,7 +354,7 @@ static float2 acos_iterate(float2 a) {
     float2 y1 = 0.0;
     float factor;
 
-    if (gt(abs(a), F2_ONE)) return NAN;
+    if (gt(abs_f64(a), F2_ONE)) return float2(NAN, NAN);
 
     for (j=1; j<=CORDIC_ACOS_ITERATIONS; j++) {
         sign_z2 = ltZero(y1) ? -1 : 1;
@@ -438,32 +438,29 @@ static float2 exp_iterate(float2 a) {
     float2 fx = F2_ONE;
     int i;
     float poweroftwo = 0.5;
-    int w[CORDIC_LOGEXP_ITERATIONS];
     int x_int;
     float2 z;
     
+    // Range check: avoids float overflow and endless loops for large |a| (and NaN)
+    if (isnan(a.x)) return a;
+    if (gt(a, F2_EXPMAX)) return float2(INFINITY, 0.0f);
+    if (lt(a, F2_EXPMIN)) return F2_ZERO;
+
     x_int = (int) floor(a.x);
     
-    // Determine the weights.
     z = sub_f64(a, flt2(x_int));
     
+    // Determine the weights and calculate the products in one pass.
+    // ai must be advanced in every iteration: for i >= CORDIC_LOGEXP_LENGTH
+    // it is derived from the previous table value exp(2^-i).
+    ai = F2_ONE;
     for (i=0; i<CORDIC_LOGEXP_ITERATIONS; i++) {
+        ai = i < CORDIC_LOGEXP_LENGTH ? logexp[i] : add_ds(mul_ds(sub_ds(ai, 1.0f), 0.5f), 1.0f);
         if (lt(flt2(poweroftwo), z)) {
-            w[i] = 1;
             z = sub_ds(z, poweroftwo);
-        }
-        else {
-            w[i] = 0;
-        }
-        poweroftwo *= 0.5;
-    }
-    
-    // Calculate products
-    for (i=0; i<CORDIC_LOGEXP_ITERATIONS; i++) {
-        if (w[i]) {
-            ai = i < CORDIC_LOGEXP_LENGTH ? logexp[i] : add_ds(mul_ds(sub_ds(ai, 1.0), 0.5), 1.0);
             fx = mul_f64(fx, ai);
         }
+        poweroftwo *= 0.5;
     }
     
     // Perform residual multiplication

@@ -31,7 +31,7 @@ struct c64 {
     
     /// Initialize real part with 64 bit floating point value
     c64(float2 a) {
-        v.xy = a;
+        v = float4(a, F2_ZERO);
     }
     
     /// Initialize real and imag part with 64 bit floating point values
@@ -40,7 +40,7 @@ struct c64 {
     }
     
     c64(f64 a) {
-        v.xy = a.v;
+        v = float4(a.v, F2_ZERO);
     }
     
     c64(f64 a, f64 b) {
@@ -104,7 +104,7 @@ static inline c64 operator - (c64 a, f64 b) {
 }
 
 static inline c64 operator - (f64 b, c64 a) {
-    return c64(sub_f64(b.v, a.v.xy), a.v.zw);
+    return c64(sub_f64(b.v, a.v.xy), neg_f64(a.v.zw));
 }
 
 static inline c64 operator - (c64 a, float b) {
@@ -112,7 +112,7 @@ static inline c64 operator - (c64 a, float b) {
 }
 
 static inline c64 operator - (float b, c64 a) {
-    return c64(sub_f64(float2(b, 0.0f), a.v.xy), a.v.zw);
+    return c64(sub_f64(float2(b, 0.0f), a.v.xy), neg_f64(a.v.zw));
 }
 
 static inline c64 operator * (c64 a, c64 b) {
@@ -144,7 +144,7 @@ static inline c64 operator / (c64 a, f64 b) {
 }
 
 static inline c64 operator / (f64 b, c64 a) {
-    return c64(div_f64(b.v, a.v.xy), div_f64(b.v, a.v.zw));
+    return c64(div_c64(float4(b.v, F2_ZERO), a.v));
 }
 
 static inline c64 operator / (c64 a, float b) {
@@ -152,7 +152,7 @@ static inline c64 operator / (c64 a, float b) {
 }
 
 static inline c64 operator / (float b, c64 a) {
-    return c64(div_f64(float2(b, 0.0f), a.v.xy), div_f64(float2(b, 0.0f), a.v.zw));
+    return c64(div_c64(float4(b, 0.0f, 0.0f, 0.0f), a.v));
 }
 
 static inline bool isZero(c64 a) {
