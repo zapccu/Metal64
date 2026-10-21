@@ -20,26 +20,13 @@ public typealias Complex2 = SIMD4<Float32>
 /// Datatype for double precision complex values
 public typealias ComplexDouble = Complex<Float64>
 
-/*
 extension Complex<Float64> {
-    
-    public static let zero: Complex<Float64> = .zero
 
-    /// Convert Complex2 to ComplexDouble
+    /// Convert Complex2 to ComplexDouble (documented in README)
     public init(_ complex2: Complex2) {
-        self.init(
-            Double(Float2(complex2.x, complex2.y)),
-            Double(Float2(complex2.z, complex2.w))
-        )
-    }
-    
-    public func square() -> Complex<Float64> {
-        let realPart = self.real * self.real - self.imaginary * self.imaginary
-        let imaginaryPart = 2.0 * self.real * self.imaginary
-        return Complex<Float64>(realPart, imaginaryPart)
+        self.init(Double(complex2.real), Double(complex2.imaginary))
     }
 }
- */
 
 // Extend SIMD4 to support conversion of float / double datatypes to Complex2
 extension SIMD4<Float32>: @retroactive ExpressibleByFloatLiteral {

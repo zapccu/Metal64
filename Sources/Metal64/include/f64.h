@@ -44,8 +44,11 @@ struct f64 {
         v = float2(a, b);
     }
     
+    // Integers above 2^24 don't fit into a float, so split them exactly:
+    // (a & 0xFF) and the rest each fit into 24 bit
     f64(int a) {
-        v = float2(float(a), 0.0f);
+        int lo = a & 0xFF;
+        v = two_sum(float(a - lo), float(lo));
     }
     
     f64 operator = (float a) {
@@ -54,7 +57,7 @@ struct f64 {
     }
     
     f64 operator = (int a) {
-        v = float2(float(a), 0.0f);
+        *this = f64(a);
         return *this;
     }
     
@@ -178,12 +181,12 @@ static inline f64 tan(f64 a) {
 
 // Arc Sine
 static inline f64 asin(f64 a) {
-    return f64(asin_iterate(a.v));
+    return f64(asin_f64(a.v));
 }
 
 // Arc Cosine
 static inline f64 acos(f64 a) {
-    return f64(acos_iterate(a.v));
+    return f64(acos_f64(a.v));
 }
 
 // Arc Tangent
@@ -193,7 +196,7 @@ static inline f64 atan(f64 a) {
 
 // Arc Tangent2
 static inline f64 atan2(f64 a, f64 b) {
-    return f64(atan2_iterate(a.v, b.v));
+    return f64(atan2_f64(a.v, b.v));
 }
 
 // Overloaded operators
@@ -243,7 +246,7 @@ static inline f64 operator / (f64 a, float b) {
 }
 
 static inline f64 operator / (float b, f64 a) {
-    return f64(div_f64(a.v, float2(b, 0.0f)));
+    return f64(div_f64(float2(b, 0.0f), a.v));
 }
 
 static inline bool operator == (f64 a, f64 b) {
