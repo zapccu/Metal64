@@ -14,6 +14,8 @@
 
 using namespace metal;
 
+#pragma once
+#include "f64pragma.h"
 
 struct c32 {
     float2 v;

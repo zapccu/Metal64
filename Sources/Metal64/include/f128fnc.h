@@ -10,6 +10,8 @@
 
 using namespace metal;
 
+#pragma once
+#include "f64pragma.h"
 
 // Calculate s = a + b and error e
 static inline float2 two_sum(float a, float b) {

@@ -31,6 +31,8 @@
 
 using namespace metal;
 
+#pragma once
+#include "f64pragma.h"
 
 // ----------------------------------------------------------------------------
 //  Constants

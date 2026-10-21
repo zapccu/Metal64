@@ -62,6 +62,12 @@ a float2 vector element "v" in a f64 object. The metal source files must include
 
 `#include "f64.h"`
 
+**Warning**: f64.h is setting the following compiler options, starting from the line with the #include statement:
+```cpp
+#pragma METAL fp math_mode(safe) // safe IEEE floating point mode
+#pragma METAL fp contract(off)   // no FMA contraction
+```
+
 #### Constructors
 
 > f64()  

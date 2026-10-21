@@ -18,6 +18,9 @@
 
 #include <metal_stdlib>
 
+#pragma once
+#include "f64pragma.h"
+
 #include "f64fnc.h"
 #include "f64iter.h"
 
