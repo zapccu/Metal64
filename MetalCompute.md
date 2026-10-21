@@ -15,6 +15,7 @@ do {
    // Create the MetalCompute object, pass name of compute kernel functions and number of
    // input buffers elements as parameters
    let mc = try MetalCompute("myKernelFnc", cnt)
+   try mc.prepareComputeEncoder()
    
    ... // Pass parameters and execute Metal compute kernel
 }
@@ -39,7 +40,7 @@ do {
    let mc = try MetalCompute("myKernelFnc", cnt)
 
    // Add input buffer and a single value to the MetalCompute object
-   try mc.AddBuffer(arr);
+   try mc.AddArray(arr);
    mc.AddValue(x)
 
    // Execute compute kernel. The compute() method creates a result buffer of type Float2 and initializes it with Float2(0.0).
