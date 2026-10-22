@@ -230,7 +230,7 @@ static inline f64 acos(f64 a) {
 
 // Arc Tangent
 static inline f64 atan(f64 a) {
-    return f64(atan2_iterate(a.v, F2_ONE));
+    return f64(atan_f64(a.v));
 }
 
 // Arc Tangent2

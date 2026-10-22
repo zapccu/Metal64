@@ -124,7 +124,7 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 
 #### Accuracy
 
-exp, log, pow, sin, cos and tan are computed with argument reduction and polynomials.
+exp, log, pow, sin, cos, tan, asin, acos, atan and atan2 are computed with argument reduction and polynomials.
 Maximum errors measured with the CPU tests (f64 has ~48 bit, i.e. ~3.6e-15 relative precision):
 
 | Function | Range | Max. error |
@@ -134,7 +134,9 @@ Maximum errors measured with the CPU tests (f64 has ~48 bit, i.e. ~3.6e-15 relat
 | pow(x, 2.5) | 0.1 ... 10 | 5e-14 relative |
 | sin, cos | -1e6 ... 1e6 | 5e-15 absolute |
 | tan | -1.5 ... 1.5 | 2.5e-14 relative |
-| asin, acos, atan, atan2 | full range | 3e-14 absolute |
+| atan | full range | 1.2e-14 relative |
+| atan2 | full range | 2.5e-14 absolute |
+| asin, acos | -1 ... 1 | 2.5e-14 absolute, 4e-14 relative near 0 (asin) and 1 (acos) |
 
 Limitations:
 * exp(x) returns inf for x > 127 ln(2) and 0 for x < -126 ln(2). Below x = -70 the low part becomes
