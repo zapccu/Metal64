@@ -27,7 +27,9 @@
 
 using namespace metal;
 
+//
 // Struct for 64 bit floating points
+//
 struct f64 {
     float2 v;
     
@@ -47,22 +49,29 @@ struct f64 {
         v = float2(a, b);
     }
     
-    // Integers above 2^24 don't fit into a float, so split them exactly:
-    // (a & 0xFF) and the rest each fit into 24 bit
+    // Create f64 from int
     f64(int a) {
+        // Integers above 2^24 don't fit into a float, so split them exactly:
+        // (a & 0xFF) and the rest each fit into 24 bit
         int lo = a & 0xFF;
         v = two_sum(float(a - lo), float(lo));
     }
     
+    // Assign float to f64
     f64 operator = (float a) {
         v = float2(a, 0.0f);
         return *this;
     }
     
+    // Assign int to f64
     f64 operator = (int a) {
         *this = f64(a);
         return *this;
     }
+    
+    //
+    // Overloaded inplace operators
+    //
     
     f64 operator += (f64 a) {
         v = add_f64(v, a.v);
@@ -83,9 +92,32 @@ struct f64 {
         v = sub_ds(v, a);
         return *this;
     }
+    
+    f64 operator *= (f64 a) {
+        v = mul_f64(v, a)
+        return *this
+    }
+    
+    f64 operator *= (float a) {
+        v = mul_ds(v, a)
+        return *this
+    }
+
+    f64 operator /= (f64 a) {
+        v = div_f64(v, a)
+        return *this
+    }
+    
+    f64 operator *= (float a) {
+        v = div_ds(v, a)
+        return *this
+    }
+    
 };
 
+//
 // Constants
+//
 static constant f64 F64_PI     = f64(3.1415927, -8.742278e-08);    // PI
 static constant f64 F64_1_PI   = f64(0.31830987, 1.28412765e-08);  // 1 / PI
 static constant f64 F64_PI_2   = f64(1.5707964, -4.371139e-08);    // PI / 2
@@ -97,12 +129,16 @@ static constant f64 F64_E      = f64(2.7182817, 8.2548404e-08);    // E
 static constant f64 F64_1_E    = f64(0.36787945, -9.149755e-09);   // 1 / E
 static constant f64 F64_1_3    = f64(0.33333334, -9.934108e-09);   // 1 / 3
 
-/// Convert f64 to float
+//
+// Functions
+//
+
+// Convert f64 to float
 static inline float flt(f64 a) {
     return a.v.x;
 }
 
-/// Minimum of two values
+// Minimum of two values
 static inline f64 min(f64 a, f64 b) {
     if (a.v.x == b.v.x) {
         return a.v.y < b.v.y ? a : b;
@@ -137,12 +173,12 @@ static inline f64 fmod(f64 a, f64 b) {
     return f64(fmod_f64(a.v, b.v));
 }
 
-/// Square
+// Square
 static inline f64 sqr(f64 a) {
     return f64(sqr_f64(a.v));
 }
 
-/// Square root
+// Square root
 static inline f64 sqrt(f64 a) {
     return f64(sqrt_f64(a.v));
 }
@@ -202,7 +238,9 @@ static inline f64 atan2(f64 a, f64 b) {
     return f64(atan2_f64(a.v, b.v));
 }
 
+//
 // Overloaded operators
+//
 
 static inline f64 operator + (f64 a, f64 b) {
     return f64(add_f64(a.v, b.v));

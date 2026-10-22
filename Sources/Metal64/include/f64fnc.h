@@ -68,10 +68,9 @@ static constant float2 F2_EXPMAX = float2(88.02969f,  -1.6724026e-06f);  // 127 
 static constant float2 F2_EXPMIN = float2(-87.33655f,  3.1010095e-06f);  // -126 * ln(2)
 
 
-// ----------------------------------------------------------------------------
+//
 //  Declare functions
-// ----------------------------------------------------------------------------
-
+//
 static float2 log_remez(float2);
 static float4 sincos_iterate(float2);
 static float2 tan_iterate(float2);
@@ -80,16 +79,14 @@ static float2 acos_iterate(float2);
 static float2 atan2_iterate(float2, float2);
 static float2 exp_iterate(float2);
 static float2 log_iterate(float2);
-
 static inline float2 flt2(float);
-
 static inline float2 floor_f64(float2);
 static inline float2 abs_c64(float4);
 
 
-// ----------------------------------------------------------------------------
+//
 //  Helper functions
-// ----------------------------------------------------------------------------
+//
 
 // Convert float32 to float2
 static inline float2 flt2(float a) {
@@ -164,10 +161,6 @@ static inline float2 prod(float a, float b) {
     return float2(p, e);
 }
 
-// ----------------------------------------------------------------------------
-// Compare two 64 bit floating point values
-// ----------------------------------------------------------------------------
-
 // Check for zero
 static inline bool isZero_f64(float2 a) {
     return all(a == 0.0);
@@ -227,16 +220,17 @@ static inline bool ge(float2 a, float2 b) {
 }
 
 
-// ----------------------------------------------------------------------------
+//
 //  Real operations
-// ----------------------------------------------------------------------------
+//
 
 // Negate
 static inline float2 neg_f64(float2 a) {
     return float2(-a.x, -a.y);
 }
 
-// Absolute value (abs() on float2 works component wise and must not be used)
+// Absolute value
+// abs() on float2 works component wise and must not be used
 static inline float2 abs_f64(float2 a) {
     return ltZero(a) ? neg_f64(a) : a;
 }
@@ -315,6 +309,16 @@ static inline float2 div_f64(float2 a, float2 b) {
     return add_f64(flt2(yn), p);
 }
 
+// Division: f64 / f32
+static inline float2 div_ds(float2 a, float b) {
+    float q1   = a.x / b;
+    float2 p   = prod(q1, b);                 // exact
+    float s    = ((a.x - p.x) - p.y) + a.y;   // rest
+    float q2   = s / b;
+    float hi   = q1 + q2;                     // quick_two_sum
+    return float2(hi, q2 - (hi - q1));
+}
+
 // Rounding
 static inline float2 round_f64(float2 a) {
     float2 h = flt2(0.5f);
@@ -367,6 +371,7 @@ static float2 exp_core(float2 r) {
     return res;
 }
 
+// Exponential function
 static float2 exp_f64(float2 x) {
     if (gt(x, F2_EXPMAX)) return flt2(INFINITY);
     if (lt(x, F2_EXPMIN)) return F2_ZERO;
@@ -374,9 +379,9 @@ static float2 exp_f64(float2 x) {
     float2 fm = round_f64(div_f64(x, F2_LOG2));
     int m = (int)fm.x;
 
-    // Hochpräzise Argumentreduktion in zwei Schritten
+    // High precision argument reduction in 2 steps
     float2 r = sub_f64(x, mul_f64(fm, F2_LN2_HI));
-    r = sub_f64(r,         mul_f64(fm, F2_LN2_LO));
+    r        = sub_f64(r, mul_f64(fm, F2_LN2_LO));
 
     float2 er = exp_core(r);
     
