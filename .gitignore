@@ -2,6 +2,8 @@
 .build/
 
 # Xcode user specific data
+# Xcode generated package files
+.swiftpm/
 xcuserdata/
 *.xcuserstate
 
