@@ -18,9 +18,11 @@ The option **Relax IEEE Compliance** under *Apple Clang - Code Generation* must 
 
 The Swift datatype **Float2** is an alias for the `SIMD2<Float32>` datatype. The following constructors are available:
 
-> Float2()  
-> Float2(Double)  
-> Float2(Float)  
+```cpp
+Float2()  
+Float2(Double)  
+Float2(Float)  
+```
 
 The assignment of literal numeric values is supported:
 
@@ -36,12 +38,14 @@ The datatype Double is extended by a constructor to init a Double value with a F
 
 The Swift datatype **Complex2** is an alias for the `SIMD4<Float32>` datatype. The following constructors are available:
 
-> Complex2()                  // 0  
-> Complex2(Double)            // Init real part. Imaginary part is set to 0  
-> Complex2(Double, Double)    // Init real and imaginary part  
-> Complex2(ComplexDouble)  
-> Complex2(Float2)  
-> Complex2(Int)  
+```cpp
+Complex2()                  // 0  
+Complex2(Double)            // Init real part. Imaginary part is set to 0  
+Complex2(Double, Double)    // Init real and imaginary part  
+Complex2(ComplexDouble)  
+Complex2(Float2)  
+Complex2(Int)  
+```
 
 The assignment of literal numeric values is supported:
 
@@ -49,7 +53,7 @@ The assignment of literal numeric values is supported:
 
 ### Convert a 64 bit complex number to ComplexDouble
 
-The datatype ComplexDouble (an alias for Complex<Float64>) is extended by a constructor which accepts a Complex2 value:
+The datatype ComplexDouble (an alias for Complex<Double>) is extended by a constructor which accepts a Complex2 value:
 
 `let myCplx: ComplexDouble = ComplexDouble(myCplx2)`
 
@@ -70,10 +74,12 @@ a float2 vector element "v" in a f64 object. The metal source files must include
 
 #### Constructors
 
-> f64()  
-> f64(float)  
-> f64(float2)  
-> f64(float, float)    // Don't use this constructor, for internal use only  
+```cpp
+f64()  
+f64(float)  
+f64(float2)  
+f64(float, float)    // Don't use this constructor, for internal use only  
+```
 
 #### Initialize by assigning literal values
 
@@ -83,12 +89,15 @@ Assign a float value to a f64 variable:
 
 #### Accessing / converting f64 objects
 
-> f64 value = 2.0;
-> float2 flt2val = value.v;
+```cpp
+f64 value = 2.0;
+float2 flt2val = value.v;
+```
 
 #### Operators
 
 The mathematical operators +, -, \*, / are overloaded to support any combination of f64 and float operands.
+The inplace operators +=, -=, \*=, /= are overloaded to support f64 and float operands on the right hand side.
 The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operands.
 
 #### Mathematical functions
@@ -143,13 +152,15 @@ a float4 vector element "v" in a c64 object. The metal source files must include
 
 #### Constructors
 
-> c64()  
-> c64(float)  
-> c64(float2)  
-> c64(float2, float2)  
-> c64(f64)  
-> c64(f64, f64)  
-> c64(float4)  
+```cpp
+c64()  
+c64(float)  
+c64(float2)  
+c64(float2, float2)  
+c64(f64)  
+c64(f64, f64)  
+c64(float4)  
+```
 
 #### Initialize by assigning literal values
 
@@ -159,12 +170,14 @@ a float4 vector element "v" in a c64 object. The metal source files must include
 
 #### Accessing / converting c64 objects
 
-> c64 complexvalue = c64(2.0, 3.0);  
-> f64 realpart = complexvalue.real();  
-> f64 imagpart = complexvalue.imaginary();  
-> float2 real_part = complexvalue.v.xy  
-> float2 imag_part = complexvalue.v.zw  
-> float4 flt4value = complexvalue.v  
+```cpp
+c64 complexvalue = c64(2.0, 3.0);  
+f64 realpart = complexvalue.real();  
+f64 imagpart = complexvalue.imaginary();  
+float2 real_part = complexvalue.v.xy  
+float2 imag_part = complexvalue.v.zw  
+float4 flt4value = complexvalue.v  
+```
 
 #### Operators
 
