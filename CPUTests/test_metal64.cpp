@@ -89,6 +89,7 @@ static void testConstants() {
     check_const("F_PI_2 (3 part)", float2(F_PI_2_A, F_PI_2_B), PI / 2 - (LD)F_PI_2_C, 1e-18L);
     check_const("F_LN2 (3 part)", float2(F_LN2_A, F_LN2_B), LN2 - (LD)F_LN2_C, 1e-18L);
     for (int i = 0; i < CORDIC_ANGLES_LENGTH; i++) check_const("trig_angles", trig_angles[i], atanl(ldexpl(1, -i)));
+    for (int i = 1; i <= 8; i++) check_const("atan_table", atan_table[i], atanl(i / 8.0L));
     for (int i = 0; i < CORDIC_LOGEXP_LENGTH; i++) check_const("logexp", logexp[i], expl(ldexpl(1, -(i + 1))));
     LD k = 1;
     for (int i = 0; i < CORDIC_KPROD_LENGTH; i++) {
@@ -183,14 +184,22 @@ static void testFunctions() {
     check("sin(inf) = NaN", std::isnan(sin(f64(float2(INFINITY, 0.0f))).v.x));
     accuracy("tan [-1.5, 1.5]", [] { return uni(-1.5, 1.5); }, [](float2 x) { return tan(f64(x)).v; },
              [](LD x) { return tanl(x); }, 5e-14L);
-    accuracy("atan [-50, 50]", [] { return uni(-50, 50); }, [](float2 x) { return atan(f64(x)).v; },
-             [](LD x) { return atanl(x); }, 1e-13L, true);
+    accuracy("atan [-50, 50] (relative)", [] { return uni(-50, 50); }, [](float2 x) { return atan(f64(x)).v; },
+             [](LD x) { return atanl(x); }, 3e-14L);
+    accuracy("atan [-1e-3, 1e-3] (relative)", [] { return uni(-1e-3, 1e-3); }, [](float2 x) { return atan(f64(x)).v; },
+             [](LD x) { return atanl(x); }, 2e-14L);
+    accuracy("atan [1e3, 1e8] (relative)", [] { return expl(uni(7, 18)); }, [](float2 x) { return atan(f64(x)).v; },
+             [](LD x) { return atanl(x); }, 2e-14L);
     accuracy("asin [-1, 1]", [] { return uni(-1, 1); }, [](float2 x) { return asin(f64(x)).v; },
-             [](LD x) { return asinl(x); }, 1e-13L, true);
+             [](LD x) { return asinl(x); }, 5e-14L, true);
+    accuracy("asin [-1e-4, 1e-4] (relative)", [] { return uni(-1e-4, 1e-4); }, [](float2 x) { return asin(f64(x)).v; },
+             [](LD x) { return asinl(x); }, 2e-14L);
     accuracy("asin [0.99, 1]", [] { return uni(0.99, 1); }, [](float2 x) { return asin(f64(x)).v; },
-             [](LD x) { return asinl(x); }, 1e-13L, true);
+             [](LD x) { return asinl(x); }, 5e-14L, true);
     accuracy("acos [-1, 1]", [] { return uni(-1, 1); }, [](float2 x) { return acos(f64(x)).v; },
-             [](LD x) { return acosl(x); }, 1e-13L, true);
+             [](LD x) { return acosl(x); }, 5e-14L, true);
+    accuracy("acos [0.9999, 1] (relative)", [] { return uni(0.9999, 1); }, [](float2 x) { return acos(f64(x)).v; },
+             [](LD x) { return acosl(x); }, 1e-13L);
 
     float2 nearOne = mk(0.9999999999L);   // hi = 1.0, lo < 0
     check("asin(0.9999999999) not NaN", near(ld(asin(f64(nearOne)).v), asinl(ld(nearOne)), 1e-13L));
@@ -205,13 +214,23 @@ static void testFunctions() {
     }
     char detail[64];
     snprintf(detail, sizeof detail, "(max abs err %.2Le)", worst);
-    check("atan2 all quadrants", worst < 1e-13L, detail);
+    check("atan2 all quadrants", worst < 5e-14L, detail);
     const float axes[][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}, {0, 0}};
     for (auto& p : axes) {
         LD r = ld(atan2(f64(p[0]), f64(p[1])).v);
         snprintf(detail, sizeof detail, "atan2(%g, %g) = %.15Lg", p[0], p[1], r);
         check(detail, near(r, atan2l(p[0], p[1]), 1e-13L));
     }
+    const float inf = INFINITY;
+    const float special[][2] = {{inf, inf}, {inf, -inf}, {-inf, inf}, {1, inf}, {1, -inf}, {-1, -inf}, {inf, 1}, {-inf, -1}};
+    for (auto& p : special) {
+        LD r = ld(atan2(f64(float2(p[0], 0.0f)), f64(float2(p[1], 0.0f))).v);
+        snprintf(detail, sizeof detail, "atan2(%g, %g) = %.15Lg", p[0], p[1], r);
+        check(detail, near(r, atan2l(p[0], p[1]), 1e-14L));
+    }
+    check("atan(NaN), asin(NaN), atan2(NaN, 1) = NaN",
+          std::isnan(atan(f64(float2(NAN, 0.0f))).v.x) && std::isnan(asin(f64(float2(NAN, 0.0f))).v.x) &&
+          std::isnan(atan2(f64(float2(NAN, 0.0f)), f64(1.0f)).v.x));
 }
 
 static void testComplex() {
@@ -267,7 +286,7 @@ static void testComplex() {
     }
     char detail[64];
     snprintf(detail, sizeof detail, "(max abs err %.2Le)", worst);
-    check("arg(c64) all quadrants", worst < 1e-13L, detail);
+    check("arg(c64) all quadrants", worst < 5e-14L, detail);
 
     c64 e = exp(c64(f64(1.0f), f64(2.0f)));
     check("exp(1 + 2i)", near(ld(e.v.xy), expl(1) * cosl(2)) && near(ld(e.v.zw), expl(1) * sinl(2)));

@@ -573,19 +573,75 @@ static inline float2 tan_f64(float2 a) {
     return div_f64(sc.xy, sc.zw);
 }
 
-// Inverse tangent
-static inline float2 atan_f64(float2 a) {
-    return atan2_iterate(a, F2_ONE);
+// Lookup table atan(k / 8), k = 0..8
+static constant float2 atan_table[9] = {
+    float2(0.0f,            0.0f),              // atan(0/8)
+    float2(1.24354996e-01f, -1.2403822e-09f),   // atan(1/8)
+    float2(2.4497867e-01f,  -3.1786778e-09f),   // atan(2/8)
+    float2(3.5877067e-01f,   1.7639499e-09f),   // atan(3/8)
+    float2(4.636476e-01f,    5.0121587e-09f),   // atan(4/8)
+    float2(5.585993e-01f,    2.2111598e-08f),   // atan(5/8)
+    float2(6.435011e-01f,    5.8689373e-09f),   // atan(6/8)
+    float2(7.1883e-01f,      1.01883355e-08f),  // atan(7/8)
+    float2(7.853982e-01f,   -2.1855694e-08f)    // atan(8/8) = pi/4
+};
+
+// atan(z) for 0 <= z <= 1
+// With c = k/8 closest to z: atan(z) = atan(c) + atan(t), t = (z - c) / (1 + z * c), |t| <= 1/16.
+// atan(t) = t - t^3/3 + t^5/5 - ... up to t^13, terms from t^9 on contribute < 3e-11
+// relative and are evaluated in float.
+static inline float2 atan_core(float2 z) {
+    int k = min(int(rint(z.x * 8.0f)), 8);
+    float c = float(k) * 0.125f;
+    float2 t  = div_f64(sub_ds(z, c), add_ds(mul_ds(z, c), 1.0f));
+    float2 t2 = sqr_f64(t);
+    float tf = t2.x;
+
+    float p = 7.692308e-02f;                     //  1/13
+    p = fma(tf, p, -9.090909e-02f);              // -1/11
+    p = fma(tf, p,  1.1111111e-01f);             //  1/9
+    float2 s = add_f64(neg_f64(F2_1_7), mul_ds(t2, p));
+    s = add_f64(F2_1_5, mul_f64(t2, s));
+    s = add_f64(neg_f64(F2_1_3), mul_f64(t2, s));
+    float2 at = add_f64(t, mul_f64(mul_f64(t, t2), s));   // t + t^3 * (...)
+
+    return add_f64(atan_table[k], at);
 }
 
 // Inverse tangent2, result in [-pi, pi]
-// atan2_iterate() computes atan(y/x) and is only valid in the right half plane,
-// so the CORDIC runs in the first quadrant and the quadrant is restored afterwards.
+// The ratio of the smaller and the larger absolute value is reduced to [0, 1]:
+// |y| <= |x|: atan(|y| / |x|), otherwise pi/2 - atan(|x| / |y|). Then the quadrant is restored.
 static inline float2 atan2_f64(float2 y, float2 x) {
-    if (isZero_f64(x) && isZero_f64(y)) return F2_ZERO;
-    float2 r = atan2_iterate(abs_f64(y), abs_f64(x));
-    if (ltZero(x)) r = sub_f64(F2_PI, r);
+    if (isnan(x.x) || isnan(y.x)) return float2(NAN, NAN);
+    float2 ax = abs_f64(x);
+    float2 ay = abs_f64(y);
+    if (isZero_f64(ax) && isZero_f64(ay)) return F2_ZERO;
+
+    float2 r;
+    if (isinf(ax.x) || isinf(ay.x)) {
+        if (isinf(ax.x) && isinf(ay.x)) r = F2_PI * 0.25f;   // * 0.25 is exact
+        else r = isinf(ax.x) ? F2_ZERO : F2_PI_2;
+    }
+    else if (le(ay, ax)) {
+        r = atan_core(div_f64(ay, ax));
+    }
+    else {
+        // pi/2 - atan(z) with 3 part constant
+        r = sub_f64(float2(F_PI_2_A, F_PI_2_B), atan_core(div_f64(ax, ay)));
+        r = add_ds(r, F_PI_2_C);
+    }
+
+    if (ltZero(x)) {
+        // pi - r with 3 part constant, * 2 is exact
+        r = sub_f64(float2(2.0f * F_PI_2_A, 2.0f * F_PI_2_B), r);
+        r = add_ds(r, 2.0f * F_PI_2_C);
+    }
     return ltZero(y) ? neg_f64(r) : r;
+}
+
+// Inverse tangent
+static inline float2 atan_f64(float2 a) {
+    return atan2_f64(a, F2_ONE);
 }
 
 // sqrt(1 - a^2) computed as sqrt((1 - a) * (1 + a)) to avoid cancellation near |a| = 1
@@ -594,16 +650,14 @@ static inline float2 sqrt_1_minus_sqr(float2 a) {
 }
 
 // Inverse sine
-// asin_iterate() is faster but loses precision for |a| close to 1,
-// so the more accurate atan2 based formula is used.
+// asin(a) = atan2(a, sqrt(1 - a^2))
 static inline float2 asin_f64(float2 a) {
     if (gt(abs_f64(a), F2_ONE)) return float2(NAN, NAN);
     return atan2_f64(a, sqrt_1_minus_sqr(a));
 }
 
 // Inverse cosine
-// acos_iterate() is faster but loses precision for |a| close to 1,
-// so the more accurate atan2 based formula is used.
+// acos(a) = atan2(sqrt(1 - a^2), a)
 static inline float2 acos_f64(float2 a) {
     if (gt(abs_f64(a), F2_ONE)) return float2(NAN, NAN);
     return atan2_f64(sqrt_1_minus_sqr(a), a);
