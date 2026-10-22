@@ -71,7 +71,7 @@ static constant float2 F2_EXPMIN = float2(-87.33655f,  3.1010095e-06f);  // -126
 //
 //  Declare functions
 //
-static float2 log_remez(float2);
+static float4 sincos_f64(float2);
 static float4 sincos_iterate(float2);
 static float2 tan_iterate(float2);
 static float2 asin_iterate(float2);
@@ -347,99 +347,162 @@ static inline float2 sqrt_f64(float2 a) {
     return add_f64(flt2(yn), p);
 }
 
-static constant float2 F2_LN2_HI = float2(0.693147182f, 0.0f);
-static constant float2 F2_LN2_LO = float2(-1.90465429995776020e-9f, 0.0f);
+// Constants for argument reduction (Cody-Waite).
+// A constant c is split into 3 floats c = A + B + C (~72 bit). k * A and k * B are
+// computed exactly with prod(), so x - k * c stays accurate even if x and k * c cancel.
+static constant float F_PI_2_A  =  1.5707964e+00f;   // pi / 2
+static constant float F_PI_2_B  = -4.371139e-08f;
+static constant float F_PI_2_C  = -1.7151245e-15f;
+static constant float F_2_PI    =  6.3661975e-01f;   // 2 / pi (float is sufficient for k)
+static constant float F_LN2_A   =  6.931472e-01f;    // ln(2)
+static constant float F_LN2_B   = -1.9046542e-09f;
+static constant float F_LN2_C   = -8.783184e-17f;
+static constant float F_1_LN2   =  1.442695e+00f;    // 1 / ln(2) (float is sufficient for k)
+static constant float F_SQRT2   =  1.4142135e+00f;   // sqrt(2), only used as threshold
 
-static float2 exp_core(float2 r) {
-    float2 res = float2(7.6471636e-13f, 1.22007105e-20f);                   // 1/15!
-    res = add_f64(float2(1.1470745e-11f, 2.3722077e-19f), mul_f64(r, res)); // 1/14!
-    res = add_f64(float2(1.6059044e-10, -5.3525265e-18), mul_f64(r, res));  // 1/13!
-    res = add_f64(float2(2.0876756e-09, 1.108284e-16),  mul_f64(r, res));   // 1/12!
-    res = add_f64(float2(2.5052108e-08, 4.417623e-16),  mul_f64(r, res));
-    res = add_f64(float2(2.755732e-07, -7.575112e-15),  mul_f64(r, res));
-    res = add_f64(float2(2.7557319e-06, 3.7935712e-14),  mul_f64(r, res));
-    res = add_f64(float2(2.4801588e-05, -3.406996e-13),  mul_f64(r, res));
-    res = add_f64(float2(0.0001984127, -2.7255969e-12),  mul_f64(r, res));
-    res = add_f64(float2(0.0013888889, -3.3631094e-11),  mul_f64(r, res));
-    res = add_f64(float2(0.008333334, -4.346172e-10),  mul_f64(r, res));
-    res = add_f64(float2(0.041666668, -1.2417635e-09),  mul_f64(r, res));
-    res = add_f64(float2(0.16666667, -4.967054e-09),  mul_f64(r, res));
-    res = add_f64(float2(0.5, 0.0),  mul_f64(r, res));
-    res = add_f64(F2_ONE, mul_f64(r, res));  // 1 + r*(...)
-    res = add_f64(F2_ONE, mul_f64(r, res));  // exp(r) = 1 + r*(1 + ...)
-    
-    return res;
+// Return x - k * (A + B + C) with high precision, k must be an integer value
+static inline float2 reduce_arg(float2 x, float k, float a, float b, float c) {
+    float2 r = sub_f64(x, prod(k, a));
+    r = sub_f64(r, prod(k, b));
+    return sub_ds(r, k * c);
+}
+
+// exp(r) for |r| <= ln(2) / 2 (Taylor polynomial, degree 13).
+// Terms from r^9 on contribute < 1e-9 * exp(r), so they are evaluated in float:
+// their rounding error stays below 1e-16 relative to the result.
+static inline float2 exp_core(float2 r) {
+    float rf = r.x;
+    float t = 1.6059044e-10f;                    // 1/13!
+    t = fma(rf, t, 2.0876756e-09f);              // 1/12!
+    t = fma(rf, t, 2.5052108e-08f);              // 1/11!
+    t = fma(rf, t, 2.755732e-07f);               // 1/10!
+    t = fma(rf, t, 2.7557319e-06f);              // 1/9!
+
+    float2 p = add_f64(float2(2.4801588e-05f, -3.406996e-13f), mul_ds(r, t));    // 1/8!
+    p = add_f64(float2(1.984127e-04f,  -2.7255969e-12f), mul_f64(r, p));         // 1/7!
+    p = add_f64(float2(1.3888889e-03f, -3.3631094e-11f), mul_f64(r, p));         // 1/6!
+    p = add_f64(float2(8.333334e-03f,  -4.346172e-10f),  mul_f64(r, p));         // 1/5!
+    p = add_f64(float2(4.1666668e-02f, -1.2417635e-09f), mul_f64(r, p));         // 1/4!
+    p = add_f64(float2(1.6666667e-01f, -4.967054e-09f),  mul_f64(r, p));         // 1/3!
+    p = add_ds(mul_f64(r, p), 0.5f);                                             // 1/2!
+    p = add_ds(mul_f64(r, p), 1.0f);                                             // 1/1!
+    return add_ds(mul_f64(r, p), 1.0f);                                          // 1/0!
 }
 
 // Exponential function
+// x = m * ln(2) + r, |r| <= ln(2) / 2  =>  exp(x) = 2^m * exp(r)
 static float2 exp_f64(float2 x) {
-    if (gt(x, F2_EXPMAX)) return flt2(INFINITY);
+    if (isnan(x.x)) return x;
+    if (gt(x, F2_EXPMAX)) return float2(INFINITY, 0.0f);
     if (lt(x, F2_EXPMIN)) return F2_ZERO;
 
-    float2 fm = round_f64(div_f64(x, F2_LOG2));
-    int m = (int)fm.x;
+    float m = rint(x.x * F_1_LN2);
+    float2 er = exp_core(reduce_arg(x, m, F_LN2_A, F_LN2_B, F_LN2_C));
 
-    // High precision argument reduction in 2 steps
-    float2 r = sub_f64(x, mul_f64(fm, F2_LN2_HI));
-    r        = sub_f64(r, mul_f64(fm, F2_LN2_LO));
-
-    float2 er = exp_core(r);
-    
-    float scale = ldexp(1.0f, m);
-    er.x *= scale;
-    er.y *= scale;
-    
-    return er;
+    // Multiplication by 2^m is exact
+    int im = int(m);
+    return float2(ldexp(er.x, im), ldexp(er.y, im));
 }
 
-// Natural logarithm
-static float2 log_f64(float2 a) {
-    if (eq(a, F2_ONE)) return F2_ZERO;
-    if (le(a, F2_ZERO)) return flt2(NAN);
-
-    // Extract exponent from float32
-    uint bits = as_type<uint>(a.x);
-    int e = (int)((bits >> 23) & 0xFF) - 127;
-
-    // m = a * 2^-e, exact because 2^-e is a power of 2
-    float2 m = mul_f64(a, flt2(ldexp(1.0f, -e)));
-
-    // Ensure that m in [1, 2)
-    if (lt(m, F2_ONE)) { m = mul_f64(m, flt2(2.0f)); e--; }
-    if (ge(m, flt2(2.0f))) { m = mul_f64(m, flt2(0.5f)); e++; }
-
-    float2 ln_m = log_remez(m);
-    return add_f64(ln_m, mul_f64(flt2((float)e), F2_LOG2));
-}
-
-static float2 log_remez(float2 m) {
+// ln(m) for m in [sqrt(1/2), sqrt(2)):
+// ln(m) = 2 * atanh(t) = 2t * (1 + t^2/3 + t^4/5 + ...), t = (m - 1) / (m + 1), |t| <= 0.172
+// Terms from t^12 on contribute < 1e-10, so they are evaluated in float.
+static inline float2 log_series(float2 m) {
     float2 t  = div_f64(sub_ds(m, 1.0f), add_ds(m, 1.0f));
-    float2 t2 = mul_f64(t, t);
+    float2 t2 = sqr_f64(t);
+    float tf = t2.x;
 
-    // 1/23 + t²*(1/21 + t²*(1/19 + t²*1)) ...
-    // Do not use a loop or lookup table! This would drop the performance.
-    // Start with 1/23: error <= 1e-14
-    float2 r = F2_1_23;
-    r = add_f64(F2_1_21, mul_f64(t2, r));
-    r = add_f64(F2_1_19, mul_f64(t2, r));
-    r = add_f64(F2_1_17, mul_f64(t2, r));
-    r = add_f64(F2_1_15, mul_f64(t2, r));
-    r = add_f64(F2_1_13, mul_f64(t2, r));
-    r = add_f64(F2_1_11, mul_f64(t2, r));
+    float s = 5.263158e-02f;                     // 1/19
+    s = fma(tf, s, 5.882353e-02f);               // 1/17
+    s = fma(tf, s, 6.666667e-02f);               // 1/15
+    s = fma(tf, s, 7.692308e-02f);               // 1/13
+
+    float2 r = add_f64(F2_1_11, mul_ds(t2, s));
     r = add_f64(F2_1_9, mul_f64(t2, r));
     r = add_f64(F2_1_7, mul_f64(t2, r));
     r = add_f64(F2_1_5, mul_f64(t2, r));
     r = add_f64(F2_1_3, mul_f64(t2, r));
-    r = add_f64(F2_ONE, mul_f64(t2, r));
-    r = mul_f64(mul_ds(t, 2.0f), r);         // 2t  * (...)
+    r = add_ds(mul_f64(t2, r), 1.0f);
+    return mul_f64(t * 2.0f, r);                 // t * 2 is exact
+}
 
-    return r;
+// Natural logarithm
+// a = 2^e * m, m in [sqrt(1/2), sqrt(2))  =>  ln(a) = e * ln(2) + ln(m)
+static float2 log_f64(float2 a) {
+    if (isnan(a.x)) return a;
+    if (eq(a, F2_ONE)) return F2_ZERO;
+    if (le(a, F2_ZERO)) return float2(NAN, NAN);
+    if (isinf(a.x)) return a;
+
+    // Extract exponent from float32, scaling by 2^-e is exact
+    uint bits = as_type<uint>(a.x);
+    int e = (int)((bits >> 23) & 0xFF) - 127;
+    float2 m = float2(ldexp(a.x, -e), ldexp(a.y, -e));   // m in [1, 2)
+
+    if (m.x > F_SQRT2) {
+        m = m * 0.5f;
+        e++;
+    }
+
+    float2 ln_m = log_series(m);
+    if (e == 0) return ln_m;
+
+    // e * ln(2) with 3 part constant, prod() is exact
+    float fe = float(e);
+    float2 eln2 = add_f64(prod(fe, F_LN2_A), prod(fe, F_LN2_B));
+    eln2 = add_ds(eln2, fe * F_LN2_C);
+    return add_f64(eln2, ln_m);
 }
 
 // Power f64, f64
 // Returns NAN for a < 0
 static inline float2 pow_f64(float2 a, float2 b) {
     return exp_f64(mul_f64(b, log_f64(a)));
+}
+
+// Sine and cosine
+// x = k * pi/2 + r, |r| <= pi/4. sin(r) and cos(r) are computed with Taylor polynomials,
+// the quadrant k mod 4 selects the result.
+// Returns float4(sin(x), cos(x)) like sincos_iterate()
+static float4 sincos_f64(float2 x) {
+    if (!isfinite(x.x)) return float4(NAN, NAN, NAN, NAN);
+
+    // Above 2^20 * pi/2 the 72 bit constant isn't precise enough, fall back to CORDIC
+    if (fabs(x.x) > 1.6e6f) return sincos_iterate(x);
+
+    float k = rint(x.x * F_2_PI);
+    float2 r  = reduce_arg(x, k, F_PI_2_A, F_PI_2_B, F_PI_2_C);
+    float2 r2 = sqr_f64(r);
+    float rf = r2.x;
+
+    // sin(r) = r + r^3 * (-1/3! + r^2/5! - ...), terms from r^13 on in float
+    float ts = 2.8114574e-15f;                   //  1/17!
+    ts = fma(rf, ts, -7.6471636e-13f);           // -1/15!
+    ts = fma(rf, ts,  1.6059044e-10f);           //  1/13!
+    float2 s = add_f64(float2(-2.5052108e-08f, -4.417623e-16f), mul_ds(r2, ts));   // -1/11!
+    s = add_f64(float2( 2.7557319e-06f,  3.7935712e-14f), mul_f64(r2, s));         //  1/9!
+    s = add_f64(float2(-1.984127e-04f,   2.7255969e-12f), mul_f64(r2, s));         // -1/7!
+    s = add_f64(float2( 8.333334e-03f,  -4.346172e-10f),  mul_f64(r2, s));         //  1/5!
+    s = add_f64(float2(-1.6666667e-01f,  4.967054e-09f),  mul_f64(r2, s));         // -1/3!
+    s = add_f64(r, mul_f64(mul_f64(r, r2), s));
+
+    // cos(r) = 1 + r^2 * (-1/2! + r^2/4! - ...), terms from r^12 on in float
+    float tc = 4.7794773e-14f;                   //  1/16!
+    tc = fma(rf, tc, -1.1470745e-11f);           // -1/14!
+    tc = fma(rf, tc,  2.0876756e-09f);           //  1/12!
+    float2 c = add_f64(float2(-2.755732e-07f,  7.575112e-15f), mul_ds(r2, tc));    // -1/10!
+    c = add_f64(float2( 2.4801588e-05f, -3.406996e-13f), mul_f64(r2, c));          //  1/8!
+    c = add_f64(float2(-1.3888889e-03f,  3.3631094e-11f), mul_f64(r2, c));         // -1/6!
+    c = add_f64(float2( 4.1666668e-02f, -1.2417635e-09f), mul_f64(r2, c));         //  1/4!
+    c = add_ds(mul_f64(r2, c), -0.5f);                                             // -1/2!
+    c = add_ds(mul_f64(r2, c), 1.0f);
+
+    switch (int(k) & 3) {
+        case 0:  return float4(s, c);
+        case 1:  return float4(c, neg_f64(s));
+        case 2:  return float4(neg_f64(s), neg_f64(c));
+        default: return float4(neg_f64(c), s);
+    }
 }
 
 // Power f64, int
@@ -496,17 +559,18 @@ static inline float2 fmod_f64(float2 a, float2 b) {
 
 // Sine
 static inline float2 sin_f64(float2 a) {
-    return sincos_iterate(a).xy;
+    return sincos_f64(a).xy;
 }
 
 // Cosine
 static inline float2 cos_f64(float2 a) {
-    return sincos_iterate(a).zw;
+    return sincos_f64(a).zw;
 }
 
 // Tangent
 static inline float2 tan_f64(float2 a) {
-    return tan_iterate(a);
+    float4 sc = sincos_f64(a);
+    return div_f64(sc.xy, sc.zw);
 }
 
 // Inverse tangent
@@ -568,10 +632,10 @@ static inline float4 mul_c64(float4 a, float4 b) {
 
 // Square of 64 bit complex value
 static inline float4 sqr_c64(float4 a) {
-    float2 r1 = mul_f64(a.xy, a.xy);
-    float2 r2 = mul_f64(a.zw, a.zw);
+    float2 r1 = sqr_f64(a.xy);
+    float2 r2 = sqr_f64(a.zw);
     float2 i1 = mul_f64(a.xy, a.zw);
-    return float4(sub_f64(r1, r2), add_f64(i1, i1));
+    return float4(sub_f64(r1, r2), i1 * 2.0f);   // * 2 is exact
 }
 
 // Divide 2 64 bit complex values
@@ -583,17 +647,22 @@ static inline float4 div_c64(float4 a, float4 b) {
 }
 
 // 64 bit complex square root
+// t = sqrt((|z| + |x|) / 2) avoids the cancellation of |z| - x, the other part is y / (2t).
+// Needs only one square root.
 static inline float4 sqrt_c64(float4 a) {
-    float2 dc = abs_c64(a);
-    float2 r = sqrt_f64(mul_ds(add_f64(dc, a.xy), 0.5));
-    float2 i = lt(a.zw, F2_ZERO) ? -sqrt_f64(mul_ds(sub_f64(dc, a.xy), 0.5)) : sqrt_f64(mul_ds(sub_f64(dc, a.xy), 0.5));
-    return float4(r, i);
+    if (isZero_f64(a.xy) && isZero_f64(a.zw)) return float4(0.0f);
+    float2 t = sqrt_f64(add_f64(abs_c64(a), abs_f64(a.xy)) * 0.5f);   // * 0.5 is exact
+    float2 u = div_f64(a.zw, t * 2.0f);                                 // y / (2t)
+    if (!ltZero(a.xy)) {
+        return float4(t, u);
+    }
+    return float4(abs_f64(u), ltZero(a.zw) ? neg_f64(t) : t);
 }
 
 // 64 bit complex exponential function
 static inline float4 exp_c64(float4 a) {
     float2 e = exp_f64(a.xy);
-    float4 sc = sincos_iterate(a.zw);   // .xy = sin, .zw = cos, computed only once
+    float4 sc = sincos_f64(a.zw);       // .xy = sin, .zw = cos, computed only once
     return float4(mul_f64(e, sc.zw), mul_f64(e, sc.xy));
 }
 

@@ -22,8 +22,8 @@ extension Double {
 
 extension SIMD2<Float32>: @retroactive ExpressibleByFloatLiteral {
     
-    public static let zero: Float2 = 0.0
-    
+    // .zero is already provided by SIMD2
+
     /// Convert Double to Float2
     public init(_ number: Double = 0.0) {
         let hi = Float32(number)                // First ~7 digits
