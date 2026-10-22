@@ -142,6 +142,7 @@ static constant float2 trig_kprod[CORDIC_KPROD_LENGTH] = {
 //
 //   for i=1..n: x[i-1] = exp(2 ^ (-i))
 //
+// No longer used because log_iterate() and exp_iterate() not used anymore
 static constant int CORDIC_LOGEXP_LENGTH = 29;
 static constant float2 logexp[CORDIC_LOGEXP_LENGTH] = {
     float2(1.6487212, 5.2590998e-08),
@@ -255,6 +256,7 @@ static float4 sincos_iterate(float2 a) {
 }
 
 // Tangent CORDIC algorithm
+// No longer used
 static float2 tan_iterate(float2 a) {
     float2 angle;
     float2 c = F2_ONE;
@@ -304,6 +306,7 @@ static float2 tan_iterate(float2 a) {
 }
 
 // Arc sine CORDIC algorithm
+// No longer used
 static float2 asin_iterate(float2 a) {
     int i, j;
     int sigma;
@@ -435,7 +438,8 @@ static float2 atan2_iterate(float2 y, float2 x) {
 
 }
 
-// Exponential function CORDIC algorithm
+// Exponential function CORDIC algorithm.
+// No longer used
 static float2 exp_iterate(float2 a) {
     float2 ai;
     float2 fx = F2_ONE;
@@ -488,7 +492,8 @@ static float2 exp_iterate(float2 a) {
     return quick_renorm(fx);
 }
 
-// Natural logarithm CORDIC algorithm
+// Natural logarithm (CORDIC algorithm)
+// No longer used.
 static float2 log_iterate(float2 a) {
     float2 ai;
     int i;
@@ -523,16 +528,8 @@ static float2 log_iterate(float2 a) {
     
     a = sub_ds(a, 1.0);
     
-    /*
-    float2 x12 = mul_ds(a, 0.5);
-    float2 x13 = mul_f64(a, F2_1_3);
-    float2 x14 = mul_ds(a, 0.25);
-
-    a = mul_f64(a, sub_sd(1.0, mul_f64(x12, add_sd(1.0, mul_f64(x13, sub_sd(1.0, x14))))));
-*/
-    // Nach: a = sub_ds(a, 1.0);
-    // a ist klein (nahe 0), berechne ln(1+a) via Horner
-
+    // After: a = sub_ds(a, 1.0);
+    // a is small (near 0), calculate ln(1+a) via Horner
     float2 r = sub_f64(F2_1_3, mul_f64(a, flt2(0.25)));  // 1/3 - a/4
     r = sub_f64(flt2(0.5), mul_f64(a, r));                  // 1/2 - a*(1/3 - a/4)
     r = sub_f64(F2_ONE, mul_f64(a, r));               // 1 - a*(...)

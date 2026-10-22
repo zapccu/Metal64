@@ -73,12 +73,12 @@ static constant float2 F2_EXPMIN = float2(-87.33655f,  3.1010095e-06f);  // -126
 //
 static float4 sincos_f64(float2);
 static float4 sincos_iterate(float2);
-static float2 tan_iterate(float2);
-static float2 asin_iterate(float2);
-static float2 acos_iterate(float2);
+static float2 tan_iterate(float2);              // no longer used
+static float2 asin_iterate(float2);             // no longer used
+static float2 acos_iterate(float2);             // no longer used
 static float2 atan2_iterate(float2, float2);
-static float2 exp_iterate(float2);
-static float2 log_iterate(float2);
+static float2 exp_iterate(float2);              // no longer used
+static float2 log_iterate(float2);              // no longer used
 static inline float2 flt2(float);
 static inline float2 floor_f64(float2);
 static inline float2 abs_c64(float4);
@@ -602,6 +602,8 @@ static inline float2 asin_f64(float2 a) {
 }
 
 // Inverse cosine
+// acos_iterate() is faster but loses precision for |a| close to 1,
+// so the more accurate atan2 based formula is used.
 static inline float2 acos_f64(float2 a) {
     if (gt(abs_f64(a), F2_ONE)) return float2(NAN, NAN);
     return atan2_f64(sqrt_1_minus_sqr(a), a);
