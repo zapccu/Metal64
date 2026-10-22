@@ -390,6 +390,7 @@ static float2 acos_iterate(float2 a) {
 
 // Arc tangent 2 CORDIC algorithm
 // For arc tangent set x = 1
+// No longer used
 static float2 atan2_iterate(float2 y, float2 x) {
     float2 angle;
     int j;

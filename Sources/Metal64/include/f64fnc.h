@@ -76,7 +76,7 @@ static float4 sincos_iterate(float2);
 static float2 tan_iterate(float2);              // no longer used
 static float2 asin_iterate(float2);             // no longer used
 static float2 acos_iterate(float2);             // no longer used
-static float2 atan2_iterate(float2, float2);
+static float2 atan2_iterate(float2, float2);    // no longer used
 static float2 exp_iterate(float2);              // no longer used
 static float2 log_iterate(float2);              // no longer used
 static inline float2 flt2(float);
