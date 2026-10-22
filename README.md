@@ -97,6 +97,7 @@ float2 flt2val = value.v;
 #### Operators
 
 The mathematical operators +, -, \*, / are overloaded to support any combination of f64 and float operands.
+The unary operator - negates a f64 value.
 The inplace operators +=, -=, \*=, /= are overloaded to support f64 and float operands on the right hand side.
 The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operands.
 
@@ -120,6 +121,25 @@ The comparison operators ==, !=, \<, \>, \<=, \>= are only supporting f64 operan
 | acos(f64 x)    | Arc cosine |
 | atan(f64 x)    | Arc tangent |
 | atan2(f64 y,f64 x) | Arc tangent 2, result in [-pi, pi] |
+
+#### Accuracy
+
+exp, log, pow, sin, cos and tan are computed with argument reduction and polynomials.
+Maximum errors measured with the CPU tests (f64 has ~48 bit, i.e. ~3.6e-15 relative precision):
+
+| Function | Range | Max. error |
+|----------|-------|------------|
+| exp | -70 ... 88 | 5e-15 relative |
+| log | e^-80 ... e^80 | 2e-14 relative |
+| pow(x, 2.5) | 0.1 ... 10 | 5e-14 relative |
+| sin, cos | -1e6 ... 1e6 | 5e-15 absolute |
+| tan | -1.5 ... 1.5 | 2.5e-14 relative |
+| asin, acos, atan, atan2 | full range | 3e-14 absolute |
+
+Limitations:
+* exp(x) returns inf for x > 127 ln(2) and 0 for x < -126 ln(2). Below x = -70 the low part becomes
+  denormal and precision drops towards float precision.
+* sin, cos and tan fall back to the slower and less accurate CORDIC algorithm for |x| > 1.6e6.
 
 #### Other functions
 
@@ -182,6 +202,7 @@ float4 flt4value = complexvalue.v
 #### Operators
 
 The mathematical operators +, -, \*, / are overloaded to support any combination of c64 with f64 and float operands.
+The unary operator - negates a c64 value.
 The comparison operators ==, != are only supporting c64 operands.
 
 #### Mathematical functions

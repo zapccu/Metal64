@@ -59,6 +59,45 @@ static void accuracy(const char* name, G gen, F f, R ref, LD limit, bool absolut
     check(name, worst <= limit && nan == 0, detail);
 }
 
+static void check_const(const char* name, float2 c, LD exact, LD tol = 4e-15L) {
+    LD err = std::fabs(ld(c) - exact) / std::fabs(exact);
+    if (err > tol) {
+        char detail[96];
+        snprintf(detail, sizeof detail, "(rel err %.2Le)", err);
+        check(name, false, detail);
+    }
+}
+
+// All constants and lookup tables must be accurate to ~48 bit
+static void testConstants() {
+    printf("Constants\n");
+    const LD PI = 3.141592653589793238462643383279503L, E = 2.718281828459045235360287471352662L;
+    const LD LN2 = 0.693147180559945309417232121458176568L;
+    int before = failures;
+    check_const("F2_PI", F2_PI, PI);             check_const("F64_PI", F64_PI.v, PI);
+    check_const("F2_1_PI", F2_1_PI, 1 / PI);     check_const("F64_1_PI", F64_1_PI.v, 1 / PI);
+    check_const("F2_2_PI", F2_2_PI, 2 * PI);     check_const("F64_2_PI", F64_2_PI.v, 2 * PI);
+    check_const("F2_PI_2", F2_PI_2, PI / 2);     check_const("F64_PI_2", F64_PI_2.v, PI / 2);
+    check_const("F2_PI_180", F2_PI_180, PI / 180); check_const("F64_PI_180", F64_PI_180.v, PI / 180);
+    check_const("F2_LOG2", F2_LOG2, LN2);        check_const("F64_LOG2", F64_LOG2.v, LN2);
+    check_const("F2_1_LOG2", F2_1_LOG2, 1 / LN2); check_const("F64_1_LOG2", F64_1_LOG2.v, 1 / LN2);
+    check_const("F2_E", F2_E, E);                check_const("F64_E", F64_E.v, E);
+    check_const("F2_1_E", F2_1_E, 1 / E);        check_const("F64_1_E", F64_1_E.v, 1 / E);
+    check_const("F2_1_3", F2_1_3, 1.0L / 3);     check_const("F64_1_3", F64_1_3.v, 1.0L / 3);
+    const float2 odd[] = {F2_1_5, F2_1_7, F2_1_9, F2_1_11, F2_1_13, F2_1_15, F2_1_17, F2_1_19, F2_1_21, F2_1_23};
+    for (int i = 0; i < 10; i++) check_const("F2_1_n", odd[i], 1.0L / (5 + 2 * i));
+    check_const("F_PI_2 (3 part)", float2(F_PI_2_A, F_PI_2_B), PI / 2 - (LD)F_PI_2_C, 1e-18L);
+    check_const("F_LN2 (3 part)", float2(F_LN2_A, F_LN2_B), LN2 - (LD)F_LN2_C, 1e-18L);
+    for (int i = 0; i < CORDIC_ANGLES_LENGTH; i++) check_const("trig_angles", trig_angles[i], atanl(ldexpl(1, -i)));
+    for (int i = 0; i < CORDIC_LOGEXP_LENGTH; i++) check_const("logexp", logexp[i], expl(ldexpl(1, -(i + 1))));
+    LD k = 1;
+    for (int i = 0; i < CORDIC_KPROD_LENGTH; i++) {
+        k /= sqrtl(1 + ldexpl(1, -2 * i));
+        check_const("trig_kprod", trig_kprod[i], k);
+    }
+    check("all constants and tables accurate to 4e-15", failures == before);
+}
+
 static void testArithmetic() {
     printf("Arithmetic\n");
 
@@ -72,6 +111,11 @@ static void testArithmetic() {
     check("float / f64", near(ld((2.0f / f64(4.0f)).v), 0.5L, 0.0L));
     check("f64 / float", near(ld((f64(2.0f) / 4.0f).v), 0.5L, 0.0L));
     check("float - f64", near(ld((1.0f - f64(4.0f)).v), -3.0L, 0.0L));
+
+    check("-f64", ld((-f64(mk(0.3L))).v) == -ld(mk(0.3L)));
+    f64 ip = f64(3.0f);
+    ip *= f64(2.0f); ip *= 0.5f; ip /= f64(4.0f); ip /= 0.25f; ip += 1.0f; ip -= f64(0.5f);
+    check("in-place operators *= /= += -=", near(ld(ip.v), 3.5L, 1e-15L));
 
     check("f64(int) exact above 2^24", ld(f64(16777217).v) == 16777217.0L);
     check("f64(int) INT_MAX", ld(f64(2147483647).v) == 2147483647.0L);
@@ -91,6 +135,8 @@ static void testArithmetic() {
              [](LD x) { return x * ld(mk(0.3L)); }, 3e-14L);
     accuracy("div_f64", [] { return uni(-1e3, 1e3); }, [](float2 x) { return div_f64(F2_ONE, x); },
              [](LD x) { return 1.0L / x; }, 3e-14L);
+    accuracy("div_ds", [] { return uni(-1e3, 1e3); }, [](float2 x) { return div_ds(x, 0.7f); },
+             [](LD x) { return x / (LD)0.7f; }, 3e-14L);
     accuracy("sqrt_f64", [] { return uni(1e-6, 1e6); }, [](float2 x) { return sqrt_f64(x); },
              [](LD x) { return sqrtl(x); }, 5e-14L);
     accuracy("fmod_f64", [] { return uni(-1e3, 1e3); }, [](float2 x) { return fmod_f64(x, mk(0.7L)); },
@@ -103,25 +149,40 @@ static void testFunctions() {
     printf("Functions\n");
 
     accuracy("exp [-20, 20]", [] { return uni(-20, 20); }, [](float2 x) { return exp(f64(x)).v; },
-             [](LD x) { return expl(x); }, 2e-13L);
-    accuracy("exp [60, 88]", [] { return uni(60, 88); }, [](float2 x) { return exp(f64(x)).v; },
-             [](LD x) { return expl(x); }, 4e-13L);
+             [](LD x) { return expl(x); }, 2e-14L);
+    accuracy("exp [-70, 88]", [] { return uni(-70, 88); }, [](float2 x) { return exp(f64(x)).v; },
+             [](LD x) { return expl(x); }, 2e-14L);   // below -70 the low part becomes denormal
     check("exp(1000) = inf", std::isinf(exp(f64(1000.0f)).v.x));
     check("exp(-1000) = 0", ld(exp(f64(-1000.0f)).v) == 0.0L);
 
-    accuracy("log [e^-23, e^23]", [] { return expl(uni(-23, 23)); }, [](float2 x) { return log(f64(x)).v; },
-             [](LD x) { return logl(x); }, 2e-13L, true);
+    check("exp(NaN) = NaN", std::isnan(exp(f64(float2(NAN, 0.0f))).v.x));
+
+    accuracy("log [e^-80, e^80]", [] { return expl(uni(-80, 80)); }, [](float2 x) { return log(f64(x)).v; },
+             [](LD x) { return logl(x); }, 5e-14L);
+    accuracy("log [0.999, 1.001] (relative)", [] { return uni(0.999, 1.001); }, [](float2 x) { return log(f64(x)).v; },
+             [](LD x) { return logl(x); }, 5e-14L);
+    check("log(inf) = inf", std::isinf(log(f64(float2(INFINITY, 0.0f))).v.x));
+    check("log(0) = NaN", std::isnan(log(f64(0.0f)).v.x));
     accuracy("pow(x, 2.5)", [] { return uni(0.1, 10); }, [](float2 x) { return pow(f64(x), f64(2.5f)).v; },
-             [](LD x) { return powl(x, 2.5L); }, 2e-12L);
+             [](LD x) { return powl(x, 2.5L); }, 1e-13L);
     accuracy("pow(x, -7)", [] { return uni(0.1, 10); }, [](float2 x) { return pow(f64(x), -7).v; },
              [](LD x) { return powl(x, -7.0L); }, 1e-13L);
 
     accuracy("sin [-10, 10]", [] { return uni(-10, 10); }, [](float2 x) { return sin(f64(x)).v; },
-             [](LD x) { return sinl(x); }, 1e-13L, true);
+             [](LD x) { return sinl(x); }, 1e-14L, true);
     accuracy("cos [-10, 10]", [] { return uni(-10, 10); }, [](float2 x) { return cos(f64(x)).v; },
-             [](LD x) { return cosl(x); }, 1e-13L, true);
+             [](LD x) { return cosl(x); }, 1e-14L, true);
+    accuracy("sin [1e-6, 1e-3] (relative)", [] { return uni(1e-6, 1e-3); }, [](float2 x) { return sin(f64(x)).v; },
+             [](LD x) { return sinl(x); }, 1e-14L);
+    accuracy("cos near pi/2 (relative)", [] { return 1.5707963267948966L + uni(-1e-4, 1e-4); },
+             [](float2 x) { return cos(f64(x)).v; }, [](LD x) { return cosl(x); }, 5e-14L);
+    accuracy("sin [-1e6, 1e6]", [] { return uni(-1e6, 1e6); }, [](float2 x) { return sin(f64(x)).v; },
+             [](LD x) { return sinl(x); }, 1e-14L, true);
+    accuracy("sin [2e6, 1e7] (CORDIC fallback)", [] { return uni(2e6, 1e7); }, [](float2 x) { return sin(f64(x)).v; },
+             [](LD x) { return sinl(x); }, 1e-7L, true);
+    check("sin(inf) = NaN", std::isnan(sin(f64(float2(INFINITY, 0.0f))).v.x));
     accuracy("tan [-1.5, 1.5]", [] { return uni(-1.5, 1.5); }, [](float2 x) { return tan(f64(x)).v; },
-             [](LD x) { return tanl(x); }, 1e-11L, true);   // |tan| up to 14 in this range
+             [](LD x) { return tanl(x); }, 5e-14L);
     accuracy("atan [-50, 50]", [] { return uni(-50, 50); }, [](float2 x) { return atan(f64(x)).v; },
              [](LD x) { return atanl(x); }, 1e-13L, true);
     accuracy("asin [-1, 1]", [] { return uni(-1, 1); }, [](float2 x) { return asin(f64(x)).v; },
@@ -176,6 +237,28 @@ static void testComplex() {
     r = sqrt(c64(f64(-4.0f), f64(0.0f)));
     check("sqrt(-4 + 0i) = 2i", near(ld(r.v.xy), 0.0L) && near(ld(r.v.zw), 2.0L));
 
+    // sqrt(c64) with x > 0 and small y: |z| - x cancels in the naive formula
+    LD wsq = 0;
+    for (int i = 0; i < 20000; i++) {
+        LD re = ld(mk(uni(1, 10))), im = ld(mk(uni(1e-6, 1e-3)));
+        c64 q = sqrt(c64(f64(mk(re)), f64(mk(im))));
+        LD t = sqrtl((sqrtl(re * re + im * im) + re) / 2);
+        wsq = std::max(wsq, std::max(std::fabs(ld(q.v.xy) / t - 1), std::fabs(ld(q.v.zw) / (im / (2 * t)) - 1)));
+    }
+    char dsq[64];
+    snprintf(dsq, sizeof dsq, "(max rel err %.2Le)", wsq);
+    check("sqrt(c64) x > 0, small y", wsq < 1e-13L, dsq);
+
+    c64 ng = -c64(f64(1.0f), f64(-2.0f));
+    check("-c64", ld(ng.v.xy) == -1.0L && ld(ng.v.zw) == 2.0L);
+    c64 cf = (c64(f64(mk(0.3L)), f64(2.0f)) + 12345.0f) - 0.5f;
+    check("c64 + float, c64 - float", near(ld(cf.v.xy), ld(mk(0.3L)) + 12344.5L, 1e-15L) && ld(cf.v.zw) == 2.0L);
+    c64 cd = c64(f64(3.0f), f64(-6.0f)) / 1.5f;
+    check("c64 / float", near(ld(cd.v.xy), 2.0L, 1e-15L) && near(ld(cd.v.zw), -4.0L, 1e-15L));
+    c64 cs = sqr(c64(f64(mk(1.1L)), f64(mk(2.2L))));
+    LD cr = ld(mk(1.1L)), ci = ld(mk(2.2L));
+    check("sqr(c64)", near(ld(cs.v.xy), cr * cr - ci * ci, 1e-14L) && near(ld(cs.v.zw), 2 * cr * ci, 1e-14L));
+
     LD worst = 0;
     for (int i = 0; i < 20000; i++) {
         LD re = uni(-5, 5), im = uni(-5, 5);
@@ -212,6 +295,7 @@ static void testComplex32() {
 }
 
 int main() {
+    testConstants();
     testArithmetic();
     testFunctions();
     testComplex();

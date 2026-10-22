@@ -94,23 +94,23 @@ struct f64 {
     }
     
     f64 operator *= (f64 a) {
-        v = mul_f64(v, a)
-        return *this
+        v = mul_f64(v, a.v);
+        return *this;
     }
     
     f64 operator *= (float a) {
-        v = mul_ds(v, a)
-        return *this
+        v = mul_ds(v, a);
+        return *this;
     }
 
     f64 operator /= (f64 a) {
-        v = div_f64(v, a)
-        return *this
+        v = div_f64(v, a.v);
+        return *this;
     }
     
-    f64 operator *= (float a) {
-        v = div_ds(v, a)
-        return *this
+    f64 operator /= (float a) {
+        v = div_ds(v, a);
+        return *this;
     }
     
 };
@@ -190,32 +190,32 @@ static inline f64 pow(f64 a, int b) {
 
 // Power, exponent = f64
 static inline f64 pow(f64 a, f64 b) {
-    return f64(exp_iterate(mul_f64(b.v, log_iterate(a.v))));
+    return f64(pow_f64(a.v, b.v));
 }
 
 // Exponential function
 static inline f64 exp(f64 a) {
-    return f64(exp_iterate(a.v));
+    return f64(exp_f64(a.v));
 }
 
 // Natural logarithm
 static inline f64 log(f64 a) {
-    return f64(log_iterate(a.v));
+    return f64(log_f64(a.v));
 }
 
 // Sine
 static inline f64 sin(f64 a) {
-    return f64(sincos_iterate(a.v).xy);
+    return f64(sin_f64(a.v));
 }
 
 // Cosine
 static inline f64 cos(f64 a) {
-    return f64(sincos_iterate(a.v).zw);
+    return f64(cos_f64(a.v));
 }
 
 // Tangent
 static inline f64 tan(f64 a) {
-    return f64(tan_iterate(a.v));
+    return f64(tan_f64(a.v));
 }
 
 // Arc Sine
@@ -241,6 +241,10 @@ static inline f64 atan2(f64 a, f64 b) {
 //
 // Overloaded operators
 //
+
+static inline f64 operator - (f64 a) {
+    return f64(neg_f64(a.v));
+}
 
 static inline f64 operator + (f64 a, f64 b) {
     return f64(add_f64(a.v, b.v));
@@ -283,7 +287,7 @@ static inline f64 operator / (f64 a, f64 b) {
 }
 
 static inline f64 operator / (f64 a, float b) {
-    return f64(div_f64(a.v, float2(b, 0.0f)));
+    return f64(div_ds(a.v, b));
 }
 
 static inline f64 operator / (float b, f64 a) {

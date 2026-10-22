@@ -89,12 +89,16 @@ static inline c64 operator + (f64 b, c64 a) {
     return c64(add_f64(a.v.xy, b.v), a.v.zw);
 }
 
+static inline c64 operator - (c64 a) {
+    return c64(-a.v);
+}
+
 static inline c64 operator + (c64 a, float b) {
-    return c64(add_f64(a.v.xy, float2(b, 0.0f)), a.v.zw);
+    return c64(add_ds(a.v.xy, b), a.v.zw);
 }
 
 static inline c64 operator + (float b, c64 a) {
-    return c64(add_f64(a.v.xy, float2(b, 0.0f)), a.v.zw);
+    return c64(add_ds(a.v.xy, b), a.v.zw);
 }
 
 static inline c64 operator - (c64 a, c64 b) {
@@ -110,11 +114,11 @@ static inline c64 operator - (f64 b, c64 a) {
 }
 
 static inline c64 operator - (c64 a, float b) {
-    return c64(sub_f64(a.v.xy, float2(b, 0.0f)), a.v.zw);
+    return c64(sub_ds(a.v.xy, b), a.v.zw);
 }
 
 static inline c64 operator - (float b, c64 a) {
-    return c64(sub_f64(float2(b, 0.0f), a.v.xy), neg_f64(a.v.zw));
+    return c64(sub_sd(b, a.v.xy), neg_f64(a.v.zw));
 }
 
 static inline c64 operator * (c64 a, c64 b) {
@@ -150,7 +154,7 @@ static inline c64 operator / (f64 b, c64 a) {
 }
 
 static inline c64 operator / (c64 a, float b) {
-    return c64(div_f64(a.v.xy, float2(b, 0.0f)), div_f64(a.v.zw, float2(b, 0.0f)));
+    return c64(div_ds(a.v.xy, b), div_ds(a.v.zw, b));
 }
 
 static inline c64 operator / (float b, c64 a) {

@@ -52,6 +52,7 @@ struct float4 {
     float4(float2 a, float2 b) : x(a.x), y(a.y), z(b.x), w(b.y) {}
     float4(float2 a, float b, float c) : x(a.x), y(a.y), z(b), w(c) {}
 };
+static inline float4 operator-(float4 a) { return float4(-a.x, -a.y, -a.z, -a.w); }
 static inline bool4 operator==(float4 a, float4 b) { return {a.x == b.x, a.y == b.y, a.z == b.z, a.w == b.w}; }
 static inline bool4 operator!=(float4 a, float4 b) { return {a.x != b.x, a.y != b.y, a.z != b.z, a.w != b.w}; }
 static inline bool4 operator==(float4 a, double b) { return a == float4(b); }
@@ -62,6 +63,7 @@ static inline bool4 operator!=(float4 a, double b) { return a != float4(b); }
 namespace metal {
     using std::fma; using std::floor; using std::ldexp; using std::min; using std::max; using std::isnan;
     using std::sqrt; using std::exp; using std::sin; using std::cos; using std::atan2;
+    using std::rint; using std::fabs; using std::isinf; using std::isfinite;
     static inline bool all(bool2 b) { return b.x && b.y; }
     static inline bool any(bool2 b) { return b.x || b.y; }
     static inline bool all(bool4 b) { return b.x && b.y && b.z && b.w; }
