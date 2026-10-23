@@ -101,13 +101,16 @@ f64(float, float)    // Don't use this constructor, for internal use only
 
 Assign a float value to a f64 variable:
 
-`f64 x = 2.0;`
+```cpp
+f64 x = 2.0;
+```
 
 #### Accessing / converting f64 objects
 
 ```cpp
 f64 value = 2.0;
 float2 flt2val = value.v;
+float fltval = flt(value);   // Loosing precision!
 ```
 
 #### Operators
