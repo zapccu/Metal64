@@ -20,6 +20,15 @@ extension Double {
     
 }
 
+extension Array where Element == SIMD2<Float32> {
+    
+    /// Convert Float2 Array to Double Array
+    var asDouble: [Double] {
+        map { Double($0) }
+    }
+    
+}
+
 extension SIMD2<Float32>: @retroactive ExpressibleByFloatLiteral {
     
     // .zero is already provided by SIMD2

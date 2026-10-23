@@ -28,6 +28,14 @@ extension Complex<Float64> {
     }
 }
 
+extension Array where Element == SIMD4<Float32> {
+    
+    var asComplexDouble: [ComplexDouble] {
+        map { ComplexDouble($0) }
+    }
+    
+}
+
 // Extend SIMD4 to support conversion of float / double datatypes to Complex2
 extension SIMD4<Float32>: @retroactive ExpressibleByFloatLiteral {
 

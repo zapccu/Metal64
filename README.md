@@ -18,7 +18,7 @@ The option **Relax IEEE Compliance** under *Apple Clang - Code Generation* must 
 
 The Swift datatype **Float2** is an alias for the `SIMD2<Float32>` datatype. The following constructors are available:
 
-```cpp
+```swift
 Float2()  
 Float2(Double)  
 Float2(Float)  
@@ -26,19 +26,28 @@ Float2(Float)
 
 The assignment of literal numeric values is supported:
 
-`let myFlt2: Float2 = 2.0`
+```swift
+let myFlt2: Float2 = 2.0
+```
 
-### Convert a 64 bit floating point number to Double
+### Convert f64 floating point numbers to Double
 
-The datatype Double is extended by a constructor to init a Double value with a Float2 value:
+The datatypes Double and Array<Double> are extended by methods to convert f64 values and arrays returned by a Metal compute kernel into Double.
 
-`let myDbl: Double = Double(myFlt2)`
+```swift
+let myDbl: Double = Double(myFlt2Value)
+```
 
+Converting an array:
+
+```swift
+let myDblArray: [Double] = myFlt2Array.asDouble
+```
 ### Construct 64 bit complex numbers (Complex2)
 
 The Swift datatype **Complex2** is an alias for the `SIMD4<Float32>` datatype. The following constructors are available:
 
-```cpp
+```swift
 Complex2()                  // 0  
 Complex2(Double)            // Init real part. Imaginary part is set to 0  
 Complex2(Double, Double)    // Init real and imaginary part  
@@ -49,14 +58,21 @@ Complex2(Int)
 
 The assignment of literal numeric values is supported:
 
-`let myCplx2: Complex2 = 2.0`
+```swift
+let myCplx2: Complex2 = 2.0
+```
 
-### Convert a 64 bit complex number to ComplexDouble
+### Convert c64 complex numbers to ComplexDouble
+The datatypes Complex<Double> (ComplexDouble) and Array<ComplexDouble> are extended by methods to convert c64 values and arrays returned by a Metal compute kernel into ComplexDouble.
 
-The datatype ComplexDouble (an alias for Complex<Double>) is extended by a constructor which accepts a Complex2 value:
+```swift
+let myCplx: ComplexDouble = ComplexDouble(myCplx2Value)
+```
 
-`let myCplx: ComplexDouble = ComplexDouble(myCplx2)`
-
+Converting an array:
+```swift
+let myCplxArray: [ComplexDouble] = myFlt4Array.asDouble
+```
 
 ## Metal part
 ### 64 bit real floating point numbers
