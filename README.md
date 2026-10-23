@@ -1,6 +1,10 @@
 
 This project is emulating 64 bit floating point real and complex numbers in Metal.
 
+The interface for running Metal compute kernels from Swift (formerly `MetalCompute` in this package)
+has moved to its own package: [MetalCompute](https://github.com/zapccu/MetalCompute).
+`Float2` and `Complex2` can be passed to it directly.
+
 
 # Xcode requirements and settings
 
