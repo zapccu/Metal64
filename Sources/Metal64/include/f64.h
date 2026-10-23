@@ -118,16 +118,16 @@ struct f64 {
 //
 // Constants
 //
-static constant f64 F64_PI     = f64(3.1415927, -8.742278e-08);    // PI
-static constant f64 F64_1_PI   = f64(0.31830987, 1.28412765e-08);  // 1 / PI
-static constant f64 F64_PI_2   = f64(1.5707964, -4.371139e-08);    // PI / 2
-static constant f64 F64_2_PI   = f64(6.2831855, -1.7484555e-07);   // PI * 2
-static constant f64 F64_PI_180 = f64(0.017453292, 1.351996e-10);   // PI / 180
-static constant f64 F64_LOG2   = f64(0.6931472, -1.9046542e-09);   // LOG(2)
-static constant f64 F64_1_LOG2 = f64(1.442695, 1.925963e-08);      // 1 / LOG(2)
-static constant f64 F64_E      = f64(2.7182817, 8.2548404e-08);    // E
-static constant f64 F64_1_E    = f64(0.36787945, -9.149755e-09);   // 1 / E
-static constant f64 F64_1_3    = f64(0.33333334, -9.934108e-09);   // 1 / 3
+static constant f64 F64_PI     = f64(F2_PI);     // PI
+static constant f64 F64_1_PI   = f64(F2_1_PI);   // 1 / PI
+static constant f64 F64_PI_2   = f64(F2_PI_2);   // PI / 2
+static constant f64 F64_2_PI   = f64(F2_2_PI);   // PI * 2
+static constant f64 F64_PI_180 = f64(F2_PI_180); // PI / 180
+static constant f64 F64_LOG2   = f64(F2_LOG2);   // LOG(2)
+static constant f64 F64_1_LOG2 = f64(F2_1_LOG2); // 1 / LOG(2)
+static constant f64 F64_E      = f64(F2_E);      // E
+static constant f64 F64_1_E    = f64(F2_1_E);    // 1 / E
+static constant f64 F64_1_3    = f64(F2_1_3);    // 1 / 3
 
 //
 // Functions

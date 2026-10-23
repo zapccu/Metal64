@@ -38,16 +38,17 @@ using namespace metal;
 //  Constants
 // ----------------------------------------------------------------------------
 
-static constant float2 F2_PI     = float2(3.1415927,   -8.742278e-08);   // PI
-static constant float2 F2_1_PI   = float2(0.31830987,   1.28412765e-08); // 1 / PI
-static constant float2 F2_2_PI   = float2(6.2831855,   -1.7484555e-07);  // PI * 2
-static constant float2 F2_PI_2   = float2(1.5707964,   -4.371139e-08);   // PI / 2
-static constant float2 F2_PI_180 = float2(0.017453292,  1.351996e-10);   // PI / 180
-static constant float2 F2_LOG2   = float2(0.6931472,   -1.9046542e-09);  // LOG(2)
-static constant float2 F2_1_LOG2 = float2(1.442695,     1.925963e-08);   // 1 / LOG(2)
-static constant float2 F2_E      = float2(2.7182817,    8.2548404e-08);  // E
-static constant float2 F2_1_E    = float2(0.36787945,  -9.149755e-09);   // 1 / E
-static constant float2 F2_1_3    = float2(0.33333334,  -9.934108e-09);   // 1 / 3
+#define F2_PI     float2(3.1415927,   -8.742278e-08)   // PI
+#define F2_1_PI   float2(0.31830987,   1.28412765e-08) // 1 / PI
+#define F2_2_PI   float2(6.2831855,   -1.7484555e-07)  // PI * 2
+#define F2_PI_2   float2(1.5707964,   -4.371139e-08)   // PI / 2
+#define F2_PI_180 float2(0.017453292,  1.351996e-10)   // PI / 180
+#define F2_LOG2   float2(0.6931472,   -1.9046542e-09)  // LOG(2)
+#define F2_1_LOG2 float2(1.442695,     1.925963e-08)   // 1 / LOG(2)
+#define F2_E      float2(2.7182817,    8.2548404e-08)  // E
+#define F2_1_E    float2(0.36787945,  -9.149755e-09)   // 1 / E
+#define F2_1_3    float2(0.33333334,  -9.934108e-09)   // 1 / 3
+
 static constant float2 F2_1_5    = float2(0.2,         -2.9802323e-09);  // 1 / 5
 static constant float2 F2_1_7    = float2(0.14285715,  -6.386212e-09);   // 1 / 7
 static constant float2 F2_1_9    = float2(0.11111111,  -8.278423e-10);   // 1 / 9
