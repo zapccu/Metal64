@@ -78,7 +78,8 @@ let myCplxArray: [ComplexDouble] = myFlt4Array.asDouble
 ### 64 bit real floating point numbers
 
 The class f64 is used to define 64 bit real floating point variables in Metal. A 64 bit floating point number is internally stored as
-a float2 vector element "v" in a f64 object. The metal source files must include "f64.h":
+a float2 vector element *v* in a f64 object. *v.x* contains the hi part of a 64 bit floating point number while *v.y* stores the lo part.
+The metal source files must include "f64.h":
 
 `#include "f64.h"`
 
@@ -94,7 +95,7 @@ a float2 vector element "v" in a f64 object. The metal source files must include
 f64()  
 f64(float)  
 f64(float2)  
-f64(float, float)    // Don't use this constructor, for internal use only  
+f64(float, float)    // Build a f64 value from hi and lo part  
 ```
 
 #### Initialize by assigning literal values
@@ -110,7 +111,7 @@ f64 x = 2.0;
 ```cpp
 f64 value = 2.0;
 float2 flt2val = value.v;
-float fltval = flt(value);   // Loosing precision!
+float fltval = flt(value);   // Conversion to 32 bit floating point. Loosing precision!
 ```
 
 #### Operators
@@ -157,7 +158,7 @@ Maximum errors measured with the CPU tests (f64 has ~48 bit, i.e. ~3.6e-15 relat
 | atan2 | full range | 2.5e-14 absolute |
 | asin, acos | -1 ... 1 | 2.5e-14 absolute, 4e-14 relative near 0 (asin) and 1 (acos) |
 
-Limitations:
+#### Limitations
 * exp(x) returns inf for x > 127 ln(2) and 0 for x < -126 ln(2). Below x = -70 the low part becomes
   denormal and precision drops towards float precision.
 * sin, cos and tan fall back to the slower and less accurate CORDIC algorithm for |x| > 1.6e6.
@@ -205,18 +206,25 @@ c64(float4)
 
 #### Initialize by assigning literal values
 
-`c64 x = 2.0;`
+```cpp
+c64 x = 2.0;
+```
 
-`c64 x = f64(3.0);`
+```cpp
+c64 x = f64(3.0);
+```
 
 #### Accessing / converting c64 objects
 
 ```cpp
-c64 complexvalue = c64(2.0, 3.0);  
+c64 complexvalue = c64(2.0, 3.0);
+ 
 f64 realpart = complexvalue.real();  
 f64 imagpart = complexvalue.imaginary();  
+
 float2 real_part = complexvalue.v.xy  
-float2 imag_part = complexvalue.v.zw  
+float2 imag_part = complexvalue.v.zw
+
 float4 flt4value = complexvalue.v  
 ```
 
