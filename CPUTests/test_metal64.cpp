@@ -88,14 +88,10 @@ static void testConstants() {
     for (int i = 0; i < 10; i++) check_const("F2_1_n", odd[i], 1.0L / (5 + 2 * i));
     check_const("F_PI_2 (3 part)", float2(F_PI_2_A, F_PI_2_B), PI / 2 - (LD)F_PI_2_C, 1e-18L);
     check_const("F_LN2 (3 part)", float2(F_LN2_A, F_LN2_B), LN2 - (LD)F_LN2_C, 1e-18L);
-    for (int i = 0; i < CORDIC_ANGLES_LENGTH; i++) check_const("trig_angles", trig_angles[i], atanl(ldexpl(1, -i)));
+    check_const("F_PI_2 (4 part)", float2(F_PI_2_A, F_PI_2_B),
+                PI / 2 - (LD)F_PI_2_C - (LD)F_PI_2_D, 1e-18L);
+    check_const("F2_2_OVER_PI", F2_2_OVER_PI, 2 / PI);
     for (int i = 1; i <= 8; i++) check_const("atan_table", atan_table[i], atanl(i / 8.0L));
-    for (int i = 0; i < CORDIC_LOGEXP_LENGTH; i++) check_const("logexp", logexp[i], expl(ldexpl(1, -(i + 1))));
-    LD k = 1;
-    for (int i = 0; i < CORDIC_KPROD_LENGTH; i++) {
-        k /= sqrtl(1 + ldexpl(1, -2 * i));
-        check_const("trig_kprod", trig_kprod[i], k);
-    }
     check("all constants and tables accurate to 4e-15", failures == before);
 }
 
@@ -179,8 +175,18 @@ static void testFunctions() {
              [](float2 x) { return cos(f64(x)).v; }, [](LD x) { return cosl(x); }, 5e-14L);
     accuracy("sin [-1e6, 1e6]", [] { return uni(-1e6, 1e6); }, [](float2 x) { return sin(f64(x)).v; },
              [](LD x) { return sinl(x); }, 1e-14L, true);
-    accuracy("sin [2e6, 1e7] (CORDIC fallback)", [] { return uni(2e6, 1e7); }, [](float2 x) { return sin(f64(x)).v; },
-             [](LD x) { return sinl(x); }, 1e-7L, true);
+    // Large arguments: reduction with f64 k and 4 part pi/2
+    accuracy("sin [1.6e6, 1e7]", [] { return uni(1.6e6, 1e7); }, [](float2 x) { return sin(f64(x)).v; },
+             [](LD x) { return sinl(x); }, 1e-14L, true);
+    accuracy("cos [-1e9, -1.6e6]", [] { return uni(-1e9, -1.6e6); }, [](float2 x) { return cos(f64(x)).v; },
+             [](LD x) { return cosl(x); }, 1e-14L, true);
+    accuracy("sin [1e9, 1e12]", [] { return expl(uni(20.7, 27.6)); }, [](float2 x) { return sin(f64(x)).v; },
+             [](LD x) { return sinl(x); }, 1e-14L, true);
+    accuracy("tan [1e6, 1e8]", [] { return uni(1e6, 1e8); }, [](float2 x) { return tan(f64(x)).v; },
+             [](LD x) { return tanl(x); }, 1e-13L);
+    // Values close to multiples of pi/2, where the reduction cancels most digits
+    accuracy("sin near k*pi (k up to 1e7)", [] { return floorl(uni(1e6, 1e7)) * 3.141592653589793238462643383279503L; },
+             [](float2 x) { return sin(f64(x)).v; }, [](LD x) { return sinl(x); }, 1e-14L, true);
     check("sin(inf) = NaN", std::isnan(sin(f64(float2(INFINITY, 0.0f))).v.x));
     accuracy("tan [-1.5, 1.5]", [] { return uni(-1.5, 1.5); }, [](float2 x) { return tan(f64(x)).v; },
              [](LD x) { return tanl(x); }, 5e-14L);

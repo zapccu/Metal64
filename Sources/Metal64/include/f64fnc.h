@@ -23,7 +23,6 @@
 //    "Extended-Precision Floating-Point Numbers for GPU Computation"
 //    Andrew Thall, Alma College
 //
-//    CORDIC algorithms: https://people.sc.fsu.edu/~jburkardt/c_src/cordic/cordic.html
 //
 
 #ifndef __F64FNC_H
@@ -73,13 +72,6 @@ static constant float2 F2_EXPMIN = float2(-87.33655f,  3.1010095e-06f);  // -126
 //  Declare functions
 //
 static float4 sincos_f64(float2);
-static float4 sincos_iterate(float2);
-static float2 tan_iterate(float2);              // no longer used
-static float2 asin_iterate(float2);             // no longer used
-static float2 acos_iterate(float2);             // no longer used
-static float2 atan2_iterate(float2, float2);    // no longer used
-static float2 exp_iterate(float2);              // no longer used
-static float2 log_iterate(float2);              // no longer used
 static inline float2 flt2(float);
 static inline float2 floor_f64(float2);
 static inline float2 abs_c64(float4);
@@ -354,7 +346,9 @@ static inline float2 sqrt_f64(float2 a) {
 static constant float F_PI_2_A  =  1.5707964e+00f;   // pi / 2
 static constant float F_PI_2_B  = -4.371139e-08f;
 static constant float F_PI_2_C  = -1.7151245e-15f;
+static constant float F_PI_2_D  =  1.0562999e-23f;   // 4th part, only for large arguments
 static constant float F_2_PI    =  6.3661975e-01f;   // 2 / pi (float is sufficient for k)
+static constant float2 F2_2_OVER_PI = float2(6.3661975e-01f, 2.5682553e-08f);   // 2 / pi as f64
 static constant float F_LN2_A   =  6.931472e-01f;    // ln(2)
 static constant float F_LN2_B   = -1.9046542e-09f;
 static constant float F_LN2_C   = -8.783184e-17f;
@@ -461,18 +455,60 @@ static inline float2 pow_f64(float2 a, float2 b) {
     return exp_f64(mul_f64(b, log_f64(a)));
 }
 
+// Integer valued float modulo 4, result in [0, 4). All operations are exact.
+static inline float mod4(float k) {
+    return k - 4.0f * floor(k * 0.25f);
+}
+
+// Argument reduction x = k * pi/2 + r, |r| <= pi/4, for large |x|.
+// k is computed as f64 integer (k.x and k.y are both integers), so it is exact up to 2^48.
+// pi/2 is split into 4 floats (~96 bit), the products with prod() are exact.
+// Returns float4(r.hi, r.lo, k mod 4, 0).
+static float4 reduce_pi_2_large(float2 x) {
+    float2 k = round_f64(mul_f64(x, F2_2_OVER_PI));
+
+    float2 r = sub_f64(x, prod(k.x, F_PI_2_A));
+    r = sub_f64(r, prod(k.y, F_PI_2_A));
+    r = sub_f64(r, prod(k.x, F_PI_2_B));
+    r = sub_f64(r, prod(k.y, F_PI_2_B));
+    r = sub_f64(r, prod(k.x, F_PI_2_C));
+    r = sub_ds(r, k.y * F_PI_2_C + k.x * F_PI_2_D);
+
+    float quadrant = mod4(k.x) + mod4(k.y);
+
+    // k can be off by one because of the rounding of x * 2/pi
+    if (r.x > 0.7853982f) {
+        r = sub_ds(sub_f64(r, float2(F_PI_2_A, F_PI_2_B)), F_PI_2_C);
+        quadrant += 1.0f;
+    }
+    else if (r.x < -0.7853982f) {
+        r = add_ds(add_f64(r, float2(F_PI_2_A, F_PI_2_B)), F_PI_2_C);
+        quadrant -= 1.0f;
+    }
+    return float4(r, quadrant, 0.0f);
+}
+
 // Sine and cosine
 // x = k * pi/2 + r, |r| <= pi/4. sin(r) and cos(r) are computed with Taylor polynomials,
 // the quadrant k mod 4 selects the result.
-// Returns float4(sin(x), cos(x)) like sincos_iterate()
+// Returns float4(sin(x), cos(x))
 static float4 sincos_f64(float2 x) {
     if (!isfinite(x.x)) return float4(NAN, NAN, NAN, NAN);
 
-    // Above 2^20 * pi/2 the 72 bit constant isn't precise enough, fall back to CORDIC
-    if (fabs(x.x) > 1.6e6f) return sincos_iterate(x);
+    float2 r;
+    int quadrant;
+    if (fabs(x.x) <= 1.6e6f) {
+        // Fast path: k < 2^20 fits into a float, 3 part constant (~72 bit) is sufficient
+        float k = rint(x.x * F_2_PI);
+        r = reduce_arg(x, k, F_PI_2_A, F_PI_2_B, F_PI_2_C);
+        quadrant = int(k);
+    }
+    else {
+        float4 reduced = reduce_pi_2_large(x);
+        r = reduced.xy;
+        quadrant = int(reduced.z);
+    }
 
-    float k = rint(x.x * F_2_PI);
-    float2 r  = reduce_arg(x, k, F_PI_2_A, F_PI_2_B, F_PI_2_C);
     float2 r2 = sqr_f64(r);
     float rf = r2.x;
 
@@ -498,7 +534,7 @@ static float4 sincos_f64(float2 x) {
     c = add_ds(mul_f64(r2, c), -0.5f);                                             // -1/2!
     c = add_ds(mul_f64(r2, c), 1.0f);
 
-    switch (int(k) & 3) {
+    switch (quadrant & 3) {
         case 0:  return float4(s, c);
         case 1:  return float4(c, neg_f64(s));
         case 2:  return float4(neg_f64(s), neg_f64(c));

@@ -156,7 +156,7 @@ Maximum errors measured with the CPU tests (f64 has ~48 bit, i.e. ~3.6e-15 relat
 | exp | -70 ... 88 | 5e-15 relative |
 | log | e^-80 ... e^80 | 2e-14 relative |
 | pow(x, 2.5) | 0.1 ... 10 | 5e-14 relative |
-| sin, cos | -1e6 ... 1e6 | 5e-15 absolute |
+| sin, cos | -1e12 ... 1e12 | 5e-15 absolute |
 | tan | -1.5 ... 1.5 | 2.5e-14 relative |
 | atan | full range | 1.2e-14 relative |
 | atan2 | full range | 2.5e-14 absolute |
@@ -165,7 +165,8 @@ Maximum errors measured with the CPU tests (f64 has ~48 bit, i.e. ~3.6e-15 relat
 #### Limitations
 * exp(x) returns inf for x > 127 ln(2) and 0 for x < -126 ln(2). Below x = -70 the low part becomes
   denormal and precision drops towards float precision.
-* sin, cos and tan fall back to the slower and less accurate CORDIC algorithm for |x| > 1.6e6.
+* For |x| > 1.6e6 sin, cos and tan use a slightly slower argument reduction (k as f64 integer, 4 part pi/2).
+  Tested up to |x| = 1e12. k is exact up to 2^48 (|x| about 4e14); beyond, the f64 input itself is coarser than pi.
 
 #### Other functions
 
