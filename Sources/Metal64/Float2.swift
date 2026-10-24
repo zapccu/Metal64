@@ -14,8 +14,10 @@ public typealias Float2 = SIMD2<Float32>
 extension Double {
     
     /// Convert Float2 to Double
+    /// - Parameter float2: `SIMD2<Float>` containing hi and lo parts of f64 value
     public init(_ float2: Float2) {
-        self = Double(float2.x) + Double(float2.y)
+        // inf + (-inf) would be NaN, the low part is only valid for finite high parts
+        self = float2.x.isFinite ? Double(float2.x) + Double(float2.y) : Double(float2.x)
     }
     
 }
