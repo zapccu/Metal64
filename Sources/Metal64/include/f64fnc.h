@@ -86,6 +86,14 @@ static inline float2 flt2(float a) {
     return float2(a, 0.0f);
 }
 
+// Convert int to float2
+static inline float2 flt2(int a) {
+    // Integers above 2^24 don't fit into a float, so split them exactly:
+    // (a & 0xFF) and the rest each fit into 24 bit
+    int lo = a & 0xFF;
+    v = two_sum(float(a - lo), float(lo));
+}
+
 // Convert float32 to float4
 static inline float4 flt4(float a) {
     return float4(a, 0.0f, 0.0f, 0.0f);
