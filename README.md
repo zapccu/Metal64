@@ -201,7 +201,8 @@ a float4 vector element "v" in a c64 object. The metal source files must include
 
 ```cpp
 c64()  
-c64(float)  
+c64(float)
+c64(float, float) 
 c64(float2)  
 c64(float2, float2)  
 c64(f64)  

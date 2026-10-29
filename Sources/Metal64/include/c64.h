@@ -31,6 +31,11 @@ struct c64 {
         v = float4(a, 0.0, 0.0, 0.0);
     }
     
+    /// Initialize real and imag part with 32 bit floating point values
+    c64(float a, float b) {
+        v = float4(a, 0.0, b, 0.0);
+    }
+    
     /// Initialize real part with 64 bit floating point value
     c64(float2 a) {
         v = float4(a, F2_ZERO);
