@@ -71,6 +71,7 @@ static constant float2 F2_EXPMIN = float2(-87.33655f,  3.1010095e-06f);  // -126
 //
 //  Declare functions
 //
+static inline float2 two_sum(float, float);
 static float4 sincos_f64(float2);
 static inline float2 flt2(float);
 static inline float2 floor_f64(float2);
@@ -91,7 +92,7 @@ static inline float2 flt2(int a) {
     // Integers above 2^24 don't fit into a float, so split them exactly:
     // (a & 0xFF) and the rest each fit into 24 bit
     int lo = a & 0xFF;
-    v = two_sum(float(a - lo), float(lo));
+    return two_sum(float(a - lo), float(lo));
 }
 
 // Convert float32 to float4
